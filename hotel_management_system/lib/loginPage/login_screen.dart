@@ -3,6 +3,7 @@ import 'package:hotel_management_system/components/button.dart';
 import 'package:hotel_management_system/components/buttonAuth.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:hotel_management_system/core/form_enum.dart';
+import 'package:hotel_management_system/registerPage/register_screen.dart';
 import 'package:hotel_management_system/splash_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,8 +17,8 @@ class LoginScreen extends StatefulWidget {
   }
 
   void registerPage(context) {
-    // Navigator.push(
-    //     context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const RegisterScreen()));
   }
 
   void loginWithGoogle(context) {
@@ -100,7 +101,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
+
+    // Get screen width
     double screenWidth = MediaQuery.of(context).size.width;
+
+
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(

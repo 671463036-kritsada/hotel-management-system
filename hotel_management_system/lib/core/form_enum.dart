@@ -11,9 +11,13 @@ enum InputFieldType {
   roomNumber,
   guestCount,
   specialRequest, // Multiline
+  conformPassword,
+  gender, // เพิ่มเพศ
+  roomType, // เพิ่มประเภทห้องพัก
 }
 
-Widget createInputField(InputFieldType type) {
+Widget createInputField(InputFieldType type,
+    {Object? selectedValue, Function(Object?)? onChanged}) {
   switch (type) {
     case InputFieldType.username:
       return _buildBaseTextField(
@@ -45,13 +49,30 @@ Widget createInputField(InputFieldType type) {
         icon: Icons.note,
         maxLines: 3, // ขยายช่องให้พิมพ์ได้หลายบรรทัด
       );
-
+    case InputFieldType.conformPassword:
+      return _buildBaseTextField(
+        label: "ยืนยันรหัสผ่าน",
+        icon: Icons.lock,
+        isPassword: true,
+      );
+    case InputFieldType.gender:
+      return _buildRadioField<String>(
+        label: "เพศ",
+        options: ["ชาย", "หญิง", "อื่นๆ"],
+        selectedValue: (selectedValue as String?) ??
+            "ชาย", // ป้องกัน Error ถ้าค่าเป็น null
+        onChanged: (value) {
+          if (onChanged != null) {
+            onChanged(value); // ส่งค่ากลับไปหา function ที่รับมา
+          }
+        },
+      );
     default:
       return const SizedBox.shrink();
   }
 }
 
-// ตกแต่ง Input Field 
+// ตกแต่ง Input Field
 Widget _buildBaseTextField({
   required String label,
   required IconData icon,
@@ -61,7 +82,7 @@ Widget _buildBaseTextField({
   int maxLines = 1,
 }) {
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: Constants.padding),
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: TextField(
       obscureText: isPassword,
       keyboardType: keyboardType,
@@ -87,10 +108,53 @@ Widget _buildBaseTextField({
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Constants.borderRadius),
-          borderSide:
-              const BorderSide(color: Constants.inputFieldBorderColor, width: 3.0),
+          borderSide: const BorderSide(
+              color: Constants.inputFieldBorderColor, width: 3.0),
         ),
       ),
     ),
+  );
+}
+
+Widget _buildRadioField<T>({
+  required String label,
+  required List<T> options,
+  required T selectedValue,
+  required Function(T?) onChanged,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label,
+          style: TextStyle(
+            fontSize: Constants.fontSizeBody,
+            fontWeight: Constants.fontWeightMedium,
+            color: Constants.fontLabelColor,
+          )),
+      Row(
+        children: options.map((option) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Radio<T>(
+                value: option,
+                groupValue: selectedValue,
+                activeColor: Constants.secondaryColor,
+                onChanged: onChanged,
+              ),
+              GestureDetector(
+                onTap: () => onChanged(option),
+                child: Text(option.toString(),
+                    style: TextStyle(
+                      fontSize: Constants.fontSizeBody,
+                      color: Constants.fontLabelColor,
+                    )),
+              ),
+              const SizedBox(width: 16),
+            ],
+          );
+        }).toList(),
+      ),
+    ],
   );
 }

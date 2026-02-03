@@ -26,7 +26,7 @@ class Constants {
 
 // padding and border radius
   static const double padding = 16.0;
-  static const double borderRadius = 15.0;
+  static const double borderRadius = 20;
 // ---------------------------------------------------------
   //Font Sizes
 
