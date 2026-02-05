@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/core/constants.dart';
+import 'package:hotel_management_system/roomDetailPage/room_detail_screen.dart';
 
 enum RoomType {
   rooms,
   house,
 }
 
-Widget createBoxShowData(RoomType type , int len) {
+Widget createBoxShowData(RoomType type, int len) {
   final String folder = type == RoomType.rooms ? 'rooms' : 'houses';
   final String fileName = type == RoomType.rooms ? 'room' : 'house';
   final String label = type == RoomType.rooms ? '(Room)' : '(House)';
-
 
   return Padding(
     padding: const EdgeInsets.all(8.0),
@@ -24,7 +24,20 @@ Widget createBoxShowData(RoomType type , int len) {
       itemCount: len,
       itemBuilder: (context, index) {
         return InkWell(
-          onTap: () {},
+          onTap: () {
+            List<String> images = [
+              'assets/images/$folder/$fileName${index + 1}.jpg',
+              'assets/images/$folder/$fileName${(index % 3) + 1}.jpg', // รูปสำรอง
+            ];
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RoomDetailScreen(
+                          roomId: index + 1,
+                          roomType: type,
+                          imageUrls: images,
+                        )));
+          },
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -57,7 +70,7 @@ Widget createBoxShowData(RoomType type , int len) {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      _buildInfoRow(), 
+                      _buildInfoRow(),
                       const SizedBox(height: 8),
                       Text(
                         '฿${(index + 1) * 500}',

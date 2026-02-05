@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/components/button/buttonIcon.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:hotel_management_system/homePage/home_screen.dart';
-import 'package:hotel_management_system/loginPage/login_screen.dart';
+
 
 class Bottomnavbar extends StatelessWidget {
   const Bottomnavbar({super.key});
@@ -40,12 +40,6 @@ class Bottomnavbar extends StatelessWidget {
               onTap: () => navigateToHome(context),
               text: "หน้าแรก",
               icon: Icons.home_outlined),
-          Buttonicon(
-              onTap: () {},
-              text: "เดินทาง",
-              icon: Icons.flight_takeoff_outlined),
-          Buttonicon(
-              onTap: () {}, text: "อาหาร", icon: Icons.restaurant_outlined),
           Buttonicon(
               onTap: () {}, text: "รายการ", icon: Icons.list_alt_outlined),
           Buttonicon(
