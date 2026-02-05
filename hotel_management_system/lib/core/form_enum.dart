@@ -14,6 +14,7 @@ enum InputFieldType {
   conformPassword,
   gender, // เพิ่มเพศ
   roomType, // เพิ่มประเภทห้องพัก
+  search,
 }
 
 Widget createInputField(InputFieldType type,
@@ -24,6 +25,11 @@ Widget createInputField(InputFieldType type,
         label: "ชื่อผู้ใช้",
         icon: Icons.person,
         hint: "กรอกชื่อ-นามสกุล",
+      );
+    case InputFieldType.search:
+      return _buildBaseTextField(
+        label: "ค้นหา",
+        hint: "ค้นหา...",
       );
     case InputFieldType.password:
       return _buildBaseTextField(
@@ -75,7 +81,7 @@ Widget createInputField(InputFieldType type,
 // ตกแต่ง Input Field
 Widget _buildBaseTextField({
   required String label,
-  required IconData icon,
+  IconData? icon,
   String? hint,
   bool isPassword = false,
   TextInputType keyboardType = TextInputType.text,
@@ -94,11 +100,13 @@ Widget _buildBaseTextField({
             fontWeight: FontWeight.w500,
             color: Constants.fontLabelColor),
         hintText: hint,
-        prefixIcon: Icon(
-          icon,
-          color: Constants.colorIcon,
-          size: 25,
-        ),
+        prefixIcon: icon != null
+            ? Icon(
+                icon,
+                color: Constants.colorIcon,
+                size: 25,
+              )
+            : null,
         border: InputBorder.none,
         filled: true,
         fillColor: Constants.inputFieldFillColor,

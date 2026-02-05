@@ -22,6 +22,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/authLogo/
+    - assets/images/rooms/
+    - assets/images/houses/
   fonts:
     - family: Prompt
       fonts:

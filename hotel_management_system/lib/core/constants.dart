@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Constants {
   // Colors App
   static const Color secondaryColor = Color(0xFFFF9500);
-  static const Color primaryColor = Color.fromARGB(255, 108, 22, 129);
+  static const Color primaryColor = Color.fromRGBO(147, 37, 87, 1);
   static const successColor = Color.fromARGB(0, 37, 154, 50);
   static const bgcolor = Colors.white;
 

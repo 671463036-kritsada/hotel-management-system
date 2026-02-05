@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/components/button.dart';
-import 'package:hotel_management_system/components/buttonAuth.dart';
+import 'package:hotel_management_system/components/button/button.dart';
+import 'package:hotel_management_system/components/button/buttonAuth.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:hotel_management_system/core/form_enum.dart';
+import 'package:hotel_management_system/homePage/home_screen.dart';
 import 'package:hotel_management_system/registerPage/register_screen.dart';
-import 'package:hotel_management_system/splash_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -75,9 +75,8 @@ class LoginScreen extends StatefulWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop(); // ปิด Dialog
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const SplashScreen()));
+                      Navigator.of(context).pop(); // ปิด Dialog  
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(
@@ -101,10 +100,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-
     // Get screen width
     double screenWidth = MediaQuery.of(context).size.width;
-
 
     return Scaffold(
       backgroundColor: Constants.bgcolor,

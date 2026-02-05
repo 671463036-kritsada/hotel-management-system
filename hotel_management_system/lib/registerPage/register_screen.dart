@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/components/button.dart';
+import 'package:hotel_management_system/components/button/button.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:hotel_management_system/core/form_enum.dart';
 import 'package:hotel_management_system/loginPage/login_screen.dart';
