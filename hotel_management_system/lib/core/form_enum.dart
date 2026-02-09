@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/core/constants.dart';
+import 'package:signature/signature.dart';
 
 enum InputFieldType {
   username,
@@ -15,17 +18,66 @@ enum InputFieldType {
   gender, // เพิ่มเพศ
   roomType, // เพิ่มประเภทห้องพัก
   search,
+  idCard,
+  signature,
+  idCardNumber,
+  fullName,
+  address,
+  bDay,
+  numberOfGuests,
+  numberOfNights,
+  paymentSlip,
 }
 
 Widget createInputField(InputFieldType type,
-    {Object? selectedValue, Function(Object?)? onChanged}) {
+    {Object? selectedValue,
+    Function(Object?)? onChanged,
+    TextEditingController? controller,
+    SignatureController? sigController,
+    File? file,
+    VoidCallback? onTap,
+    File? imageFile}) {
   switch (type) {
+    case InputFieldType.fullName:
+      return _buildBaseTextField(
+        label: "ชื่อ-นามสกุล",
+        icon: Icons.person,
+        controller: controller,
+      );
+
+    case InputFieldType.address:
+      return _buildBaseTextField(
+        label: "ที่อยู่",
+        icon: Icons.location_on,
+        controller: controller,
+      );
+    case InputFieldType.idCardNumber:
+      return _buildBaseTextField(
+        label: "เลขบัตรประชาชน",
+        icon: Icons.credit_card,
+        keyboardType: TextInputType.number,
+        controller: controller,
+      );
+
+    case InputFieldType.paymentSlip:
+      return _buildImagePickerBox(
+          "แนบหลักฐานการโอน", imageFile, onTap!, Icons.receipt_long);
+    case InputFieldType.idCard:
+      return _buildImagePickerBox("กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน",
+          imageFile, onTap!, Icons.add_a_photo_outlined);
+    case InputFieldType.signature:
+      return _buildSignaturePad(sigController!);
     case InputFieldType.username:
       return _buildBaseTextField(
         label: "ชื่อผู้ใช้",
         icon: Icons.person,
         hint: "กรอกชื่อ-นามสกุล",
       );
+    case InputFieldType.numberOfGuests:
+      return _buildBaseTextField(
+          label: "จำนวนคน", icon: Icons.people_alt, hint: "จำนวนคน");
+    case InputFieldType.numberOfNights:
+      return _buildBaseTextField(label: "จำนวนคืน", icon: Icons.night_shelter);
     case InputFieldType.search:
       return _buildBaseTextField(
         label: "ค้นหา",
@@ -69,7 +121,7 @@ Widget createInputField(InputFieldType type,
             "ชาย", // ป้องกัน Error ถ้าค่าเป็น null
         onChanged: (value) {
           if (onChanged != null) {
-            onChanged(value); // ส่งค่ากลับไปหา function ที่รับมา
+            onChanged(value); // ส่งค่ากลับไป
           }
         },
       );
@@ -86,10 +138,12 @@ Widget _buildBaseTextField({
   bool isPassword = false,
   TextInputType keyboardType = TextInputType.text,
   int maxLines = 1,
+  TextEditingController? controller,
 }) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: TextField(
+      controller: controller,
       obscureText: isPassword,
       keyboardType: keyboardType,
       maxLines: maxLines,
@@ -162,6 +216,56 @@ Widget _buildRadioField<T>({
             ],
           );
         }).toList(),
+      ),
+    ],
+  );
+}
+
+Widget _buildImagePickerBox(
+    String label, File? imageFile, VoidCallback onTap, IconData icon) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Constants.inputFieldFillColor,
+        borderRadius: BorderRadius.circular(Constants.borderRadius),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: imageFile == null
+          ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(icon, size: 50, color: Colors.grey),
+              Text(label),
+            ])
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(Constants.borderRadius),
+              child: Image.file(imageFile, fit: BoxFit.cover),
+            ),
+    ),
+  );
+}
+
+Widget _buildSignaturePad(SignatureController controller) {
+  return Column(
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Constants.borderRadius),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Constants.borderRadius),
+          child: Signature(
+              controller: controller,
+              height: 180,
+              backgroundColor: Colors.white),
+        ),
+      ),
+      Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+            onPressed: () => controller.clear(),
+            child: Text('ล้างลายเซ็น', style: TextStyle(color: Colors.red))),
       ),
     ],
   );

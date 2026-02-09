@@ -7,13 +7,14 @@ class Button extends StatelessWidget {
   Function() onTap = () {};
   final String text;
   final Color color;
-  final double? btnSize;  
+  final double? btnSize;
 
   Button(
       {super.key,
       required this.text,
       required this.onTap,
-      required this.color, this.btnSize});
+      required this.color,
+      this.btnSize});
 
   @override
   Widget build(BuildContext context) {
@@ -39,4 +40,66 @@ class Button extends StatelessWidget {
       ),
     );
   }
+}
+
+void showSuccessDialog(
+    BuildContext context, String textTitle, String textBody , Widget destination ) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // ป้องกันการกดนอก Dialog เพื่อปิด
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // ให้ Dialog ขนาดพอดีกับเนื้อหา
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  color: Colors.green, size: 64),
+              const SizedBox(height: 16),
+              Text(
+                textTitle,
+                style: TextStyle(
+                  fontSize: Constants.fontSizeTitle,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(textBody,
+                style: TextStyle(
+                  fontSize: Constants.fontSizeBody,
+                  color: Colors.grey[700],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Constants.secondaryColor,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิด Dialog
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+                  },
+                  child: const Text('ตกลง',
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.white,
+                      )),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart'; // อย่าลืมลงเวอร์ชัน 5.1.1 ใน pubspec.yaml
+import 'package:hotel_management_system/BookingFormScreen/booking_form_screen.dart';
 import 'package:hotel_management_system/components/bavbar/topNavbar.dart';
 import 'package:hotel_management_system/components/button/button.dart';
 import 'package:hotel_management_system/core/typeRoom_enum.dart';
@@ -97,7 +98,7 @@ class RoomDetailScreen extends StatelessWidget {
                       child: Button(
                         text: 'จองห้องนี้',
                         onTap: () {
-                          print("จ้องห้องที่ " + "$roomId");
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingFormScreen(roomId: roomId) ));
                         },
                         color: Constants.secondaryColor,
                       ),
