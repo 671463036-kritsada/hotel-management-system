@@ -75,8 +75,11 @@ class LoginScreen extends StatefulWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop(); // ปิด Dialog  
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+                      Navigator.of(context).pop(); // ปิด Dialog
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()));
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(
@@ -115,8 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/images/HotelLogo.png',
-                    width: screenWidth * 0.6,
+                    'assets/images/HotelLogo.jpg',
+                    width: screenWidth * 0.9,
                   ),
                 ],
               ),

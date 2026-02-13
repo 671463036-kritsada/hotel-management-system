@@ -45,56 +45,59 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
-          child: Column(
-        children: [
-          // top navbar
-          const Topnavbar(),
-          // content body
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: createInputField(InputFieldType.search),
+        child: Stack(
+          children: [
+            Positioned(top: 0, right: 0, left: 0, child: Topnavbar()),
+            Positioned(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 10, 16, 83),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 100,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: createInputField(InputFieldType.search),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Constants.secondaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.search,
+                                color: Constants.white, size: 35),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        _buildTabButton("ห้องพัก", RoomType.rooms),
+                        const SizedBox(width: 10),
+                        _buildTabButton("บ้านพัก", RoomType.house),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Expanded(
+                      child: createBoxShowData(selectedRoomType, len),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () {
-                    // Perform search action
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Constants.secondaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.search,
-                      color: Constants.white,
-                      size: 40,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 10,
               ),
-              _buildTabButton("ห้องพัก", RoomType.rooms),
-              const SizedBox(width: 10),
-              _buildTabButton("บ้านพัก", RoomType.house),
-            ],
-          ),
-          Expanded(child: createBoxShowData(selectedRoomType, len)),
-          const Bottomnavbar(),
-        ],
-      )),
+            ),
+            Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -64,7 +64,7 @@ Widget createInputField(InputFieldType type,
           "แนบหลักฐานการโอน", imageFile, onTap!, Icons.receipt_long);
     case InputFieldType.idCard:
       return _buildImagePickerBox("กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน",
-          imageFile, onTap!, Icons.add_a_photo_outlined);
+          imageFile, onTap ?? () {}, Icons.add_a_photo_outlined);
     case InputFieldType.signature:
       return _buildSignaturePad(sigController!);
     case InputFieldType.username:

@@ -2,13 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/components/button/buttonIcon.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:hotel_management_system/homePage/home_screen.dart';
-
+import 'package:hotel_management_system/listPage/list_screen.dart';
 
 class Bottomnavbar extends StatelessWidget {
   const Bottomnavbar({super.key});
 
   void navigateToHome(BuildContext context) {
-    Navigator.pushReplacement(
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+  void navigateToList(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ListScreen( checkInStatus: false,)),
+    );
+  }
+
+  void navigateToHistory(BuildContext context) {
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
@@ -41,7 +55,9 @@ class Bottomnavbar extends StatelessWidget {
               text: "หน้าแรก",
               icon: Icons.home_outlined),
           Buttonicon(
-              onTap: () {}, text: "รายการ", icon: Icons.list_alt_outlined),
+              onTap: () => navigateToList(context),
+              text: "รายการ",
+              icon: Icons.list_alt_outlined),
           Buttonicon(
               onTap: () {}, text: "ประวัติ", icon: Icons.history_outlined),
         ],

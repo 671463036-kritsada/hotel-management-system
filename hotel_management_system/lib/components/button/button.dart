@@ -21,7 +21,7 @@ class Button extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 300,
+        width: btnSize != null ? btnSize : double.infinity,
         padding: const EdgeInsets.symmetric(vertical: Constants.padding),
         decoration: BoxDecoration(
           color: color,
@@ -42,8 +42,8 @@ class Button extends StatelessWidget {
   }
 }
 
-void showSuccessDialog(
-    BuildContext context, String textTitle, String textBody , Widget destination ) {
+void showSuccessDialog(BuildContext context, String textTitle, String textBody,
+    Widget destination) {
   showDialog(
     context: context,
     barrierDismissible: false, // ป้องกันการกดนอก Dialog เพื่อปิด
@@ -68,7 +68,8 @@ void showSuccessDialog(
                 ),
               ),
               const SizedBox(height: 8),
-              Text(textBody,
+              Text(
+                textBody,
                 style: TextStyle(
                   fontSize: Constants.fontSizeBody,
                   color: Colors.grey[700],
@@ -87,7 +88,8 @@ void showSuccessDialog(
                   ),
                   onPressed: () {
                     Navigator.of(context).pop(); // ปิด Dialog
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => destination));
                   },
                   child: const Text('ตกลง',
                       style: TextStyle(
