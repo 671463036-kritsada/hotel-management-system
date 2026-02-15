@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/RoomConditionCheckPage/room_condition_check_screen.dart';
 import 'package:hotel_management_system/components/button/button.dart';
 import 'package:hotel_management_system/core/constants.dart';
 
@@ -97,7 +98,13 @@ class Boxlistcompanent extends StatelessWidget {
                     if (statusChekin == true)
                       Button(
                         text: "เช็คสภาพห้อง",
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      RoomConditionCheckScreen()));
+                        },
                         color: Colors.green,
                         btnSize: 150,
                       )

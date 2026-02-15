@@ -7,7 +7,8 @@ import 'package:hotel_management_system/listPage/infoAbout.dart';
 
 class ListScreen extends StatefulWidget {
   final bool? checkInStatus;
-  ListScreen({super.key, this.checkInStatus});
+  final bool? roomConCheck;
+  ListScreen({super.key, this.checkInStatus, this.roomConCheck = false});
 
   @override
   State<ListScreen> createState() => _ListScreenState();
@@ -51,37 +52,41 @@ class _ListScreenState extends State<ListScreen> {
                               ),
                             ],
                           ),
-                          Boxlistcompanent(
-                            roomNumber: 205,
-                            date: "15-17 ก.พ. 2569",
-                            payamout: "1000 บาท",
-                            keyBooking: "BK-10111223",
-                            status: textStatus,
-                            textStatus: textDetail,
-                            statusColor: Colors.green,
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                showDragHandle: true,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20)),
+                          widget.roomConCheck == false
+                              ? Boxlistcompanent(
+                                  roomNumber: 205,
+                                  date: "15-17 ก.พ. 2569",
+                                  payamout: "1000 บาท",
+                                  keyBooking: "BK-10111223",
+                                  status: textStatus,
+                                  textStatus: textDetail,
+                                  statusColor: Colors.green,
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      showDragHandle: true,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(20)),
+                                      ),
+                                      backgroundColor: Colors.white,
+                                      builder: (context) {
+                                        return FractionallySizedBox(
+                                          heightFactor: 0.9,
+                                          child: SingleChildScrollView(
+                                              child: Infoabout(
+                                            status: true,
+                                          )),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  statusChekin: widget.checkInStatus,
+                                )
+                              : SizedBox(
+                                  width: 10,
                                 ),
-                                backgroundColor: Colors.white,
-                                builder: (context) {
-                                  return FractionallySizedBox(
-                                    heightFactor: 0.9,
-                                    child: SingleChildScrollView(
-                                        child: Infoabout(
-                                      status: true,
-                                    )),
-                                  );
-                                },
-                              );
-                            },
-                            statusChekin: widget.checkInStatus,
-                          ),
                           Boxlistcompanent(
                             roomNumber: 305,
                             date: "10-12 ก.พ. 2569",

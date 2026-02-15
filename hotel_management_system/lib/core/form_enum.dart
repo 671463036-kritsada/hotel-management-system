@@ -36,6 +36,7 @@ Widget createInputField(InputFieldType type,
     SignatureController? sigController,
     File? file,
     VoidCallback? onTap,
+    String? textLabel,
     File? imageFile}) {
   switch (type) {
     case InputFieldType.fullName:
@@ -61,10 +62,19 @@ Widget createInputField(InputFieldType type,
 
     case InputFieldType.paymentSlip:
       return _buildImagePickerBox(
-          "แนบหลักฐานการโอน", imageFile, onTap!, Icons.receipt_long);
+          textLabel ??
+              "แนบหลักฐานการโอนเงิน", // ถ้าไม่ได้ส่งค่ามา ให้ใช้ค่า Default นี้
+          imageFile,
+          onTap!,
+          Icons.receipt_long);
+
     case InputFieldType.idCard:
-      return _buildImagePickerBox("กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน",
-          imageFile, onTap ?? () {}, Icons.add_a_photo_outlined);
+      return _buildImagePickerBox(
+          textLabel ??
+              "กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน", // ถ้าไม่ได้ส่งค่ามา ให้ใช้ค่า Default นี้
+          imageFile,
+          onTap ?? () {},
+          Icons.add_a_photo_outlined);
     case InputFieldType.signature:
       return _buildSignaturePad(sigController!);
     case InputFieldType.username:

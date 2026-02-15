@@ -30,6 +30,7 @@ flutter:
     - assets/images/authLogo/
     - assets/images/rooms/
     - assets/images/houses/
+    - assets/images/furnitures/
   fonts:
     - family: Prompt
       fonts:

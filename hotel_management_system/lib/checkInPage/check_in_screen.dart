@@ -131,10 +131,13 @@ class _CheckInScreenState extends State<CheckInScreen> {
                           showSuccessDialog(
                               context,
                               "Check in แล้ว",
-                              "Check in สำเร็จแล้ว เข้าพักได้ตาม",
+                              "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
                               ListScreen(
                                 checkInStatus: true,
-                              ));
+                              ),
+                              "รหัสเข้าห้อง[ 839201 ]",
+                              "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
+                              "หมดอายุ: 17 ก.พ. 12:00");
                         },
                         color: Constants.secondaryColor),
                     SizedBox(

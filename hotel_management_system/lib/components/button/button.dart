@@ -43,7 +43,7 @@ class Button extends StatelessWidget {
 }
 
 void showSuccessDialog(BuildContext context, String textTitle, String textBody,
-    Widget destination) {
+    Widget destination, String code, String dateStrat, String dateEnd) {
   showDialog(
     context: context,
     barrierDismissible: false, // ป้องกันการกดนอก Dialog เพื่อปิด
@@ -68,13 +68,44 @@ void showSuccessDialog(BuildContext context, String textTitle, String textBody,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                textBody,
-                style: TextStyle(
-                  fontSize: Constants.fontSizeBody,
-                  color: Colors.grey[700],
-                ),
-                textAlign: TextAlign.center,
+              Column(
+                children: [
+                  if (code == "")
+                    Text(
+                      textBody,
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  else ...[
+                    Text(
+                      code,
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeDisplay,
+                        color: Colors.green,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      dateStrat,
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.grey[700],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      dateEnd,
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.grey[700],
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  ]
+                ],
               ),
               const SizedBox(height: 24),
               SizedBox(
