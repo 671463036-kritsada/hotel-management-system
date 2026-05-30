@@ -97,7 +97,7 @@ Widget _buildInfoRow() {
       const SizedBox(width: 10),
       Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      Text('2 คน', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+      Text('ว่าง', style: TextStyle(fontSize: 12, color: Colors.green[600])),
     ],
   );
 }

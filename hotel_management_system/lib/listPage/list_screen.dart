@@ -6,8 +6,12 @@ import 'package:hotel_management_system/listPage/boxListCompanent.dart';
 import 'package:hotel_management_system/listPage/infoAbout.dart';
 
 class ListScreen extends StatefulWidget {
-  final bool? checkInStatus, roomConCheck;
-  ListScreen({super.key, this.checkInStatus, this.roomConCheck = false});
+  final bool? checkInStatus, ckeckOutStatus, statusConCheck;
+  ListScreen(
+      {super.key,
+      this.checkInStatus,
+      this.ckeckOutStatus = false,
+      this.statusConCheck = false});
 
   @override
   State<ListScreen> createState() => _ListScreenState();
@@ -23,7 +27,7 @@ class _ListScreenState extends State<ListScreen> {
       textDetail = "เช็คอินได้ตั้งแต่ 14.00 น.";
     } else {
       textStatus = "อนุมัติแล้ว";
-      textDetail = "เอกสารได้รับการอนุมัติแล้ว";
+      textDetail = "รอดำเนินการเช็คอิน";
     }
     return Scaffold(
       backgroundColor: Constants.white,
@@ -51,7 +55,7 @@ class _ListScreenState extends State<ListScreen> {
                               ),
                             ],
                           ),
-                          widget.roomConCheck == false
+                          widget.ckeckOutStatus == false
                               ? Boxlistcompanent(
                                   roomNumber: 205,
                                   date: "15-17 ก.พ. 2569",
@@ -76,12 +80,15 @@ class _ListScreenState extends State<ListScreen> {
                                           child: SingleChildScrollView(
                                               child: Infoabout(
                                             status: true,
+                                            checkInStatus: widget.checkInStatus,
                                           )),
                                         );
                                       },
                                     );
                                   },
                                   statusChekin: widget.checkInStatus,
+                                  statusCheckout: widget.ckeckOutStatus,
+                                  statusConCheck: widget.statusConCheck,
                                 )
                               : SizedBox(
                                   width: 10,

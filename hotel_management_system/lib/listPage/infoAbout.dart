@@ -4,8 +4,8 @@ import 'package:hotel_management_system/components/button/button.dart';
 import 'package:hotel_management_system/core/constants.dart';
 
 class Infoabout extends StatelessWidget {
-  final bool? status;
-  Infoabout({super.key, this.status});
+  final bool? status, checkInStatus;
+  Infoabout({super.key, this.status, this.checkInStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +45,23 @@ class Infoabout extends StatelessWidget {
               child: Image.asset("assets/images/slip.png"),
             ),
 
-            
+           if (checkInStatus == true)
+            Text("รหัสเข้าห้อง: 839201",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+
             SizedBox(
               height: 20,
             ),
             if (status == true)
-              Button(text: "Check-in", onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> CheckInScreen()));
-              }, color: Colors.green),
+              Button(
+                  text: "Check-in",
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CheckInScreen()));
+                  },
+                  color: Colors.green),
             const SizedBox(height: 30),
           ],
         ),

@@ -134,6 +134,8 @@ class _CheckInScreenState extends State<CheckInScreen> {
                               "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
                               ListScreen(
                                 checkInStatus: true,
+                                ckeckOutStatus: false,
+                                statusConCheck: false,
                               ),
                               "รหัสเข้าห้อง[ 839201 ]",
                               "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",

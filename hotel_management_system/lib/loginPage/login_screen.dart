@@ -126,18 +126,18 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               createInputField(InputFieldType.username),
               createInputField(InputFieldType.password),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'ลืมรหัสผ่าน?',
-                    style: TextStyle(
-                      fontSize: Constants.fontSizeLabel,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
+              // const Row(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   children: [
+              //     Text(
+              //       'ลืมรหัสผ่าน?',
+              //       style: TextStyle(
+              //         fontSize: Constants.fontSizeLabel,
+              //         color: Colors.blue,
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 20),
               Button(
                 text: "เข้าสู่ระบบ",

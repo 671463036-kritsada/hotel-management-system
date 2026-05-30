@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/core/constants.dart';
 import 'package:signature/signature.dart';
@@ -27,11 +26,17 @@ enum InputFieldType {
   numberOfGuests,
   numberOfNights,
   paymentSlip,
+  // --- เพิ่มส่วนของแม่บ้าน ---
+  housekeeperCheck,
+  housekeeperStatus,
+  datePicker,
+  bank
 }
 
 Widget createInputField(InputFieldType type,
     {Object? selectedValue,
     Function(Object?)? onChanged,
+    BuildContext? context,
     TextEditingController? controller,
     SignatureController? sigController,
     File? file,
@@ -39,39 +44,52 @@ Widget createInputField(InputFieldType type,
     String? textLabel,
     File? imageFile}) {
   switch (type) {
+    // --- ส่วนที่เพิ่มใหม่สำหรับแม่บ้าน ---
+    case InputFieldType.housekeeperCheck:
+      return _buildImagePickerBox(textLabel ?? "ถ่ายรูปยืนยันสภาพสิ่งของ",
+          imageFile, onTap ?? () {}, Icons.camera_alt_outlined);
+
+    case InputFieldType.housekeeperStatus:
+      return _buildDropdownField(
+        label: "สถานะการทำความสะอาด",
+        value: selectedValue as String? ?? "ยังไม่ได้ทำความสะอาด",
+        options: [
+          "ยังไม่ได้ทำความสะอาด",
+          "กำลังทำความสะอาด",
+          "ทำความสะอาดเสร็จสิ้น"
+        ],
+        onChanged: onChanged,
+      );
+    // ---------------------------------
+
     case InputFieldType.fullName:
       return _buildBaseTextField(
-        label: "ชื่อ-นามสกุล",
+        label: textLabel ?? "ชื่อ-นามสกุล", // ปรับให้รับ label จากภายนอกได้
         icon: Icons.person,
         controller: controller,
       );
 
     case InputFieldType.address:
       return _buildBaseTextField(
-        label: "ที่อยู่",
+        label: textLabel ?? "ที่อยู่",
         icon: Icons.location_on,
         controller: controller,
       );
     case InputFieldType.idCardNumber:
       return _buildBaseTextField(
-        label: "เลขบัตรประชาชน",
+        label: textLabel ?? "เลขบัตรประชาชน",
         icon: Icons.credit_card,
         keyboardType: TextInputType.number,
         controller: controller,
       );
 
     case InputFieldType.paymentSlip:
-      return _buildImagePickerBox(
-          textLabel ??
-              "แนบหลักฐานการโอนเงิน", // ถ้าไม่ได้ส่งค่ามา ให้ใช้ค่า Default นี้
-          imageFile,
-          onTap!,
-          Icons.receipt_long);
+      return _buildImagePickerBox(textLabel ?? "แนบหลักฐานการโอนเงิน",
+          imageFile, onTap!, Icons.receipt_long);
 
     case InputFieldType.idCard:
       return _buildImagePickerBox(
-          textLabel ??
-              "กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน", // ถ้าไม่ได้ส่งค่ามา ให้ใช้ค่า Default นี้
+          textLabel ?? "กดเพื่อถ่ายรูปบัตรประจำตัวประชาชน",
           imageFile,
           onTap ?? () {},
           Icons.add_a_photo_outlined);
@@ -82,6 +100,12 @@ Widget createInputField(InputFieldType type,
         label: "ชื่อผู้ใช้",
         icon: Icons.person,
         hint: "กรอกชื่อ-นามสกุล",
+      );
+    case InputFieldType.bank:
+      return _buildBaseTextField(
+        label: "เลขบัญชีธนาคาร",
+        icon: Icons.account_balance,
+        hint: "กรอกเลขบัญชีธนาคาร",
       );
     case InputFieldType.numberOfGuests:
       return _buildBaseTextField(
@@ -113,9 +137,10 @@ Widget createInputField(InputFieldType type,
       );
     case InputFieldType.specialRequest:
       return _buildBaseTextField(
-        label: "ความต้องการเพิ่มเติม",
+        label: textLabel ?? "ความต้องการเพิ่มเติม",
         icon: Icons.note,
-        maxLines: 3, // ขยายช่องให้พิมพ์ได้หลายบรรทัด
+        maxLines: 3,
+        controller: controller,
       );
     case InputFieldType.conformPassword:
       return _buildBaseTextField(
@@ -127,18 +152,66 @@ Widget createInputField(InputFieldType type,
       return _buildRadioField<String>(
         label: "เพศ",
         options: ["ชาย", "หญิง", "อื่นๆ"],
-        selectedValue: (selectedValue as String?) ??
-            "ชาย", // ป้องกัน Error ถ้าค่าเป็น null
+        selectedValue: (selectedValue as String?) ?? "ชาย",
         onChanged: (value) {
           if (onChanged != null) {
-            onChanged(value); // ส่งค่ากลับไป
+            onChanged(value);
           }
         },
+      );
+    case InputFieldType.datePicker:
+      // ต้องเช็คก่อนว่า context ถูกส่งมาจริงๆ ถึงจะสร้าง DatePicker ได้
+      if (context == null) return const SizedBox.shrink();
+      return _buildDatePickerField(
+        context: context,
+        label: textLabel ?? "เลือกวันที่",
+        controller: controller,
+        onTap: onTap,
       );
     default:
       return const SizedBox.shrink();
   }
 }
+
+// --- ฟังก์ชัน Helper สำหรับ Dropdown (แม่บ้านใช้) ---
+Widget _buildDropdownField({
+  required String label,
+  required String value,
+  required List<String> options,
+  Function(Object?)? onChanged,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label,
+          style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Constants.fontLabelColor)),
+      const SizedBox(height: 8),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Constants.inputFieldFillColor,
+          borderRadius: BorderRadius.circular(Constants.borderRadius),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            isExpanded: true,
+            items: options.map((String val) {
+              return DropdownMenuItem<String>(value: val, child: Text(val));
+            }).toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+    ],
+  );
+}
+
+// ... (เก็บ _buildBaseTextField, _buildRadioField, _buildImagePickerBox, _buildSignaturePad ไว้เหมือนเดิมทุกประการ) ...
 
 // ตกแต่ง Input Field
 Widget _buildBaseTextField({
@@ -278,5 +351,76 @@ Widget _buildSignaturePad(SignatureController controller) {
             child: Text('ล้างลายเซ็น', style: TextStyle(color: Colors.red))),
       ),
     ],
+  );
+}
+
+Widget _buildDatePickerField({
+  required BuildContext context,
+  required String label,
+  TextEditingController? controller,
+  VoidCallback? onTap,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: InkWell(
+      onTap: onTap ??
+          () async {
+            DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2000), // วันที่เก่าสุดที่เลือกได้
+              lastDate: DateTime(2101), // วันที่อนาคตสุดที่เลือกได้
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: const ColorScheme.light(
+                      primary: Constants.secondaryColor, // สีหลักของปฏิทิน
+                      onPrimary: Colors.white,
+                      onSurface: Constants.fontLabelColor,
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+
+            if (pickedDate != null && controller != null) {
+              // จัดรูปแบบวันที่ตามต้องการ เช่น 2024-05-20
+              String formattedDate =
+                  "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+              controller.text = formattedDate;
+            }
+          },
+      child: IgnorePointer(
+        // ใช้ IgnorePointer เพื่อให้ TextField ไม่รับ input จากคีย์บอร์ด แต่รับจาก onTap ของ InkWell แทน
+        child: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(
+                fontSize: Constants.fontSizeBody,
+                fontWeight: FontWeight.w500,
+                color: Constants.fontLabelColor),
+            prefixIcon: const Icon(
+              Icons.calendar_today,
+              color: Constants.colorIcon,
+              size: 22,
+            ),
+            filled: true,
+            fillColor: Constants.inputFieldFillColor,
+            border: InputBorder.none,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Constants.borderRadius),
+              borderSide: const BorderSide(color: Constants.white),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(Constants.borderRadius),
+              borderSide: const BorderSide(
+                  color: Constants.inputFieldBorderColor, width: 3.0),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 }

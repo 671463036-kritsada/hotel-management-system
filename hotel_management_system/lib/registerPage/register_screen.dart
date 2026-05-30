@@ -152,12 +152,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         createInputField(InputFieldType.username),
                         createInputField(InputFieldType.email),
                         createInputField(InputFieldType.phoneNumber),
-                        createInputField(InputFieldType.gender,
-                            selectedValue: _myGender, onChanged: (value) {
-                          setState(() {
-                            _myGender = value.toString();
-                          });
-                        }),
+                        // createInputField(InputFieldType.gender,
+                        //     selectedValue: _myGender, onChanged: (value) {
+                        //   setState(() {
+                        //     _myGender = value.toString();
+                        //   });
+                        // }),
                         createInputField(InputFieldType.password),
                         createInputField(InputFieldType.conformPassword),
                         SizedBox(height: 100),

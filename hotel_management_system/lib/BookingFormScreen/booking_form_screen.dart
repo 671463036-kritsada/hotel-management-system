@@ -33,6 +33,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   File? _paymentSlipImage; // ตัวแปรเก็บรูปภาพ
   late SignatureController _sigController;
 
+  final TextEditingController _checkInController = TextEditingController();
+  final TextEditingController _checkOutController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,18 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Constants.white,
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            showSuccessDialog(
+                context,
+                "จองห้องนี้",
+                "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว",
+                ListScreen(),
+                "",
+                "",
+                "");
+          },
+          label: Text("จองห้องนี้")),
       body: SafeArea(
         child: SizedBox(
           width: double.infinity,
@@ -77,37 +92,75 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                         const SizedBox(height: 20),
                         createInputField(InputFieldType.fullName,
                             controller: _nameController),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: createInputField(
+                                InputFieldType.datePicker,
+                                context: context,
+                                controller: _checkInController,
+                                textLabel: "วันที่เช็คอิน",
+                              ),
+                            ),
+                            Expanded(
+                              child: createInputField(
+                                InputFieldType.datePicker,
+                                context: context,
+                                controller: _checkOutController,
+                                textLabel: "วันที่เช็คเอาท์",
+                              ),
+                            ),
+                          ],
+                        ),
                         createInputField(InputFieldType.email),
+                        createInputField(InputFieldType.bank),
                         createInputField(InputFieldType.phoneNumber),
                         createInputField(InputFieldType.numberOfGuests),
-                        createInputField(InputFieldType.numberOfNights),
-                        createInputField(InputFieldType.bDay),
-                        const SizedBox(height: 30),
+                        Text("จ่ายค่ามัดจำผ่าน QR code",
+                            style: TextStyle(
+                              fontSize: Constants.fontSizeBody,
+                            )),
                         Center(
-                          child: Button(
-                              text: "จองห้องนี้",
-                              onTap: () {
-                                showSuccessDialog(
-                                    context,
-                                    "จองห้องนี้",
-                                    "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว",
-                                    ListScreen(),"","","");
-
-                                // if (_formKey.currentState!.validate()) {
-                                //   if (_idCardImage == null) {
-                                //     // แสดง popup error
-                                //     return;
-                                //   }
-                                //   if (_sigController.isEmpty) {
-                                //     // แสดง popup error
-                                //     return;
-                                //   }
-                                //   showSuccessDialog(context, "จองสำเร็จ!",
-                                //       "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว");
-                                // }
-                              },
-                              color: Constants.secondaryColor),
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                                color: Constants.secondaryColor,
+                                borderRadius: BorderRadius.circular(
+                                    Constants.borderRadius)),
+                            child: Column(
+                              children: [
+                                Image.asset("assets/images/QRcodePay.png"),
+                              ],
+                            ),
+                          ),
                         ),
+                        Center(
+                          child: GestureDetector(
+                            onTap: _saveQRCode,
+                            child: Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                  color: Constants.primaryColor,
+                                  borderRadius: BorderRadius.circular(
+                                      Constants.borderRadius)),
+                              child: Text(
+                                "บันทึก QRcode",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: Constants.fontSizeBody),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        createInputField(InputFieldType.paymentSlip,
+                            imageFile: _paymentSlipImage,
+                            onTap: _pickSlipImage),
+                        const SizedBox(height: 30),
                         SizedBox(
                           height: 120,
                         )
@@ -117,12 +170,54 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 ),
               ),
               Positioned(top: 0, left: 0, right: 0, child: Topnavbar()),
-              Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar())
+              // Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar())
             ],
           ),
         ),
       ),
     );
+  }
+
+  // function สำหรับเลือกรูปจากคลังภาพ
+  Future<void> _pickSlipImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        _paymentSlipImage = File(image.path);
+      });
+    }
+  }
+
+  // function บันทึกรูปภาพ
+  Future<void> _saveQRCode() async {
+    try {
+      // 1. ดึงไฟล์รูปจาก Assets แปลงเป็น Byte
+      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
+      Uint8List bytes = byteData.buffer.asUint8List();
+
+      // 2. สั่งบันทึกลง Gallery
+      final result = await ImageGallerySaver.saveImage(bytes,
+          quality: 100,
+          name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}");
+
+      // 3. แจ้งเตือนผู้ใช้
+      if (result['isSuccess']) {
+        showSuccessSaveQRcodeDialog(context, "บันทึก QRcode แล้ว",
+            "QRcode ถูกบันทึกลงในคลังรูปภาพของท่านแล้ว");
+      } else {
+        throw Exception("Save failed");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("เกิดข้อผิดพลาด: $e"), backgroundColor: Colors.red),
+      );
+    }
   }
 }
 
