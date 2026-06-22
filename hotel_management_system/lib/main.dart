@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/Splash_screen.dart';
+import 'package:hotel_management_system/presentataion/splash_screen.dart';
 
 void main() {
   runApp(const MainApp());
