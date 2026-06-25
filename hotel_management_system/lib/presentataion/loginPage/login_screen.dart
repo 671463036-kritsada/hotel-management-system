@@ -1,71 +1,56 @@
+// login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/presentataion/core/form_enum.dart';
+import 'package:provider/provider.dart';
 
-import 'package:hotel_management_system/presentataion/homePage/home_screen.dart';
-import 'package:hotel_management_system/presentataion/registerPage/register_screen.dart';
-
+import '../homePage/home_screen.dart';
+import '../registerPage/register_screen.dart';
 import '../components/button/button.dart';
 import '../components/button/buttonAuth.dart';
 import '../core/constants.dart';
-import '../core/form_enum.dart';
+import 'login_screen_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  void confrimLogin(context) {
-    // Logic การยืนยันการเข้าสู่ระบบ
-    // Navigator.pushReplacement(
-    //     context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-    print("Login confirmed");
+  void _handleLoginResult(BuildContext context, LoginStatus status) {
+    if (status == LoginStatus.success) {
+      _showSuccessDialog(context);
+    } else if (status == LoginStatus.error) {
+      final msg = context.read<LoginScreenProvider>().errorMessage;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.red),
+      );
+      context.read<LoginScreenProvider>().resetStatus();
+    }
   }
 
-  void registerPage(context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const RegisterScreen()));
-  }
-
-  void loginWithGoogle(context) {
-    // Logic การเข้าสู่ระบบด้วย Google
-    print("Login with Google");
-  }
-
-  void loginWithFacebook(context) {
-    // Logic การเข้าสู่ระบบด้วย Facebook
-    print("Login with Facebook");
-  }
-
-  void showSuccessDialog(BuildContext context) {
+  void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // ป้องกันการกดนอก Dialog เพื่อปิด
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min, // ให้ Dialog ขนาดพอดีกับเนื้อหา
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.check_circle_outline,
                     color: Colors.green, size: 64),
                 const SizedBox(height: 16),
-                const Text(
-                  'เข้าสู่ระบบสำเร็จ',
-                  style: TextStyle(
-                    fontSize: Constants.fontSizeTitle,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const Text('เข้าสู่ระบบสำเร็จ',
+                    style: TextStyle(
+                        fontSize: Constants.fontSizeTitle,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text(
-                  'ยินดีต้อนรับเข้าสู่ระบบครับ',
-                  style: TextStyle(
-                    fontSize: Constants.fontSizeBody,
-                    color: Colors.grey[700],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                Text('ยินดีต้อนรับเข้าสู่ระบบครับ',
+                    style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.grey[700]),
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -77,17 +62,16 @@ class LoginScreen extends StatefulWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop(); // ปิด Dialog
-                      Navigator.push(
+                      Navigator.of(context).pop();
+                      Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomeScreen()));
+                              builder: (_) => const HomeScreen()));
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(
-                          fontSize: Constants.fontSizeBody,
-                          color: Colors.white,
-                        )),
+                            fontSize: Constants.fontSizeBody,
+                            color: Colors.white)),
                   ),
                 ),
               ],
@@ -99,108 +83,112 @@ class LoginScreen extends StatefulWidget {
   }
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  @override
   Widget build(BuildContext context) {
-    // Get screen width
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
-          child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(Constants.padding),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/HotelLogo.jpg',
-                    width: screenWidth * 0.9,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              createInputField(InputFieldType.username),
-              createInputField(InputFieldType.password),
-              // const Row(
-              //   mainAxisAlignment: MainAxisAlignment.end,
-              //   children: [
-              //     Text(
-              //       'ลืมรหัสผ่าน?',
-              //       style: TextStyle(
-              //         fontSize: Constants.fontSizeLabel,
-              //         color: Colors.blue,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 20),
-              Button(
-                text: "เข้าสู่ระบบ",
-                onTap: () {
-                  widget.showSuccessDialog(context);
-                },
-                color: Constants.secondaryColor,
-                btnSize: 300,
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'ยังไม่มีบัญชีผู้ใช้?',
-                    style: TextStyle(
-                      fontSize: Constants.fontSizeLabel,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      widget.registerPage(context);
-                    },
-                    child: const Text(
-                      ' สมัครสมาชิก',
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeLabel,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              Text(
-                'หรือเข้าสู่ระบบด้วย',
-                style: TextStyle(
-                  fontSize: Constants.fontSizeLabel,
-                  color: Colors.grey[600],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(Constants.padding),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/images/HotelLogo.jpg',
+                        width: screenWidth * 0.9),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ButtonAuth(
-                      onTap: () => widget.loginWithGoogle(context),
-                      ImagePath: "assets/images/authLogo/Google_Logo.png"),
-                  SizedBox(width: 20),
-                  ButtonAuth(
-                      onTap: () => widget.loginWithFacebook(context),
-                      ImagePath: "assets/images/authLogo/FacebookLogo.png")
-                ],
-              ),
-            ],
+                const SizedBox(height: 20),
+
+                // --- Input Fields ---
+                Consumer<LoginScreenProvider>(
+                  builder: (context, provider, _) {
+                    return Column(
+                      children: [
+                        createInputField(InputFieldType.username,
+                            controller: provider.usernameController),
+                        const SizedBox(height: 12),
+                        createInputField(InputFieldType.password,
+                            controller: provider.passwordController),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // --- Login Button ---
+                Consumer<LoginScreenProvider>(
+                  builder: (context, provider, _) {
+                    // ฟังการเปลี่ยน status แล้ว handle
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _handleLoginResult(context, provider.status);
+                    });
+
+                    return provider.isLoading
+                        ? const CircularProgressIndicator()
+                        : Button(
+                            text: "เข้าสู่ระบบ",
+                            onTap: () => provider.login(),
+                            color: Constants.secondaryColor,
+                            btnSize: 300,
+                          );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('ยังไม่มีบัญชีผู้ใช้?',
+                        style: TextStyle(
+                            fontSize: Constants.fontSizeLabel,
+                            color: Colors.grey[700])),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const RegisterScreen())),
+                      child: const Text(' สมัครสมาชิก',
+                          style: TextStyle(
+                              fontSize: Constants.fontSizeLabel,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+                Text('หรือเข้าสู่ระบบด้วย',
+                    style: TextStyle(
+                        fontSize: Constants.fontSizeLabel,
+                        color: Colors.grey[600]),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ButtonAuth(
+                        onTap: () => context
+                            .read<LoginScreenProvider>()
+                            .loginWithGoogle(),
+                        ImagePath: "assets/images/authLogo/Google_Logo.png"),
+                    const SizedBox(width: 20),
+                    ButtonAuth(
+                        onTap: () => context
+                            .read<LoginScreenProvider>()
+                            .loginWithFacebook(),
+                        ImagePath: "assets/images/authLogo/FacebookLogo.png"),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      )),
+      ),
     );
   }
 }

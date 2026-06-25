@@ -1,48 +1,36 @@
+// home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../components/bavbar/bottomNavbar.dart';
 import '../components/bavbar/topNavbar.dart';
 import '../core/constants.dart';
 import '../core/form_enum.dart';
 import '../core/typeRoom_enum.dart';
+import 'home_screen_provider.dart';
 
-
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget _buildTabButton(BuildContext context, String label, RoomType type) {
+    final provider = context.watch<HomeScreenProvider>();
+    bool isSelected = provider.selectedRoomType == type;
 
-class _HomeScreenState extends State<HomeScreen> {
-  RoomType selectedRoomType = RoomType.rooms;
-  int len = 10;
-
-  Widget _buildTabButton(String label, RoomType type) {
-    bool isSelected = selectedRoomType == type;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected ? Constants.primaryColor : Colors.grey[200],
         foregroundColor: isSelected ? Colors.white : Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      onPressed: () {
-        setState(() {
-          selectedRoomType = type;
-
-          if (type == RoomType.rooms) {
-            len = 10;
-          } else {
-            len = 15;
-          }
-        });
-      },
+      onPressed: () => context.read<HomeScreenProvider>().selectRoomType(type),
       child: Text(label),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<HomeScreenProvider>();
+
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
@@ -54,14 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.fromLTRB(16, 10, 16, 83),
                 child: Column(
                   children: [
-                    SizedBox(
-                      height: 100,
-                    ),
+                    SizedBox(height: 100),
                     Row(
                       children: [
-                        Expanded(
-                          child: createInputField(InputFieldType.search),
-                        ),
+                        Expanded(child: createInputField(InputFieldType.search)),
                         const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {},
@@ -71,8 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Constants.secondaryColor,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.search,
-                                color: Constants.white, size: 35),
+                            child: const Icon(Icons.search, color: Constants.white, size: 35),
                           ),
                         ),
                       ],
@@ -80,16 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        _buildTabButton("ห้องพัก", RoomType.rooms),
+                        _buildTabButton(context, "ห้องพัก", RoomType.rooms),
                         const SizedBox(width: 10),
-                        _buildTabButton("บ้านพัก", RoomType.house),
+                        _buildTabButton(context, "บ้านพัก", RoomType.house),
                       ],
                     ),
-                    SizedBox(
-                      height: 8,
-                    ),
+                    SizedBox(height: 8),
                     Expanded(
-                      child: createBoxShowData(selectedRoomType, len),
+                      child: createBoxShowData(provider.selectedRoomType, provider.len),
                     ),
                   ],
                 ),

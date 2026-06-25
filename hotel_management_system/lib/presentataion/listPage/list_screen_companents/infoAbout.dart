@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentataion/checkInPage/check_in_screen.dart';
 
-import '../components/button/button.dart';
-import '../core/constants.dart';
+import '../../components/button/button.dart';
+import '../../core/constants.dart';
 
 
 class Infoabout extends StatelessWidget {

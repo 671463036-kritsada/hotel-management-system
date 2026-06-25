@@ -3,8 +3,8 @@ import 'package:hotel_management_system/presentataion/RoomConditionCheckPage/roo
 
 import 'package:hotel_management_system/presentataion/listPage/list_screen.dart';
 
-import '../components/button/button.dart';
-import '../core/constants.dart';
+import '../../components/button/button.dart';
+import '../../core/constants.dart';
 
 class Boxlistcompanent extends StatelessWidget {
   final int roomNumber;

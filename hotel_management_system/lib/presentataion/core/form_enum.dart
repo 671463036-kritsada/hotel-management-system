@@ -13,7 +13,7 @@ enum InputFieldType {
   roomNumber,
   guestCount,
   specialRequest, // Multiline
-  conformPassword,
+  confirmPassword,
   gender, // เพิ่มเพศ
   roomType, // เพิ่มประเภทห้องพัก
   search,
@@ -100,6 +100,7 @@ Widget createInputField(InputFieldType type,
         label: "ชื่อผู้ใช้",
         icon: Icons.person,
         hint: "กรอกชื่อ-นามสกุล",
+        controller: controller,
       );
     case InputFieldType.bank:
       return _buildBaseTextField(
@@ -122,18 +123,21 @@ Widget createInputField(InputFieldType type,
         label: "รหัสผ่าน",
         icon: Icons.lock,
         isPassword: true,
+        controller: controller,
       );
     case InputFieldType.email:
       return _buildBaseTextField(
         label: "อีเมล",
         icon: Icons.email,
         keyboardType: TextInputType.emailAddress,
+        controller: controller,
       );
     case InputFieldType.phoneNumber:
       return _buildBaseTextField(
         label: "เบอร์โทรศัพท์",
         icon: Icons.phone,
         keyboardType: TextInputType.phone,
+        controller: controller,
       );
     case InputFieldType.specialRequest:
       return _buildBaseTextField(
@@ -142,11 +146,12 @@ Widget createInputField(InputFieldType type,
         maxLines: 3,
         controller: controller,
       );
-    case InputFieldType.conformPassword:
+    case InputFieldType.confirmPassword:
       return _buildBaseTextField(
         label: "ยืนยันรหัสผ่าน",
         icon: Icons.lock,
         isPassword: true,
+        controller: controller,
       );
     case InputFieldType.gender:
       return _buildRadioField<String>(

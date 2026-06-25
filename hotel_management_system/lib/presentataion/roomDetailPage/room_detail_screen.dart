@@ -1,14 +1,16 @@
+// room_detail_screen.dart
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart'; // อย่าลืมลงเวอร์ชัน 5.1.1 ใน pubspec.yaml
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hotel_management_system/presentataion/BookingFormScreen/booking_form_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../components/bavbar/topNavbar.dart';
 import '../components/button/button.dart';
 import '../core/constants.dart';
 import '../core/typeRoom_enum.dart';
+import 'room_detail_screen_provider.dart';
 
-
-class RoomDetailScreen extends StatelessWidget {
+class RoomDetailScreen extends StatefulWidget {
   final int roomId;
   final RoomType roomType;
   final List<String> imageUrls;
@@ -21,103 +23,132 @@ class RoomDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<RoomDetailScreen> createState() => _RoomDetailScreenState();
+}
+
+class _RoomDetailScreenState extends State<RoomDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RoomDetailScreenProvider>().getRoomDetail(
+            widget.roomId,
+            widget.roomType,
+            widget.imageUrls,
+          );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Topnavbar(),
-              SizedBox(
-                height: 10,
-              ),
-              Center(
-                child: Text(
-                  "รายละเอียด ${roomType == RoomType.rooms ? 'ห้องพัก' : 'บ้านพัก'}",
-                  style: TextStyle(fontSize: Constants.fontSizeHeader),
-                ),
-              ),
-              // ส่วน Image Slider
-              RoomImageSlider(imageUrls: imageUrls),
+        child: Consumer<RoomDetailScreenProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (provider.errorMessage.isNotEmpty) {
+              return Center(child: Text(provider.errorMessage));
+            }
+
+            final room = provider.roomDetail;
+            if (room == null) return const SizedBox.shrink();
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Topnavbar(),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Text(
+                      "รายละเอียด ${room.roomType == RoomType.rooms ? 'ห้องพัก' : 'บ้านพัก'}",
+                      style: TextStyle(fontSize: Constants.fontSizeHeader),
+                    ),
+                  ),
+                  RoomImageSlider(imageUrls: room.imageUrls),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'ห้องหมายเลข $roomId',
-                          style: const TextStyle(
-                              fontSize: 26, fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'ห้องหมายเลข ${room.roomId}',
+                              style: const TextStyle(
+                                  fontSize: 26, fontWeight: FontWeight.bold),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Constants.secondaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                room.roomType == RoomType.rooms
+                                    ? 'Standard Room'
+                                    : 'Private House',
+                                style: const TextStyle(
+                                    color: Constants.secondaryColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Constants.secondaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            roomType == RoomType.rooms
-                                ? 'Standard Room'
-                                : 'Private House',
-                            style: const TextStyle(
-                                color: Constants.secondaryColor,
-                                fontWeight: FontWeight.bold),
+                        const SizedBox(height: 10),
+                        Text(
+                          '฿${room.pricePerNight.toStringAsFixed(0)} / คืน',
+                          style: const TextStyle(
+                              fontSize: 22,
+                              color: Constants.primaryColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const Divider(height: 40),
+                        const Text(
+                          'รายละเอียดที่พัก',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          room.description,
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.grey, height: 1.5),
+                        ),
+                        const SizedBox(height: 30),
+                        Center(
+                          child: Button(
+                            text: 'จองห้องนี้',
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookingFormScreen(roomId: room.roomId)));
+                            },
+                            color: Constants.secondaryColor,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '฿${roomId * 500} / คืน',
-                      style: const TextStyle(
-                          fontSize: 22,
-                          color: Constants.primaryColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const Divider(height: 40),
-                    const Text(
-                      'รายละเอียดที่พัก',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'สัมผัสประสบการณ์การพักผ่อนที่เหนือระดับ ด้วยห้องพักที่ตกแต่งอย่างทันสมัย พร้อมสิ่งอำนวยความสะดวกครบครัน อาทิ เครื่องปรับอากาศ Smart TV และฟรี Wi-Fi ความเร็วสูง',
-                      style: TextStyle(
-                          fontSize: 16, color: Colors.grey, height: 1.5),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // ปุ่มจองด้านล่าง
-                    Center(
-                      child: Button(
-                        text: 'จองห้องนี้',
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingFormScreen(roomId: roomId) ));
-                        },
-                        color: Constants.secondaryColor,
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// --- ส่วนของ Slider ที่แก้ไข Controller แล้ว ---
-
+// --- RoomImageSlider ไม่ต้องแก้อะไร ---
 class RoomImageSlider extends StatefulWidget {
   final List<String> imageUrls;
   const RoomImageSlider({super.key, required this.imageUrls});
@@ -128,7 +159,6 @@ class RoomImageSlider extends StatefulWidget {
 
 class _RoomImageSliderState extends State<RoomImageSlider> {
   int _current = 0;
-
   final CarouselSliderController _controller = CarouselSliderController();
 
   @override
@@ -141,7 +171,7 @@ class _RoomImageSliderState extends State<RoomImageSlider> {
             height: 300.0,
             autoPlay: true,
             enlargeCenterPage: true,
-            viewportFraction: 1.0, // ให้รูปเต็มหน้าจอในหน้า Detail
+            viewportFraction: 1.0,
             onPageChanged: (index, reason) {
               setState(() {
                 _current = index;
@@ -157,7 +187,6 @@ class _RoomImageSliderState extends State<RoomImageSlider> {
           }).toList(),
         ),
         const SizedBox(height: 10),
-        // Dots Indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: widget.imageUrls.asMap().entries.map((entry) {

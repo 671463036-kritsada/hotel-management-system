@@ -1,10 +1,12 @@
+// housekeeper_room_check_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentataion/HousekeeperRoomCheckPage/room_detail_form.dart';
+import 'package:hotel_management_system/presentataion/HousekeeperRoomCheckPage/HousekeeperRoomCheck_Screen_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../components/bavbar/bottomNavbar.dart';
 import '../components/bavbar/topNavbar.dart';
 import '../core/constants.dart';
-
+import 'room_detail_form.dart';
 
 class HousekeeperRoomCheckScreen extends StatefulWidget {
   const HousekeeperRoomCheckScreen({super.key});
@@ -16,137 +18,22 @@ class HousekeeperRoomCheckScreen extends StatefulWidget {
 
 class _HousekeeperRoomCheckScreenState
     extends State<HousekeeperRoomCheckScreen> {
-  late List<Map<String, String>> _allRooms;
-  List<Map<String, String>> _filteredRooms = [];
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _allRooms = List.generate(50, (index) {
-      int floor = (index ~/ 10) + 1;
-      int roomNum = (index % 10) + 1;
-      String roomNo = "$floor${roomNum.toString().padLeft(2, '0')}";
-
-      List<String> statuses = [
-        "มีลูกค้าพักอยู่",
-        "รอทำความสะอาด",
-        "เสร็จสิ้น",
-        "ปิดปรับปรุง"
-      ];
-      return {"no": roomNo, "status": statuses[index % 4]};
-    });
-    _filteredRooms = _allRooms;
-  }
-
-  void _filterRooms(String query) {
-    setState(() {
-      _filteredRooms =
-          _allRooms.where((room) => room['no']!.contains(query)).toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HousekeeperRoomCheckScreenProvider>().getRooms();
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Constants.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                  top: 100, bottom: 120, left: 20, right: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "แผนผังห้องพัก",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // --- Search Bar ---
-                  TextField(
-                    controller: _searchController,
-                    onChanged: _filterRooms,
-                    decoration: InputDecoration(
-                      hintText: "ค้นหาหมายเลขห้อง (เช่น 101...)",
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Constants.inputFieldFillColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  _buildLegend(),
-                  const SizedBox(height: 15),
-
-                  // --- Grid View ---
-                  _filteredRooms.isEmpty
-                      ? const Center(child: Text("ไม่พบหมายเลขห้องที่ค้นหา"))
-                      : GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 5,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: _filteredRooms.length,
-                          itemBuilder: (context, index) {
-                            final room = _filteredRooms[index];
-                            Color statusColor = _getStatusColor(room['status']!);
-
-                            return GestureDetector(
-                              onTap: () {
-                                // เมื่อกดห้อง ให้เปิดหน้าใหม่ทันที
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RoomDetailFormScreen(
-                                      roomNo: room['no']!,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: statusColor.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: statusColor, width: 1),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    room['no']!,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: statusColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ),
-            const Positioned(top: 0, left: 0, right: 0, child: Topnavbar()),
-            const Positioned(
-                bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
-  // --- Helper Methods ---
   Color _getStatusColor(String status) {
     if (status.contains("ลูกค้าพัก")) return Colors.orange;
     if (status.contains("รอทำความสะอาด")) return Colors.red;
@@ -178,6 +65,118 @@ class _HousekeeperRoomCheckScreenState
         const SizedBox(width: 4),
         Text(label, style: const TextStyle(fontSize: 11)),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Constants.white,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                  top: 100, bottom: 120, left: 20, right: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "แผนผังห้องพัก",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // --- Search Bar ---
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (query) => context
+                        .read<HousekeeperRoomCheckScreenProvider>()
+                        .filterRooms(query),
+                    decoration: InputDecoration(
+                      hintText: "ค้นหาหมายเลขห้อง (เช่น 101...)",
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Constants.inputFieldFillColor,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  _buildLegend(),
+                  const SizedBox(height: 15),
+
+                  // --- Grid View ---
+                  Consumer<HousekeeperRoomCheckScreenProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (provider.filteredRooms.isEmpty) {
+                        return const Center(
+                            child: Text("ไม่พบหมายเลขห้องที่ค้นหา"));
+                      }
+
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: provider.filteredRooms.length,
+                        itemBuilder: (context, index) {
+                          final room = provider.filteredRooms[index];
+                          Color statusColor = _getStatusColor(room.status);
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RoomDetailFormScreen(
+                                    roomNo: room.roomNo,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: statusColor, width: 1),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  room.roomNo,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: statusColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const Positioned(top: 0, left: 0, right: 0, child: Topnavbar()),
+            const Positioned(
+                bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
+          ],
+        ),
+      ),
     );
   }
 }
