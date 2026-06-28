@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/roomDetailPage/room_detail_screen.dart';
+import 'package:hotel_management_system/presentation/responsive/page/roomDetailPage/room_detail_screen.dart';
 
 enum RoomType {
   rooms,
   house,
 }
 
-Widget createBoxShowData(RoomType type, int len) {
+Widget createBoxShowData(RoomType type, int len ,{int crossAxisCount = 2}) {
   final String folder = type == RoomType.rooms ? 'rooms' : 'houses';
   final String fileName = type == RoomType.rooms ? 'room' : 'house';
   final String label = type == RoomType.rooms ? '(Room)' : '(House)';
 
   return GridView.builder(
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       childAspectRatio: 0.75,

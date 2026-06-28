@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Topnavbar extends StatelessWidget {
-  const Topnavbar({super.key});
+  double widthFactor = 0;
+
+  Topnavbar({super.key, this.widthFactor = 0.1});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class Topnavbar extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(    
+              Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -69,7 +71,7 @@ class Topnavbar extends StatelessWidget {
               Navigator.pop(context);
             },
             child: Container(
-                width: screenWidth * 0.2,
+                width: screenWidth * widthFactor,
                 alignment: Alignment.center,
                 height: 50,
                 decoration: const BoxDecoration(
