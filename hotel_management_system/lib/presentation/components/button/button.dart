@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Button extends StatelessWidget {
@@ -43,6 +43,7 @@ class Button extends StatelessWidget {
 
 void showSuccessDialog(BuildContext context, String textTitle, String textBody,
     Widget destination, String code, String dateStrat, String dateEnd) {
+  double screenWidth = MediaQuery.of(context).size.width;
   showDialog(
     context: context,
     barrierDismissible: false, // ป้องกันการกดนอก Dialog เพื่อปิด
@@ -51,84 +52,88 @@ void showSuccessDialog(BuildContext context, String textTitle, String textBody,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // ให้ Dialog ขนาดพอดีกับเนื้อหา
-            children: [
-              const Icon(Icons.check_circle_outline,
-                  color: Colors.green, size: 64),
-              const SizedBox(height: 16),
-              Text(
-                textTitle,
-                style: TextStyle(
-                  fontSize: Constants.fontSizeTitle,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Column(
-                children: [
-                  if (code == "")
-                    Text(
-                      textBody,
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeBody,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                  else ...[
-                    Text(
-                      code,
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeDisplay,
-                        color: Colors.green,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      dateStrat,
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeBody,
-                        color: Colors.grey[700],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      dateEnd,
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeBody,
-                        color: Colors.grey[700],
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                  ]
-                ],
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.secondaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              maxWidth: screenWidth * 0.2), // กำหนดความกว้างสูงสุดของ Dialog
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // ให้ Dialog ขนาดพอดีกับเนื้อหา
+              children: [
+                const Icon(Icons.check_circle_outline,
+                    color: Colors.green, size: 64),
+                const SizedBox(height: 16),
+                Text(
+                  textTitle,
+                  style: TextStyle(
+                    fontSize: Constants.fontSizeTitle,
+                    fontWeight: FontWeight.bold,
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // ปิด Dialog
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => destination));
-                  },
-                  child: const Text('ตกลง',
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeBody,
-                        color: Colors.white,
-                      )),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Column(
+                  children: [
+                    if (code == "")
+                      Text(
+                        textBody,
+                        style: TextStyle(
+                          fontSize: Constants.fontSizeBody,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+                    else ...[
+                      Text(
+                        code,
+                        style: TextStyle(
+                          fontSize: Constants.fontSizeDisplay,
+                          color: Colors.green,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        dateStrat,
+                        style: TextStyle(
+                          fontSize: Constants.fontSizeBody,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        dateEnd,
+                        style: TextStyle(
+                          fontSize: Constants.fontSizeBody,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+                    ]
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Constants.secondaryColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // ปิด Dialog
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => destination));
+                    },
+                    child: const Text('ตกลง',
+                        style: TextStyle(
+                          fontSize: Constants.fontSizeBody,
+                          color: Colors.white,
+                        )),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
