@@ -55,7 +55,7 @@ class ListScreenProvider extends ChangeNotifier {
           status: "อนุมัติแล้ว",
           textStatus: "รอดำเนินการเช็คอิน",
           statusColor: Colors.green,
-          checkInStatus: false,
+          checkInStatus: true,
           checkOutStatus: false,
           statusConCheck: false,
         ),
