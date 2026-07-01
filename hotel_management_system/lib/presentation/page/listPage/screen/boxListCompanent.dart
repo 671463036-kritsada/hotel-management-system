@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/screen/room_condition_check_screen.dart';
 
 import 'package:hotel_management_system/presentation/page/listPage/screen/list_screen.dart';
-
-import '../../../components/button/button.dart';
 import '../../../core/constants.dart';
 
 class Boxlistcompanent extends StatelessWidget {

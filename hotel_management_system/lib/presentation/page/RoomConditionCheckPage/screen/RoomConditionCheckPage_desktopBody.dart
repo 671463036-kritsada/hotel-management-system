@@ -574,8 +574,7 @@ class _RoomConditionCheckScreenDesktopBodyState
                                               label: "ยังไม่ตรวจ",
                                               count: provider.furnitureList
                                                   .where((f) =>
-                                                      f.status == null ||
-                                                      f.status == "")
+                                                      f.status.isEmpty || f.status == "")
                                                   .length,
                                               color: Colors.grey,
                                             ),

@@ -434,7 +434,7 @@ class _RoomConditionCheckScreenMobileBodyState
                                 "ยังไม่ตรวจ",
                                 provider.furnitureList
                                     .where((f) =>
-                                        f.status == null || f.status == "")
+                                        f.status.isEmpty || f.status == "")
                                     .length,
                                 Colors.grey),
                           ],
