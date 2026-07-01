@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/responsive/page/HousekeeperRoomCheckPage/HousekeeperRoomCheck_Screen.dart';
+import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/screen/HousekeeperRoomCheck_Screen.dart';
 import 'package:hotel_management_system/presentation/components/button/buttonIcon.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/responsive/page/historyPage/history_screen.dart';
-import 'package:hotel_management_system/presentation/responsive/page/homePage/home_screen.dart';
-import 'package:hotel_management_system/presentation/responsive/page/listPage/list_screen.dart';
+import 'package:hotel_management_system/presentation/page/historyPage/screen/history_screen.dart';
+import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
+import 'package:hotel_management_system/presentation/page/listPage/screen/list_screen.dart';
 
 class Bottomnavbar extends StatelessWidget {
   const Bottomnavbar({super.key});

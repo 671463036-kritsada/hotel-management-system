@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/responsive/page/roomDetailPage/room_detail_screen.dart';
+import 'package:hotel_management_system/presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 
 enum RoomType {
   rooms,

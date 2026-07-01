@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/responsive/page/BookingFormScreen/Booking_form_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/HousekeeperRoomCheckPage/HousekeeperRoomCheck_Screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/RoomConditionCheckPage/room_condition_check_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/checkInPage/check_in_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/historyPage/histoty_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/listPage/list_screen_provider/list_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/loginPage/login_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/registerPage/register_screen_provider.dart';
-import 'package:hotel_management_system/presentation/responsive/page/roomDetailPage/room_detail_screen_provider.dart';
-import 'package:hotel_management_system/presentation/splash_screen.dart';
-import 'package:hotel_management_system/presentation/responsive/page/homePage/home_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/checkInPage/provider/check_in_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/loginPage/provider/login_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/registerPage/provider/register_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/roomDetailPage/provider/room_detail_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/splashPage/screen/splash_screen.dart';
+import 'package:hotel_management_system/presentation/page/homePage/provider/home_screen_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
