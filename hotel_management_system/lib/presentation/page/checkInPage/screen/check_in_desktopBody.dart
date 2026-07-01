@@ -230,7 +230,7 @@ class CheckInScreenDesktopBody extends StatelessWidget {
                 },
               ),
             ),
-            const Bottomnavbar(),
+            Bottomnavbar(isVisibleHousekeeper: false),
           ],
         ),
       ),

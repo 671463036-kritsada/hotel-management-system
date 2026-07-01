@@ -117,7 +117,10 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                       left: 0,
                       child: Topnavbar(widthFactor: 0.1)),
                   const Positioned(
-                      bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
+                      bottom: 0,
+                      right: 0,
+                      left: 0,
+                      child: Bottomnavbar(isVisibleHousekeeper: false)),
                 ],
               ),
             ),

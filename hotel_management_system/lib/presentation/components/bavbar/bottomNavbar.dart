@@ -7,7 +7,10 @@ import 'package:hotel_management_system/presentation/page/homePage/screen/home_s
 import 'package:hotel_management_system/presentation/page/listPage/screen/list_screen.dart';
 
 class Bottomnavbar extends StatelessWidget {
-  const Bottomnavbar({super.key});
+  final bool? isVisibleHousekeeper; // ตัวแปรควบคุมการมองเห็นของปุ่ม
+  const Bottomnavbar(
+      {super.key,
+      this.isVisibleHousekeeper = true}); // เพิ่มพารามิเตอร์ isVisible
 
   // ฟังก์ชัน Navigation (เหมือนเดิม)
   void navigateToHome(BuildContext context) => Navigator.push(
@@ -46,7 +49,6 @@ class Bottomnavbar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // ใช้ Expanded หุ้มทุกปุ่มเพื่อให้กว้างเท่ากัน
           Expanded(
             child: Buttonicon(
                 onTap: () => navigateToHome(context),
@@ -65,12 +67,13 @@ class Bottomnavbar extends StatelessWidget {
                 text: "ประวัติ",
                 icon: Icons.history_outlined),
           ),
-          Expanded(
-            child: Buttonicon(
-                onTap: () => housekeeperRoomCheck_Screen(context),
-                text: "แม่บ้าน",
-                icon: Icons.cleaning_services_outlined),
-          ),
+          if (isVisibleHousekeeper ?? true)
+            Expanded(
+              child: Buttonicon(
+                  onTap: () => housekeeperRoomCheck_Screen(context),
+                  text: "แม่บ้าน",
+                  icon: Icons.cleaning_services_outlined),
+            ),
         ],
       ),
     );

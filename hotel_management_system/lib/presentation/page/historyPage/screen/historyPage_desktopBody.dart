@@ -168,7 +168,11 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                   right: 0,
                   left: 0,
                   child: Topnavbar(widthFactor: 0.1)),
-              Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
+              Positioned(
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
+                  child: Bottomnavbar(isVisibleHousekeeper: false)),
             ],
           ),
         ),
