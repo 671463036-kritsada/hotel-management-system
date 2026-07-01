@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Topnavbar extends StatelessWidget {
-  double widthFactor = 0;
+  final double widthFactor;
 
-  Topnavbar({super.key, this.widthFactor = 0.1});
+  const Topnavbar({super.key, required this.widthFactor});
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +40,10 @@ class Topnavbar extends StatelessWidget {
                   color: Constants.white.withOpacity(0.3),
                 ),
                 alignment: Alignment.center,
-                child: Icon(Icons.person, color: Constants.white, size: 40),
+                child: const Icon(Icons.person, color: Constants.white, size: 40),
               ),
               const SizedBox(width: 10),
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(

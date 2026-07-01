@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Buttonicon extends StatelessWidget {
-  Function() onTap = () {};
+  final Function() onTap;
   final String text;
   final IconData icon;
 

@@ -3,10 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Button extends StatelessWidget {
-  Function() onTap = () {};
+  final Function() onTap;
   final String text;
   final Color color;
-  final double? btnSize;
+  final double? btnSize;            
 
   Button(
       {super.key,

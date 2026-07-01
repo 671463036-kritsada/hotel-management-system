@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class ButtonAuth extends StatelessWidget {
-  Function() onTap = () {};
-  String ImagePath = '';
+  final Function() onTap;
+  final String ImagePath;
   ButtonAuth({super.key, required this.onTap, required this.ImagePath});
 
   @override
