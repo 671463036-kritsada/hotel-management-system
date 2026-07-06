@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/screen/booking_form_screen.dart';
-import 'package:hotel_management_system/presentation/page/homePage/provider/home_screen_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../components/bavbar/topNavbar.dart';
