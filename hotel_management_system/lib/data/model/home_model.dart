@@ -13,7 +13,7 @@ class HomeModel {
     String? roomType;
     List<String>? imageUrls;
     String? description;
-    int? pricePerNight;
+    double? pricePerNight;
     String? status;
     Owner? owner;
 

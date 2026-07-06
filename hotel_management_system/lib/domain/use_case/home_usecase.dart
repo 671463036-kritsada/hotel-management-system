@@ -14,7 +14,7 @@ class HomeUsecase {
         roomId: item.roomId ?? -1,
         roomType: item.roomType ?? "",
         description: item.description ?? "",
-        pricePerNight: item.pricePerNight ?? 0,
+        pricePerNight: (item.pricePerNight ?? 0).toDouble(),
         imageUrls: List<String>.from(item.imageUrls!),
         bedCount: 1,
         status: item.status ?? "",

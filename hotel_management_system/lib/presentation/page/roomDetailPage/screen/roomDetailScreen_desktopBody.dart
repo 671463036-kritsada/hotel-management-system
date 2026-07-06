@@ -13,13 +13,11 @@ import '../provider/room_detail_screen_provider.dart';
 class RoomDetailScreenDesktopBody extends StatefulWidget {
   final int roomId;
   final RoomType roomType;
-  final List<String> imageUrls;
 
   const RoomDetailScreenDesktopBody({
     super.key,
     required this.roomId,
-    required this.roomType,
-    required this.imageUrls,
+    required this.roomType
   });
 
   @override
@@ -34,8 +32,7 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RoomDetailScreenProvider>().getRoomDetail(
             widget.roomId,
-            widget.roomType,
-            widget.imageUrls,
+            widget.roomType
           );
     });
   }

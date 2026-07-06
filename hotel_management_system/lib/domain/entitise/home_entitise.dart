@@ -3,7 +3,7 @@ class HomeEntitise {
   final int roomId;
   final String roomType;
   final String description;
-  final int pricePerNight;
+  final double pricePerNight;
   final List<String> imageUrls;
   final int bedCount;
   final String status;
@@ -19,7 +19,4 @@ class HomeEntitise {
   });
 }
 
-
-class RoomTypeEntitise {
-
-}
+class RoomTypeEntitise {}

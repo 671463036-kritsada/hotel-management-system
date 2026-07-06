@@ -32,15 +32,32 @@ class MainApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
             create: (_) => HomeScreenProvider(homeUsecase, [])),
+
+
         ChangeNotifierProvider(create: (_) => LoginScreenProvider()),
+
+
         ChangeNotifierProvider(create: (_) => RegisterScreenProvider()),
+
         ChangeNotifierProvider(
             create: (_) => HousekeeperRoomCheckScreenProvider()),
-        ChangeNotifierProvider(create: (_) => RoomDetailScreenProvider()),
+
+        ChangeNotifierProvider(
+            create: (_) => RoomDetailScreenProvider(homeUsecase, [])),
+
+
         ChangeNotifierProvider(create: (_) => HistoryScreenProvider()),
+
+
         ChangeNotifierProvider(create: (_) => ListScreenProvider()),
+
+
         ChangeNotifierProvider(create: (_) => CheckInScreenProvider()),
+
+
         ChangeNotifierProvider(create: (_) => BookingFormScreenProvider()),
+
+        
         ChangeNotifierProvider(
             create: (_) => RoomConditionCheckScreenProvider()),
         // เพิ่ม Provider อื่นๆ ตรงนี้ในอนาคต

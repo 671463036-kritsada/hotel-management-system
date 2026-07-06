@@ -22,7 +22,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             ],
             "description":
                 "สัมผัสประสบการณ์การพักผ่อนที่เหนือระดับ ด้วยห้องพักที่ตกแต่งอย่างทันสมัย พร้อมสิ่งอำนวยความสะดวกครบครัน",
-            "pricePerNight": (index + 1) * 500,
+            "pricePerNight": (index + 1) * 500.0,
             "status": "ไม่ว่าง",
           },
         ),
@@ -37,7 +37,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             ],
             "description":
                 "บ้านพักส่วนตัวพร้อมบรรยากาศที่อบอุ่น เหมาะสำหรับครอบครัวหรือกลุ่มเพื่อน",
-            "pricePerNight": (index + 1) * 500,
+            "pricePerNight": (index + 1) * 500.0,
             "status": "ว่าง",
           },
         ),

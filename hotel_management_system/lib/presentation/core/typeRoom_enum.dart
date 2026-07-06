@@ -47,12 +47,10 @@ Widget createBoxShowData(
             context,
             MaterialPageRoute(
               builder: (context) => RoomDetailScreen(
-                roomId: room.roomId,
-                roomType: room.roomType.toLowerCase() == 'house'
-                    ? RoomType.house
-                    : RoomType.rooms,
-                imageUrls: room.imageUrls,
-              ),
+                  roomId: room.roomId,
+                  roomType: room.roomType.toLowerCase() == 'house'
+                      ? RoomType.house
+                      : RoomType.rooms),
             ),
           );
         },

@@ -1,5 +1,7 @@
 // room_detail_screen_provider.dart
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
+import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import '../../../core/typeRoom_enum.dart';
 
 class RoomDetail {
@@ -19,6 +21,11 @@ class RoomDetail {
 }
 
 class RoomDetailScreenProvider extends ChangeNotifier {
+  HomeUsecase homeUsecase;
+  List<HomeEntitise> roomData;
+
+  RoomDetailScreenProvider(this.homeUsecase, this.roomData);
+
   // --- State ---
   RoomDetail? _roomDetail;
   bool _isLoading = false;
@@ -29,25 +36,29 @@ class RoomDetailScreenProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  Future<void> getRoomDetail(int roomId, RoomType roomType, List<String> imageUrls) async {
+  Future<void> getRoomDetail(int roomId, RoomType roomType) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      // _roomDetail = await _roomRepository.getRoomDetail(roomId);
+      // โหลดข้อมูลก่อน
+      roomData = await homeUsecase.getRooms();
 
-      // Mock data
-      await Future.delayed(const Duration(milliseconds: 300));
-      _roomDetail = RoomDetail(
-        roomId: roomId,
-        roomType: roomType,
-        imageUrls: imageUrls,
-        description: 'สัมผัสประสบการณ์การพักผ่อนที่เหนือระดับ ด้วยห้องพักที่ตกแต่งอย่างทันสมัย พร้อมสิ่งอำนวยความสะดวกครบครัน อาทิ เครื่องปรับอากาศ Smart TV และฟรี Wi-Fi ความเร็วสูง',
-        pricePerNight: roomId * 500,
+      // แล้วค่อย filter
+      final room = roomData.firstWhere(
+        (item) => item.roomId == roomId && item.roomType == roomType.name,
       );
+
+      _roomDetail = RoomDetail(
+        roomId: room.roomId,
+        roomType: roomType,
+        imageUrls: room.imageUrls,
+        description: room.description,
+        pricePerNight: room.pricePerNight.toDouble(),
+      );
+      notifyListeners();
     } catch (e) {
       _errorMessage = 'ไม่สามารถโหลดข้อมูลห้องได้';
+      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();

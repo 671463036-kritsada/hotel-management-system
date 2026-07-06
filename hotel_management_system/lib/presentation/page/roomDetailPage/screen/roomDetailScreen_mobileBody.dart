@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/screen/booking_form_screen.dart';
+import 'package:hotel_management_system/presentation/page/homePage/provider/home_screen_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../components/bavbar/topNavbar.dart';
@@ -13,32 +14,15 @@ import '../provider/room_detail_screen_provider.dart';
 class RoomDetailScreenMobileBody extends StatefulWidget {
   final int roomId;
   final RoomType roomType;
-  final List<String> imageUrls;
 
-  const RoomDetailScreenMobileBody({
-    super.key,
-    required this.roomId,
-    required this.roomType,
-    required this.imageUrls,
-  });
+  const RoomDetailScreenMobileBody(
+      {super.key, required this.roomId, required this.roomType});
 
   @override
   State<RoomDetailScreenMobileBody> createState() => _RoomDetailScreenState();
 }
 
 class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomDetailScreenProvider>().getRoomDetail(
-            widget.roomId,
-            widget.roomType,
-            widget.imageUrls,
-          );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +88,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          '฿${room.pricePerNight.toStringAsFixed(0)} / คืน',
+                          '฿${room.pricePerNight.toDouble()} / คืน',
                           style: const TextStyle(
                               fontSize: 22,
                               color: Constants.primaryColor,
