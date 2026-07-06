@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 import 'package:hotel_management_system/presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 
@@ -7,34 +8,53 @@ enum RoomType {
   house,
 }
 
-Widget createBoxShowData(RoomType type, int len ,{int crossAxisCount = 2}) {
-  final String folder = type == RoomType.rooms ? 'rooms' : 'houses';
-  final String fileName = type == RoomType.rooms ? 'room' : 'house';
-  final String label = type == RoomType.rooms ? '(Room)' : '(House)';
+Widget createBoxShowData(
+  RoomType type,
+  List<HomeEntitise> rooms, {
+  int len = 10,
+  int crossAxisCount = 2,
+}) {
+  final filteredRooms = rooms
+      .where((room) {
+        final selectedType = type == RoomType.rooms ? 'rooms' : 'house';
+        return room.roomType.toLowerCase() == selectedType;
+      })
+      .take(len)
+      .toList();
+
+  if (filteredRooms.isEmpty) {
+    return const Center(child: Text('ไม่มีข้อมูล'));
+  }
 
   return GridView.builder(
+    padding: const EdgeInsets.only(bottom: 12),
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: crossAxisCount,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 0.75,
+      childAspectRatio: 0.78,
     ),
-    itemCount: len,
+    itemCount: filteredRooms.length,
     itemBuilder: (context, index) {
+      final room = filteredRooms[index];
+      final imagePath = room.imageUrls.isNotEmpty
+          ? room.imageUrls.first
+          : 'assets/images/rooms/room1.jpg';
+
       return InkWell(
         onTap: () {
-          List<String> images = [
-            'assets/images/$folder/$fileName${index + 1}.jpg',
-            'assets/images/$folder/$fileName${(index % 3) + 1}.jpg', // รูปสำรอง
-          ];
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => RoomDetailScreen(
-                        roomId: index + 1,
-                        roomType: type,
-                        imageUrls: images,
-                      )));
+            context,
+            MaterialPageRoute(
+              builder: (context) => RoomDetailScreen(
+                roomId: room.roomId,
+                roomType: room.roomType.toLowerCase() == 'house'
+                    ? RoomType.house
+                    : RoomType.rooms,
+                imageUrls: room.imageUrls,
+              ),
+            ),
+          );
         },
         child: Container(
           decoration: BoxDecoration(
@@ -50,9 +70,17 @@ Widget createBoxShowData(RoomType type, int len ,{int crossAxisCount = 2}) {
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(10)),
                   child: Image.asset(
-                    'assets/images/$folder/$fileName${index + 1}.jpg', //
+                    imagePath,
                     fit: BoxFit.cover,
                     width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(Icons.image_not_supported_outlined),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -62,20 +90,26 @@ Widget createBoxShowData(RoomType type, int len ,{int crossAxisCount = 2}) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'รายการที่ ${index + 1} $label',
+                      room.roomType.toLowerCase() == 'house'
+                          ? 'บ้านพัก'
+                          : 'ห้องพัก',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    _buildInfoRow(),
+                    _buildInfoRow(
+                      bedCount: room.bedCount,
+                      status: room.status,
+                    ),
                     const SizedBox(height: 8),
                     Text(
-                      '฿${(index + 1) * 500}',
+                      '฿${room.pricePerNight}',
                       style: const TextStyle(
-                          color: Constants.secondaryColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                        color: Constants.secondaryColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -88,16 +122,23 @@ Widget createBoxShowData(RoomType type, int len ,{int crossAxisCount = 2}) {
   );
 }
 
-Widget _buildInfoRow() {
+Widget _buildInfoRow({required int bedCount, required String status}) {
   return Row(
     children: [
       Icon(Icons.king_bed_outlined, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      Text('1 เตียง', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+      Text('$bedCount เตียง',
+          style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       const SizedBox(width: 10),
       Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      Text('ว่าง', style: TextStyle(fontSize: 12, color: Colors.green[600])),
+      Text(
+        status,
+        style: TextStyle(
+          fontSize: 12,
+          color: status == 'ว่าง' ? Colors.green[600] : Colors.orange[700],
+        ),
+      ),
     ],
   );
 }

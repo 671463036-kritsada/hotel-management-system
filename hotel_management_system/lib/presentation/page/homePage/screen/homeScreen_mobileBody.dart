@@ -9,8 +9,22 @@ import '../../../core/form_enum.dart';
 import '../../../core/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
-class HomeScreenMobileBody extends StatelessWidget {
+class HomeScreenMobileBody extends StatefulWidget {
   const HomeScreenMobileBody({super.key});
+
+  @override
+  State<HomeScreenMobileBody> createState() => _HomeScreenMobileBodyState();
+}
+
+class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<HomeScreenProvider>().getRoomdata();
+    });
+  }
 
   Widget _buildTabButton(BuildContext context, String label, RoomType type) {
     final provider = context.watch<HomeScreenProvider>();
@@ -29,8 +43,6 @@ class HomeScreenMobileBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<HomeScreenProvider>();
-
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
@@ -72,11 +84,21 @@ class HomeScreenMobileBody extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 8),
-                    Expanded(
-                      child: createBoxShowData(
-                          provider.selectedRoomType, provider.len,
-                          crossAxisCount: 2),
-                    ),
+                    Consumer<HomeScreenProvider>(
+                        builder: (context, provider, child) {
+                      return Expanded(
+                        child: provider.isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : provider.errorMessage.isNotEmpty
+                                ? Center(child: Text(provider.errorMessage))
+                                : createBoxShowData(
+                                    provider.selectedRoomType,
+                                    provider.roomData,
+                                    len: provider.len,
+                                    crossAxisCount: 2,
+                                  ),
+                      );
+                    })
                   ],
                 ),
               ),

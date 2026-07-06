@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
+import 'package:hotel_management_system/data/repositorise/home_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
@@ -21,10 +24,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeUsecase = HomeUsecase(
+      HomeRepositoryImpl(HomeRemoteDataSourceImpl()),
+    );
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
-        ChangeNotifierProvider(create: (_) => LoginScreenProvider(  )),
+        ChangeNotifierProvider(
+            create: (_) => HomeScreenProvider(homeUsecase, [])),
+        ChangeNotifierProvider(create: (_) => LoginScreenProvider()),
         ChangeNotifierProvider(create: (_) => RegisterScreenProvider()),
         ChangeNotifierProvider(
             create: (_) => HousekeeperRoomCheckScreenProvider()),
