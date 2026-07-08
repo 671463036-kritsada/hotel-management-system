@@ -14,11 +14,8 @@ class RoomDetailScreenDesktopBody extends StatefulWidget {
   final int roomId;
   final RoomType roomType;
 
-  const RoomDetailScreenDesktopBody({
-    super.key,
-    required this.roomId,
-    required this.roomType
-  });
+  const RoomDetailScreenDesktopBody(
+      {super.key, required this.roomId, required this.roomType});
 
   @override
   State<RoomDetailScreenDesktopBody> createState() =>
@@ -30,10 +27,9 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomDetailScreenProvider>().getRoomDetail(
-            widget.roomId,
-            widget.roomType
-          );
+      context
+          .read<RoomDetailScreenProvider>()
+          .getRoomDetail(widget.roomId, widget.roomType);
     });
   }
 
@@ -147,7 +143,7 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                                         style: TextStyle(color: Colors.grey)),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '฿${room.pricePerNight.toStringAsFixed(0)}',
+                                      '฿${room.pricePerNight.toDouble()}',
                                       style: const TextStyle(
                                           fontSize: 32,
                                           color: Constants.primaryColor,

@@ -1,11 +1,15 @@
-// booking_form_screen_provider.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/entitise/booking_form_entitise.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
 
 class BookingFormScreenProvider extends ChangeNotifier {
+  final BookingFormUsecase bookingFormUseCase;
+  BookingFormScreenProvider(this.bookingFormUseCase);
+
   // --- State ---
   BookingFormStatus _status = BookingFormStatus.initial;
   String _errorMessage = '';
@@ -15,7 +19,8 @@ class BookingFormScreenProvider extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController bankController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController numberOfGuestsController = TextEditingController();
+  final TextEditingController numberOfGuestsController =
+      TextEditingController();
   final TextEditingController checkInController = TextEditingController();
   final TextEditingController checkOutController = TextEditingController();
 
@@ -41,24 +46,29 @@ class BookingFormScreenProvider extends ChangeNotifier {
   Future<void> submitBooking(int roomId) async {
     _status = BookingFormStatus.loading;
     notifyListeners();
-
     try {
-      // TODO: เชื่อม API จริง
-      // await _bookingRepository.createBooking(
-      //   roomId: roomId,
-      //   fullName: fullNameController.text,
-      //   email: emailController.text,
-      //   bank: bankController.text,
-      //   phone: phoneController.text,
-      //   numberOfGuests: numberOfGuestsController.text,
-      //   checkInDate: checkInController.text,
-      //   checkOutDate: checkOutController.text,
-      //   paymentSlip: _paymentSlipImage,
-      // );
+      final bookingModel = BookingFormEntitise(
+        roomId: roomId,
+        fullName: fullNameController.text,
+        email: emailController.text,
+        bankAccount: bankController.text,
+        phoneNumber: phoneController.text,
+        numberOfGuests: int.tryParse(numberOfGuestsController.text) ?? 1,
+        checkInDate:
+            DateTime.tryParse(checkInController.text) ?? DateTime.now(),
+        checkOutDate:
+            DateTime.tryParse(checkOutController.text) ?? DateTime.now(),
+        paymentSlip: _paymentSlipImage?.path ?? '',
+      );
 
-      // Mock success
-      await Future.delayed(const Duration(milliseconds: 500));
-      _status = BookingFormStatus.success;
+      final result = await bookingFormUseCase.bookingForm(bookingModel);
+
+      if (result) {
+        _status = BookingFormStatus.success;
+      } else {
+        _errorMessage = 'กรุณากรอกข้อมูลให้ครบถ้วน';
+        _status = BookingFormStatus.error;
+      }
       notifyListeners();
     } catch (e) {
       _errorMessage = 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';

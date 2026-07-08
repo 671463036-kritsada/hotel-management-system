@@ -2,6 +2,9 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
+import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:hotel_management_system/presentation/components/button/button.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
 import 'package:provider/provider.dart';
@@ -63,8 +66,12 @@ class BookingFormScreenMobileBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bookingUsecase = BookingFormUsecase(
+      BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()),
+    );
+
     return ChangeNotifierProvider(
-      create: (_) => BookingFormScreenProvider(),
+      create: (_) => BookingFormScreenProvider(bookingUsecase),
       builder: (context, _) => Scaffold(
         backgroundColor: Constants.white,
         floatingActionButton: Consumer<BookingFormScreenProvider>(

@@ -23,7 +23,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             "description":
                 "สัมผัสประสบการณ์การพักผ่อนที่เหนือระดับ ด้วยห้องพักที่ตกแต่งอย่างทันสมัย พร้อมสิ่งอำนวยความสะดวกครบครัน",
             "pricePerNight": (index + 1) * 500.0,
-            "status": "ไม่ว่าง",
+            "status": "ว่าง",
           },
         ),
         ...List.generate(

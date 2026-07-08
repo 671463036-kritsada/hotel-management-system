@@ -104,13 +104,16 @@ Widget createInputField(InputFieldType type,
       );
     case InputFieldType.bank:
       return _buildBaseTextField(
-        label: "เลขบัญชีธนาคาร",
-        icon: Icons.account_balance,
-        hint: "กรอกเลขบัญชีธนาคาร",
-      );
+          label: "เลขบัญชีธนาคาร",
+          icon: Icons.account_balance,
+          hint: "กรอกเลขบัญชีธนาคาร",
+          controller: controller);
     case InputFieldType.numberOfGuests:
       return _buildBaseTextField(
-          label: "จำนวนคน", icon: Icons.people_alt, hint: "จำนวนคน");
+          label: "จำนวนคน",
+          icon: Icons.people_alt,
+          hint: "จำนวนคน",
+          controller: controller);
     case InputFieldType.numberOfNights:
       return _buildBaseTextField(label: "จำนวนคืน", icon: Icons.night_shelter);
     case InputFieldType.search:
