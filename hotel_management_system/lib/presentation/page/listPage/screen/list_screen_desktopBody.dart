@@ -28,7 +28,8 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ListScreenProvider>().getBookingList();
+      // TODO: เปลี่ยน 1 เป็น userID จริงตอนทำระบบ auth เสร็จ
+      context.read<ListScreenProvider>().getBookingList(1);
     });
   }
 
@@ -67,15 +68,15 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                 ...provider.bookingList.map((booking) {
                                   return Boxlistcompanent(
                                     roomNumber: booking.roomNumber,
-                                    date: booking.date,
-                                    payamout: booking.payAmount,
-                                    keyBooking: booking.keyBooking,
+                                    payamout: booking.totalPrice ?? 0,
+                                    keyBooking: booking.bookingId,
                                     status: booking.status,
                                     textStatus: booking.textStatus,
                                     statusColor: booking.statusColor,
                                     statusChekin: booking.checkInStatus,
                                     statusCheckout: booking.checkOutStatus,
                                     statusConCheck: booking.statusConCheck,
+                                    roomKey: booking.roomKey,
                                     onTap: () {
                                       showModalBottomSheet(
                                         context: context,
@@ -91,8 +92,8 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                             heightFactor: 0.9,
                                             child: SingleChildScrollView(
                                               child: Infoabout(
-                                                status: booking.checkInStatus ==
-                                                    true,
+                                                bookingId: booking.bookingId,
+                                                status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,
                                               ),

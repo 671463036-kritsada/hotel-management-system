@@ -6,18 +6,20 @@ import '../../../core/constants.dart';
 
 class Boxlistcompanent extends StatelessWidget {
   final int roomNumber;
-  final String date, payamout, keyBooking, status, textStatus;
+  final String status, textStatus;
+  final int keyBooking;
+  final double payamout;
   final Color statusColor;
   final bool? statusChekin;
   final bool? statusCheckout;
   final bool? statusConCheck;
+  final String? roomKey;
 
   final Function()? onTap;
 
   Boxlistcompanent(
       {super.key,
       required this.roomNumber,
-      required this.date,
       required this.payamout,
       required this.keyBooking,
       required this.status,
@@ -26,7 +28,8 @@ class Boxlistcompanent extends StatelessWidget {
       required this.onTap,
       required this.statusChekin,
       this.statusCheckout,
-      this.statusConCheck});
+      this.statusConCheck,
+      this.roomKey});
 
   @override
   Widget build(BuildContext context) {
@@ -96,11 +99,9 @@ class Boxlistcompanent extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildInfoRow(
-                      Icons.calendar_today_outlined, "วันที่เข้า", date),
                   const SizedBox(height: 8),
-                  _buildInfoRow(Icons.payments_outlined, "ยอดชำระ", payamout),
-                  const SizedBox(height: 8),
+                  _buildInfoRow(Icons.payments_outlined, "ยอดชำระ",
+                      "฿${payamout.toStringAsFixed(2)}"),
                   _buildInfoRow(Icons.confirmation_number_outlined,
                       "รหัสการจอง", keyBooking),
                   if (statusChekin == true) ...[
@@ -112,6 +113,11 @@ class Boxlistcompanent extends StatelessWidget {
                     _buildInfoRow(Icons.info_outline, "สถานะ", textStatus,
                         color: statusColor),
                   ],
+                  if (roomKey != "") ...[
+                    const SizedBox(height: 8),
+                    _buildInfoRow(Icons.key, "รหัสเข้าห้อง", roomKey,
+                        color: statusColor),
+                  ]
                 ],
               ),
             ),
@@ -122,7 +128,7 @@ class Boxlistcompanent extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
                   children: [
-                    if (statusConCheck == false)
+                    if (statusConCheck == true)
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => Navigator.push(
@@ -142,7 +148,7 @@ class Boxlistcompanent extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (statusConCheck == false) const SizedBox(width: 10),
+                    if (statusConCheck == true) const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
@@ -199,7 +205,7 @@ class Boxlistcompanent extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value,
+  Widget _buildInfoRow(IconData icon, String label, dynamic value,
       {Color? color}) {
     return Row(
       children: [
@@ -208,7 +214,7 @@ class Boxlistcompanent extends StatelessWidget {
         Text("$label  ",
             style: TextStyle(fontSize: 13, color: Colors.grey[500])),
         Expanded(
-          child: Text(value,
+          child: Text(value.toString(),
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

@@ -28,7 +28,7 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ListScreenProvider>().getBookingList();
+      context.read<ListScreenProvider>().getBookingList(1);
     });
   }
 
@@ -67,15 +67,15 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                 ...provider.bookingList.map((booking) {
                                   return Boxlistcompanent(
                                     roomNumber: booking.roomNumber,
-                                    date: booking.date,
-                                    payamout: booking.payAmount,
-                                    keyBooking: booking.keyBooking,
+                                    payamout: booking.totalPrice ?? 0,
+                                    keyBooking: booking.bookingId,
                                     status: booking.status,
                                     textStatus: booking.textStatus,
                                     statusColor: booking.statusColor,
                                     statusChekin: booking.checkInStatus,
                                     statusCheckout: booking.checkOutStatus,
                                     statusConCheck: booking.statusConCheck,
+                                    roomKey: booking.roomKey,
                                     onTap: () {
                                       showModalBottomSheet(
                                         context: context,
@@ -91,8 +91,9 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                             heightFactor: 0.9,
                                             child: SingleChildScrollView(
                                               child: Infoabout(
-                                                status: booking.checkInStatus ==
-                                                    true,
+                                                bookingId: booking
+                                                    .bookingId, //ส่งไปให้หน้า check-in
+                                                status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,
                                               ),

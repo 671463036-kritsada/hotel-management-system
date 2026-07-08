@@ -5,13 +5,14 @@ import 'check_in_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
 
 class CheckInScreen extends StatelessWidget {
-  const CheckInScreen({super.key});
+  final int? bookingId;
+  const CheckInScreen({super.key, this.bookingId});
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      mobileBody: CheckInScreenMobileBody(),
-      desktopBody: CheckInScreenDesktopBody(),
+      mobileBody: CheckInScreenMobileBody(bookingID: bookingId,),
+      desktopBody: CheckInScreenDesktopBody(bookingID: bookingId,),
     );
   }
 }

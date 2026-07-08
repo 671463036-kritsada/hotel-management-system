@@ -2,6 +2,9 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
+import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:provider/provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
@@ -15,7 +18,8 @@ import '../provider/check_in_screen_provider.dart';
 import '../../listPage/screen/list_screen.dart';
 
 class CheckInScreenDesktopBody extends StatelessWidget {
-  const CheckInScreenDesktopBody({super.key});
+  final int? bookingID ; 
+  const CheckInScreenDesktopBody({super.key , this.bookingID});
 
   void _handleCheckInResult(BuildContext context, CheckInStatus status) {
     if (status == CheckInStatus.success) {
@@ -62,176 +66,180 @@ class CheckInScreenDesktopBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Topnavbar(widthFactor: 0.1),
-            Expanded(
-              child: Consumer<CheckInScreenProvider>(
-                builder: (context, provider, _) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _handleCheckInResult(context, provider.status);
-                  });
-
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(32),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1100),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // --- Header ---
-                            Center(
-                              child: Text("เช็คอินเข้าพัก",
-                                  style: TextStyle(
-                                      fontSize: Constants.fontSizeHeader,
-                                      fontWeight: Constants.fontWeightBold)),
-                            ),
-                            const SizedBox(height: 32),
-
-                            // --- 2 คอลัมน์ ---
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // --- Left: ข้อมูลผู้เข้าพัก ---
-                                Expanded(
-                                  flex: 3,
-                                  child: Column(
-                                    children: [
-                                      _buildCard(
-                                        title: "ข้อมูลผู้เข้าพัก",
-                                        icon: Icons.person_outline,
-                                        child: Column(
-                                          children: [
-                                            createInputField(
-                                                InputFieldType.idCardNumber,
-                                                controller: provider
-                                                    .idCardNumberController),
-                                            createInputField(
-                                                InputFieldType.fullName,
-                                                controller: provider
-                                                    .fullNameController),
-                                            createInputField(
-                                              InputFieldType.gender,
-                                              selectedValue: provider.gender,
-                                              onChanged: (value) => provider
-                                                  .setGender(value.toString()),
-                                            ),
-                                            createInputField(
-                                                InputFieldType.address,
-                                                controller:
-                                                    provider.addressController),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildCard(
-                                        title: "รูปบัตรประชาชน",
-                                        icon: Icons.credit_card_outlined,
-                                        child: createInputField(
-                                          InputFieldType.idCard,
-                                          imageFile: provider.idCardImage,
-                                          onTap: provider.takeIdCardPhoto,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildCard(
-                                        title: "ลายเซ็นยืนยัน",
-                                        icon: Icons.draw_outlined,
-                                        child: createInputField(
-                                          InputFieldType.signature,
-                                          sigController: provider.sigController,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildCard(
-                                        title: "หลักฐานการชำระเงิน",
-                                        icon: Icons.receipt_outlined,
-                                        child: createInputField(
-                                          InputFieldType.paymentSlip,
-                                          imageFile: provider.paymentSlipImage,
-                                          onTap: provider.pickSlipImage,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 24),
-                                      provider.isLoading
-                                          ? const Center(
-                                              child:
-                                                  CircularProgressIndicator())
-                                          : Button(
-                                              text: "ยืนยันการเช็คอิน",
-                                              onTap: () =>
-                                                  provider.submitCheckIn(),
-                                              color: Constants.secondaryColor,
-                                            ),
-                                    ],
-                                  ),
-                                ),
-
-                                const SizedBox(width: 24),
-
-                                // --- Right: QR Code ---
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildCard(
-                                    title: "ชำระค่าบริการ",
-                                    icon: Icons.qr_code_outlined,
+    final checkInUsecase = CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
+    return ChangeNotifierProvider(
+      create: (_) => CheckInScreenProvider(checkInUsecase),
+      builder: (context , _) => Scaffold(
+        backgroundColor: const Color(0xFFF5F6FA),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Topnavbar(widthFactor: 0.1),
+              Expanded(
+                child: Consumer<CheckInScreenProvider>(
+                  builder: (context, provider, _) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _handleCheckInResult(context, provider.status);
+                    });
+      
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(32),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1100),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // --- Header ---
+                              Center(
+                                child: Text("เช็คอินเข้าพัก",
+                                    style: TextStyle(
+                                        fontSize: Constants.fontSizeHeader,
+                                        fontWeight: Constants.fontWeightBold)),
+                              ),
+                              const SizedBox(height: 32),
+      
+                              // --- 2 คอลัมน์ ---
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // --- Left: ข้อมูลผู้เข้าพัก ---
+                                  Expanded(
+                                    flex: 3,
                                     child: Column(
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Constants.secondaryColor,
-                                            borderRadius: BorderRadius.circular(
-                                                Constants.borderRadius),
-                                          ),
-                                          child: Image.asset(
-                                              "assets/images/QRcodePay.png"),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: OutlinedButton.icon(
-                                            onPressed: () =>
-                                                _saveQRCode(context),
-                                            icon: const Icon(Icons.download),
-                                            label: const Text("บันทึก QRcode"),
-                                            style: OutlinedButton.styleFrom(
-                                              foregroundColor:
-                                                  Constants.primaryColor,
-                                              side: BorderSide(
-                                                  color:
-                                                      Constants.primaryColor),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 12),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          Constants
-                                                              .borderRadius)),
-                                            ),
+                                        _buildCard(
+                                          title: "ข้อมูลผู้เข้าพัก",
+                                          icon: Icons.person_outline,
+                                          child: Column(
+                                            children: [
+                                              createInputField(
+                                                  InputFieldType.idCardNumber,
+                                                  controller: provider
+                                                      .idCardNumberController),
+                                              createInputField(
+                                                  InputFieldType.fullName,
+                                                  controller: provider
+                                                      .fullNameController),
+                                              createInputField(
+                                                InputFieldType.gender,
+                                                selectedValue: provider.gender,
+                                                onChanged: (value) => provider
+                                                    .setGender(value.toString()),
+                                              ),
+                                              createInputField(
+                                                  InputFieldType.address,
+                                                  controller:
+                                                      provider.addressController),
+                                            ],
                                           ),
                                         ),
+                                        const SizedBox(height: 20),
+                                        _buildCard(
+                                          title: "รูปบัตรประชาชน",
+                                          icon: Icons.credit_card_outlined,
+                                          child: createInputField(
+                                            InputFieldType.idCard,
+                                            imageFile: provider.idCardImage,
+                                            onTap: provider.takeIdCardPhoto,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildCard(
+                                          title: "ลายเซ็นยืนยัน",
+                                          icon: Icons.draw_outlined,
+                                          child: createInputField(
+                                            InputFieldType.signature,
+                                            sigController: provider.sigController,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildCard(
+                                          title: "หลักฐานการชำระเงิน",
+                                          icon: Icons.receipt_outlined,
+                                          child: createInputField(
+                                            InputFieldType.paymentSlip,
+                                            imageFile: provider.paymentSlipImage,
+                                            onTap: provider.pickSlipImage,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        provider.isLoading
+                                            ? const Center(
+                                                child:
+                                                    CircularProgressIndicator())
+                                            : Button(
+                                                text: "ยืนยันการเช็คอิน",
+                                                onTap: () =>
+                                                    provider.submitCheckIn(bookingID ?? 0),
+                                                color: Constants.secondaryColor,
+                                              ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+      
+                                  const SizedBox(width: 24),
+      
+                                  // --- Right: QR Code ---
+                                  Expanded(
+                                    flex: 2,
+                                    child: _buildCard(
+                                      title: "ชำระค่าบริการ",
+                                      icon: Icons.qr_code_outlined,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Constants.secondaryColor,
+                                              borderRadius: BorderRadius.circular(
+                                                  Constants.borderRadius),
+                                            ),
+                                            child: Image.asset(
+                                                "assets/images/QRcodePay.png"),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: OutlinedButton.icon(
+                                              onPressed: () =>
+                                                  _saveQRCode(context),
+                                              icon: const Icon(Icons.download),
+                                              label: const Text("บันทึก QRcode"),
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor:
+                                                    Constants.primaryColor,
+                                                side: BorderSide(
+                                                    color:
+                                                        Constants.primaryColor),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 12),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            Constants
+                                                                .borderRadius)),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-            Bottomnavbar(isVisibleHousekeeper: false),
-          ],
+              Bottomnavbar(isVisibleHousekeeper: false),
+            ],
+          ),
         ),
       ),
     );

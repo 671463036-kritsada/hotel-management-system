@@ -1,6 +1,9 @@
 // check_in_screen_provider.dart
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/entitise/check_in_entitise.dart';
+import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signature/signature.dart';
@@ -8,6 +11,9 @@ import 'package:signature/signature.dart';
 enum CheckInStatus { initial, loading, success, error }
 
 class CheckInScreenProvider extends ChangeNotifier {
+  final CheckInUsecase usecase;
+  CheckInScreenProvider(this.usecase);
+
   // --- State ---
   CheckInStatus _status = CheckInStatus.initial;
   String _errorMessage = '';
@@ -39,7 +45,6 @@ class CheckInScreenProvider extends ChangeNotifier {
 
   Future<void> takeIdCardPhoto() async {
     var status = await Permission.camera.request();
-
     if (status.isGranted) {
       final ImagePicker picker = ImagePicker();
       final XFile? photo = await picker.pickImage(source: ImageSource.camera);
@@ -64,24 +69,65 @@ class CheckInScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submitCheckIn() async {
+  void clearSignature() {
+    sigController.clear();
+    notifyListeners();
+  }
+
+  /// เช็คว่าฟอร์มกรอกครบและเซ็นลายเซ็นแล้วหรือยัง ก่อนส่ง
+  String? _validateForm() {
+    if (idCardNumberController.text.trim().isEmpty) {
+      return 'กรุณากรอกเลขบัตรประชาชน';
+    }
+    if (fullNameController.text.trim().isEmpty) {
+      return 'กรุณากรอกชื่อ-นามสกุล';
+    }
+    if (addressController.text.trim().isEmpty) {
+      return 'กรุณากรอกที่อยู่';
+    }
+    // if (_idCardImage == null) {
+    //   return 'กรุณาถ่ายรูปบัตรประชาชน';
+    // }
+    if (sigController.isEmpty) {
+      return 'กรุณาเซ็นลายเซ็นยืนยัน';
+    }
+    if (_paymentSlipImage == null) {
+      return 'กรุณาแนบหลักฐานการโอนเงิน';
+    }
+    return null;
+  }
+
+  Future<void> submitCheckIn(int bookingId) async {
+    final validationError = _validateForm();
+    if (validationError != null) {
+      _errorMessage = validationError;
+      _status = CheckInStatus.error;
+      notifyListeners();
+      return;
+    }
+
     _status = CheckInStatus.loading;
     notifyListeners();
 
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      // await _checkInRepository.submitCheckIn(
-      //   idCardNumber: idCardNumberController.text,
-      //   fullName: fullNameController.text,
-      //   gender: _gender,
-      //   address: addressController.text,
-      //   idCardImage: _idCardImage,
-      //   paymentSlip: _paymentSlipImage,
-      //   signature: await sigController.toPngBytes(),
-      // );
+      final signatureBytes = await sigController.toPngBytes();
+      final String? signatureBase64 = signatureBytes != null
+          ? base64Encode(signatureBytes)
+          : null; // แปลงตรงนี้
 
-      // Mock success
-      await Future.delayed(const Duration(milliseconds: 500));
+      final checkInData = CheckInEntitise(
+        bookingId: bookingId,
+        idCardNumber: idCardNumberController.text.trim(),
+        fullName: fullNameController.text.trim(),
+        gender: _gender,
+        address: addressController.text.trim(),
+        idCardImage: _idCardImage?.path ?? '',
+        paymentSlipImage: _paymentSlipImage?.path ?? '',
+        signatureImage: signatureBase64, // ส่ง string เข้าไป
+      );
+
+      await usecase.getCheckInData(checkInData);
+
       _status = CheckInStatus.success;
       notifyListeners();
     } catch (e) {

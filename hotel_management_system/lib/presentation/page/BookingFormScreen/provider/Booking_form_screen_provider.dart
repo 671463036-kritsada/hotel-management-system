@@ -47,7 +47,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
     _status = BookingFormStatus.loading;
     notifyListeners();
     try {
-      final bookingModel = BookingFormEntitise(
+      final bookingFormData = BookingFormEntitise(
         roomId: roomId,
         fullName: fullNameController.text,
         email: emailController.text,
@@ -61,7 +61,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
         paymentSlip: _paymentSlipImage?.path ?? '',
       );
 
-      final result = await bookingFormUseCase.bookingForm(bookingModel);
+      final result = await bookingFormUseCase.bookingForm(bookingFormData);
 
       if (result) {
         _status = BookingFormStatus.success;

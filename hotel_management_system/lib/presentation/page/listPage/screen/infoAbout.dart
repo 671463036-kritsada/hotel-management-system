@@ -4,10 +4,11 @@ import 'package:hotel_management_system/presentation/page/checkInPage/screen/che
 import '../../../components/button/button.dart';
 import '../../../core/constants.dart';
 
-
 class Infoabout extends StatelessWidget {
-  final bool? status, checkInStatus;
-  Infoabout({super.key, this.status, this.checkInStatus});
+  final bool? checkInStatus;
+  final String? status;
+  final int? bookingId;
+  Infoabout({super.key, this.bookingId, this.status, this.checkInStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,9 @@ class Infoabout extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                  status == true ? "รายละเอียดการเข้าพัก" : "รายละเอียดการจอง",
+                  status == "APPROVED"
+                      ? "รายละเอียดการเข้าพัก"
+                      : "รายละเอียดการจอง",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
             const Divider(height: 30),
@@ -39,7 +42,8 @@ class Infoabout extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("สถานะการชำระเงิน ${status == true ? "" : "มัดจำ"} ",
+              child: Text(
+                  "สถานะการชำระเงิน ${status == "APPROVED" ? "" : "มัดจำ"} ",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
             Container(
@@ -47,23 +51,32 @@ class Infoabout extends StatelessWidget {
               child: Image.asset("assets/images/slip.png"),
             ),
 
-           if (checkInStatus == true)
-            Text("รหัสเข้าห้อง: 839201",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            if (checkInStatus == true)
+              Text("รหัสเข้าห้อง: 839201",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
 
             SizedBox(
               height: 20,
             ),
-            if (status == true)
+            if (status == "APPROVED")
               Button(
-                  text: "Check-in",
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckInScreen()));
-                  },
-                  color: Colors.green),
+                text: "Check-in",
+                onTap: () {
+                  if (bookingId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("ไม่พบข้อมูลการจอง")),
+                    );
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CheckInScreen(bookingId: bookingId),
+                    ),
+                  );
+                },
+                color: Colors.green,
+              ),
             const SizedBox(height: 30),
           ],
         ),
