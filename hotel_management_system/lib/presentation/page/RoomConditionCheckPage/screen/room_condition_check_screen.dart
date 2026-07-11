@@ -6,6 +6,7 @@ import 'RoomConditionCheckPage_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
 
 class RoomConditionCheckScreen extends StatefulWidget {
+
   const RoomConditionCheckScreen({super.key});
 
   @override
@@ -17,7 +18,7 @@ class _RoomConditionCheckScreenState extends State<RoomConditionCheckScreen> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      mobileBody: RoomConditionCheckScreenMobileBody(),
+      mobileBody: RoomConditionCheckScreenMobileBody(roomId: 205),
       desktopBody: RoomConditionCheckScreenDesktopBody(),
     );
   }

@@ -25,7 +25,7 @@ class _RoomConditionCheckScreenDesktopBodyState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomConditionCheckScreenProvider>().init();
+      context.read<RoomConditionCheckScreenProvider>().init(205);
     });
   }
 
@@ -362,7 +362,7 @@ class _RoomConditionCheckScreenDesktopBodyState
   void _showSuccessDialog({String msg = "บันทึกข้อมูลสำเร็จ"}) async {
     await context
         .read<RoomConditionCheckScreenProvider>()
-        .submitCheckCondition();
+        .submitCheckCondition(205);
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: Colors.green));
     Navigator.pushReplacement(

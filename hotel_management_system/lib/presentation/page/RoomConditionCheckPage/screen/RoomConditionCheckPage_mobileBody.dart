@@ -1,6 +1,9 @@
 // room_condition_check_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/furniture_remote.dart';
+import 'package:hotel_management_system/data/repositorise/furniture_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -11,25 +14,50 @@ import '../../../core/constants.dart';
 import '../provider/room_condition_check_screen_provider.dart';
 import '../../listPage/screen/list_screen.dart';
 
-class RoomConditionCheckScreenMobileBody extends StatefulWidget {
-  const RoomConditionCheckScreenMobileBody({super.key});
+// ---------------------------------------------------------------------
+// ตัวนอก: มีหน้าที่เดียวคือสร้าง Provider แล้วส่งต่อให้ widget ลูก
+// ---------------------------------------------------------------------
+class RoomConditionCheckScreenMobileBody extends StatelessWidget {
+  final int roomId;
+
+  const RoomConditionCheckScreenMobileBody({super.key, required this.roomId});
 
   @override
-  State<RoomConditionCheckScreenMobileBody> createState() =>
-      _RoomConditionCheckScreenMobileBodyState();
+  Widget build(BuildContext context) {
+    final furnitureUsecase = FurnitureUsecase(
+      FurnitureRepositoriseImpl(furnitureRemoteDataSourceImpl()),
+    );
+
+    return ChangeNotifierProvider(
+      create: (_) => RoomConditionCheckScreenProvider(furnitureUsecase),
+      // ✅ ใช้ child: ส่ง widget แยกคลาสเข้าไป เพื่อให้ context ของลูกอยู่ใต้ provider จริง
+      child: _RoomConditionCheckContent(roomId: roomId),
+    );
+  }
 }
 
-class _RoomConditionCheckScreenMobileBodyState
-    extends State<RoomConditionCheckScreenMobileBody> {
+// ---------------------------------------------------------------------
+// ตัวใน: เนื้อหาจริงของหน้าจอ เป็นลูกของ ChangeNotifierProvider แล้ว
+// ---------------------------------------------------------------------
+class _RoomConditionCheckContent extends StatefulWidget {
+  final int roomId;
+  const _RoomConditionCheckContent({required this.roomId});
+
+  @override
+  State<_RoomConditionCheckContent> createState() =>
+      _RoomConditionCheckContentState();
+}
+
+class _RoomConditionCheckContentState
+    extends State<_RoomConditionCheckContent> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomConditionCheckScreenProvider>().init();
+      context.read<RoomConditionCheckScreenProvider>().init(widget.roomId);
     });
   }
 
-  // --- UI Helper Methods ---
   Widget _buildTimerBadge(int seconds) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -54,18 +82,19 @@ class _RoomConditionCheckScreenMobileBodyState
   }
 
   Widget _buildItemImage(FurnitureItem item) {
-    if (item.image is String) {
+    if (item.image is String && (item.image as String).isNotEmpty) {
       return Image.asset(item.image,
           width: 60,
           height: 60,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => const Icon(Icons.broken_image));
     }
+    // image เป็น null หรือรายการที่เพิ่มเอง -> แสดงไอคอนเตือนแทน
     return Container(
         width: 60,
         height: 60,
         color: Colors.orange.shade100,
-        child: Icon(item.image as IconData, color: Colors.orange));
+        child: const Icon(Icons.warning_amber_rounded, color: Colors.orange));
   }
 
   Widget _buildStatusPicker(int index, FurnitureItem item) {
@@ -200,161 +229,186 @@ class _RoomConditionCheckScreenMobileBodyState
     String extraTitle = "";
     File? tempImage;
 
+    //ดักจับ provider ไว้ก่อนเปิด modal เพราะ context ข้างใน builder ของ
+    // showModalBottomSheet อยู่คนละ tree กับ context ปัจจุบัน หาไม่เจอ provider
+    final provider = context.read<RoomConditionCheckScreenProvider>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              left: 24,
-              right: 24,
-              top: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- Handle bar ---
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-
-              // --- Header ---
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
+      builder: (context) => ChangeNotifierProvider.value(
+        // ✅ เพิ่มบรรทัดนี้
+        value: provider,
+        child: StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                left: 24,
+                right: 24,
+                top: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(Icons.warning_amber_rounded,
-                        color: Colors.orange.shade700, size: 24),
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2)),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("แจ้งของชำรุดเพิ่มเติม",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text("ระบุรายการที่ไม่มีในรายการตรวจเช็ค",
-                          style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // --- Input ชื่อสิ่งของ ---
-              TextField(
-                autofocus: true,
-                onChanged: (v) => extraTitle = v,
-                decoration: InputDecoration(
-                  labelText: "ชื่อสิ่งของที่ชำรุด",
-                  prefixIcon: const Icon(Icons.inventory_2_outlined),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Constants.primaryColor, width: 2)),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // --- ถ่ายรูป ---
-              Text("รูปภาพความเสียหาย",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[700])),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () async {
-                  final picker = ImagePicker();
-                  final XFile? image = await picker.pickImage(
-                      source: ImageSource.camera, imageQuality: 50);
-                  if (image != null) {
-                    setModalState(() => tempImage = File(image.path));
-                  }
-                },
-                child: tempImage == null
-                    ? Container(
-                        height: 130,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300, width: 1.5)),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.camera_enhance_outlined, size: 36, color: Colors.grey[400]),
-                              const SizedBox(height: 6),
-                              Text("กดเพื่อถ่ายรูปความเสียหาย",
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 13)),
-                            ]),
-                      )
-                    : ClipRRect(
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
                         borderRadius: BorderRadius.circular(12),
-                        child: Stack(children: [
-                          Image.file(tempImage!, height: 180, width: double.infinity, fit: BoxFit.cover),
-                          Positioned(
-                              right: 10, top: 10,
-                              child: CircleAvatar(
-                                  backgroundColor: Colors.black54,
-                                  child: const Icon(Icons.edit, color: Colors.white, size: 18))),
-                        ]),
                       ),
-              ),
-              const SizedBox(height: 24),
-
-              // --- ปุ่ม ---
-              Button(
-                text: "ยืนยันการเพิ่มรายการ",
-                color: Constants.primaryColor,
-                onTap: () {
-                  if (extraTitle.isNotEmpty) {
-                    context.read<RoomConditionCheckScreenProvider>().addExtraFurniture(
-                          title: extraTitle,
-                          damageImage: tempImage,
-                        );
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("กรุณาระบุชื่อสิ่งของ")));
-                  }
-                },
-              ),
-            ],
+                      child: Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange.shade700, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("แจ้งของชำรุดเพิ่มเติม",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text("ระบุรายการที่ไม่มีในรายการตรวจเช็ค",
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey[500])),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  autofocus: true,
+                  onChanged: (v) => extraTitle = v,
+                  decoration: InputDecoration(
+                    labelText: "ชื่อสิ่งของที่ชำรุด",
+                    prefixIcon: const Icon(Icons.inventory_2_outlined),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color: Constants.primaryColor, width: 2)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text("รูปภาพความเสียหาย",
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700])),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () async {
+                    final picker = ImagePicker();
+                    final XFile? image = await picker.pickImage(
+                        source: ImageSource.camera, imageQuality: 50);
+                    if (image != null) {
+                      setModalState(() => tempImage = File(image.path));
+                    }
+                  },
+                  child: tempImage == null
+                      ? Container(
+                          height: 130,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Colors.grey.shade300, width: 1.5)),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.camera_enhance_outlined,
+                                    size: 36, color: Colors.grey[400]),
+                                const SizedBox(height: 6),
+                                Text("กดเพื่อถ่ายรูปความเสียหาย",
+                                    style: TextStyle(
+                                        color: Colors.grey[400], fontSize: 13)),
+                              ]),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Stack(children: [
+                            Image.file(tempImage!,
+                                height: 180,
+                                width: double.infinity,
+                                fit: BoxFit.cover),
+                            Positioned(
+                                right: 10,
+                                top: 10,
+                                child: CircleAvatar(
+                                    backgroundColor: Colors.black54,
+                                    child: const Icon(Icons.edit,
+                                        color: Colors.white, size: 18))),
+                          ]),
+                        ),
+                ),
+                const SizedBox(height: 24),
+                Button(
+                  text: "ยืนยันการเพิ่มรายการ",
+                  color: Constants.primaryColor,
+                  onTap: () {
+                    if (extraTitle.isNotEmpty) {
+                      context
+                          .read<RoomConditionCheckScreenProvider>()
+                          .addExtraFurniture(
+                            title: extraTitle,
+                            damageImage: tempImage,
+                          );
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("กรุณาระบุชื่อสิ่งของ")));
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _showSuccessDialog({String msg = "บันทึกข้อมูลสำเร็จ"}) async {
-    await context
-        .read<RoomConditionCheckScreenProvider>()
-        .submitCheckCondition();
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.green));
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                ListScreen(checkInStatus: true, statusConCheck: true)));
+  Future<void> _showSuccessDialog({String msg = "บันทึกข้อมูลสำเร็จ"}) async {
+    try {
+      await context
+          .read<RoomConditionCheckScreenProvider>()
+          .submitCheckCondition(widget.roomId);
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), backgroundColor: Colors.green));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ListScreen(checkInStatus: true, statusConCheck: true)));
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+            backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -366,11 +420,45 @@ class _RoomConditionCheckScreenMobileBodyState
           children: [
             Consumer<RoomConditionCheckScreenProvider>(
               builder: (context, provider, _) {
-                if (provider.isTimeUp) {
+                if (provider.consumeAutoSubmitTrigger()) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _showSuccessDialog(
                         msg: "หมดเวลาตรวจเช็ค ระบบยืนยันอัตโนมัติ");
                   });
+                }
+
+                if (provider.isLoading) {
+                  return const Center(
+                      child: Padding(
+                    padding: EdgeInsets.only(top: 200),
+                    child: CircularProgressIndicator(),
+                  ));
+                }
+
+                if (provider.errorMessage != null) {
+                  return Center(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 200, left: 24, right: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 48),
+                          const SizedBox(height: 12),
+                          Text(provider.errorMessage!,
+                              textAlign: TextAlign.center),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => context
+                                .read<RoomConditionCheckScreenProvider>()
+                                .init(widget.roomId),
+                            child: const Text("ลองใหม่อีกครั้ง"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
 
                 return SingleChildScrollView(
@@ -379,7 +467,6 @@ class _RoomConditionCheckScreenMobileBodyState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- Header ---
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -400,8 +487,6 @@ class _RoomConditionCheckScreenMobileBodyState
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // --- สรุปสถานะ ---
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
@@ -419,30 +504,19 @@ class _RoomConditionCheckScreenMobileBodyState
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _buildSummaryChip(
-                                "ปกติ",
-                                provider.furnitureList
-                                    .where((f) => f.status == "ปกติ")
-                                    .length,
-                                Colors.green),
+                                "ปกติ", provider.normalCount, Colors.green),
                             _buildSummaryChip(
-                                "ชำรุด",
-                                provider.furnitureList
-                                    .where((f) => f.status == "ชำรุด")
-                                    .length,
-                                Colors.red),
+                                "ชำรุด", provider.damagedCount, Colors.red),
                             _buildSummaryChip(
                                 "ยังไม่ตรวจ",
                                 provider.furnitureList
-                                    .where((f) =>
-                                        f.status.isEmpty || f.status == "")
+                                    .where((f) => f.status.isEmpty)
                                     .length,
                                 Colors.grey),
                           ],
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // --- รายการเฟอร์นิเจอร์ ---
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -511,8 +585,6 @@ class _RoomConditionCheckScreenMobileBodyState
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // --- ปุ่ม action ---
                       Button(
                           text: "บันทึกข้อมูลการตรวจเช็ค",
                           onTap: () => _showSuccessDialog(),

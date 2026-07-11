@@ -2,13 +2,17 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../../domain/entitise/furniture_entitise.dart';
 
 class FurnitureItem {
   final String title;
-  final dynamic image; // String (asset path) หรือ IconData
+  final dynamic image;
   String status;
   String note;
+  bool isCustom;
   File? damageImage;
 
   FurnitureItem({
@@ -16,51 +20,78 @@ class FurnitureItem {
     required this.image,
     this.status = "ปกติ",
     this.note = "",
+    this.isCustom = false,
     this.damageImage,
   });
 }
 
 class RoomConditionCheckScreenProvider extends ChangeNotifier {
+  final FurnitureUsecase usecase;
+  RoomConditionCheckScreenProvider(this.usecase);
+
   // --- State ---
   List<FurnitureItem> _furnitureList = [];
   int _remainingSeconds = 3600;
   Timer? _timer;
+  bool _isLoading = false;
+  bool _disposed = false;
+  bool _autoSubmitTriggered = false; // กันเรียก auto-submit ซ้ำเมื่อหมดเวลา
+  String? _errorMessage;
 
   // --- Getter ---
   List<FurnitureItem> get furnitureList => _furnitureList;
   int get remainingSeconds => _remainingSeconds;
   bool get isTimeUp => _remainingSeconds <= 0;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  int get normalCount => _furnitureList.where((f) => f.status == "ปกติ").length;
+  int get damagedCount =>
+      _furnitureList.where((f) => f.status == "ชำรุด").length;
+
+  // เช็คว่าควร trigger auto-submit หรือยัง (เรียกครั้งเดียวจาก UI แล้ว mark ว่า trigger ไปแล้ว)
+  bool consumeAutoSubmitTrigger() {
+    if (isTimeUp && !_autoSubmitTriggered) {
+      _autoSubmitTriggered = true;
+      return true;
+    }
+    return false;
+  }
+
+  void _safeNotify() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
 
   // --- Init ---
-  void init() {
-    _loadFurnitureList();
+  void init(int roomID) {
+    _loadFurnitureList(roomID);
     _startTimer();
   }
 
-  void _loadFurnitureList() {
-    // TODO: เชื่อม API จริงตรงนี้
-    // _furnitureList = await _roomRepository.getFurnitureList(roomId);
+  Future<void> _loadFurnitureList(int roomID) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _safeNotify();
 
-    // Mock data
-    _furnitureList = [
-      FurnitureItem(
-        title: "เตียงนอน",
-        image: "assets/images/furnitures/bed.jpg",
-      ),
-      FurnitureItem(
-        title: "เครื่องปรับอากาศ",
-        image: "assets/images/furnitures/airconditioner.jpg",
-      ),
-      FurnitureItem(
-        title: "ตู้เย็น / มินิบาร์",
-        image: "assets/images/furnitures/fridge.jpg",
-      ),
-      FurnitureItem(
-        title: "ทีวี และ รีโมท",
-        image: "assets/images/furnitures/TV.jpg",
-      ),
-    ];
-    notifyListeners();
+    try {
+      final entities = await usecase.getFurnitureData(roomID);
+
+      _furnitureList = entities.map((entity) {
+        return FurnitureItem(
+          title: entity.title ?? "",
+          image: entity.image ?? "",
+          status: entity.status ?? "ปกติ",
+        );
+      }).toList();
+    } catch (e) {
+      _errorMessage = "ไม่สามารถโหลดข้อมูลเฟอร์นิเจอร์ได้ กรุณาลองใหม่อีกครั้ง";
+      debugPrint("Load furniture error: $e");
+    } finally {
+      _isLoading = false;
+      _safeNotify();
+    }
   }
 
   // --- Timer ---
@@ -68,10 +99,10 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
-        notifyListeners();
+        _safeNotify();
       } else {
         _timer?.cancel();
-        notifyListeners(); // แจ้ง UI ว่าหมดเวลา
+        _safeNotify();
       }
     });
   }
@@ -86,20 +117,21 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   // --- Functions ---
   void updateStatus(int index, String status) {
     _furnitureList[index].status = status;
-    notifyListeners();
+    _safeNotify();
   }
 
   void updateNote(int index, String note) {
     _furnitureList[index].note = note;
+    _safeNotify();
   }
 
   Future<void> pickDamageImage(int index) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
-        source: ImageSource.camera, imageQuality: 50);
+    final XFile? image =
+        await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
     if (image != null) {
       _furnitureList[index].damageImage = File(image.path);
-      notifyListeners();
+      _safeNotify();
     }
   }
 
@@ -109,31 +141,40 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   }) async {
     _furnitureList.add(FurnitureItem(
       title: title,
-      image: Icons.warning_amber_rounded,
+      image: null,
       status: "ชำรุด",
+      isCustom: true,
       damageImage: damageImage,
     ));
-    notifyListeners();
+    _safeNotify();
   }
 
-  Future<void> submitCheckCondition() async {
+  Future<void> submitCheckCondition(int roomID) async {
     _timer?.cancel();
 
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      // await _roomRepository.submitConditionCheck(
-      //   furnitureList: _furnitureList,
-      // );
+      final reportData = _furnitureList.map((item) {
+        return FurnitureEntitise(
+          roomID: roomID,
+          title: item.title,
+          image: item.image is String ? item.image as String : null,
+          status: item.status,
+          note: item.note,
+          isCustom: item.isCustom,
+          damageImage: item.damageImage?.path,
+        );
+      }).toList();
 
-      // Mock success
-      await Future.delayed(const Duration(milliseconds: 300));
+      await usecase.submitReport(reportData);
     } catch (e) {
-      // TODO: handle error
+      debugPrint("Submit error: $e");
+      rethrow;
     }
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _timer?.cancel();
     super.dispose();
   }

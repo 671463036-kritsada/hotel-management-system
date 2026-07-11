@@ -7,7 +7,6 @@ import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/list_usecase.dart';
 
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
-import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
 
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
@@ -52,8 +51,6 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HistoryScreenProvider()),
 
         ChangeNotifierProvider(create: (_) => ListScreenProvider(listUsecase)),
-        ChangeNotifierProvider(
-            create: (_) => RoomConditionCheckScreenProvider()),
         // เพิ่ม Provider อื่นๆ ตรงนี้ในอนาคต
       ],
       child: MaterialApp(
