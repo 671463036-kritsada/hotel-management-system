@@ -1,9 +1,10 @@
 // history_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../domain/entitise/history_entitise.dart';
 import '../../../components/bavbar/bottomNavbar.dart';
 import '../../../components/bavbar/topNavbar.dart';
 import '../../../components/button/button.dart';
@@ -34,7 +35,8 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
     super.dispose();
   }
 
-  void _showRatingBottomSheet(BuildContext context, BookingHistory booking) {
+  void _showRatingBottomSheet(
+      BuildContext context, BookingHistoryEntity booking) {
     int tempRating = 0;
     _commentController.clear();
 
@@ -112,6 +114,10 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
+                  if (provider.errorMessage.isNotEmpty) {
+                    return Center(child: Text(provider.errorMessage));
+                  }
+
                   return SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(Constants.padding),
@@ -127,35 +133,39 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                               ),
                             ],
                           ),
-                          ...provider.bookingList
-                              .map((booking) => Boxshowdatahistory(
-                                    roomNumber: booking.roomNumber,
-                                    date: booking.date,
-                                    payamout: booking.payAmount,
-                                    keyBooking: booking.keyBooking,
-                                    status: booking.reviewStatus,
-                                    textStatus: booking.reviewComment,
-                                    onTap: booking.isReviewed
-                                        ? null
-                                        : () => _showRatingBottomSheet(
-                                            context, booking),
-                                    ratingWidget: booking.isReviewed
-                                        ? Row(
-                                            children: List.generate(
-                                              5,
-                                              (index) => Icon(
-                                                Icons.star,
-                                                size: 15,
-                                                color: index <
-                                                        booking.selectedRating
-                                                    ? Colors.amber
-                                                    : Colors.grey[300],
-                                              ),
-                                            ),
-                                          )
-                                        : null,
-                                  ))
-                              .toList(),
+                          ...provider.bookingList.map((booking) =>
+                              Boxshowdatahistory(
+                                roomNumber:
+                                    int.tryParse(booking.roomNumber ?? '0') ??
+                                        0,
+                                date: booking.formattedCheckIn,
+                                payamout: booking.formattedAmount,
+                                keyBooking: booking.bookingId ?? '',
+                                status:
+                                    booking.reviewStatus ?? 'ยังไม่ได้ให้คะแนน',
+                                textStatus: booking.reviewComment ??
+                                    'ไม่ได้แสดงความคิดเห็น',
+                                onTap: (booking.isReviewed ?? false)
+                                    ? null
+                                    : () => _showRatingBottomSheet(
+                                        context, booking),
+                                ratingWidget: (booking.isReviewed ?? false)
+                                    ? Row(
+                                        children: List.generate(
+                                          5,
+                                          (index) => Icon(
+                                            Icons.star,
+                                            size: 15,
+                                            color: index <
+                                                    (booking.selectedRating ??
+                                                        0)
+                                                ? Colors.amber
+                                                : Colors.grey[300],
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                              )),
                           const SizedBox(height: 150),
                         ],
                       ),

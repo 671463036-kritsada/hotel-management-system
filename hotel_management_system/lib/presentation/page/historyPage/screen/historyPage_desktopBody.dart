@@ -1,9 +1,10 @@
-// history_screen.dart
+// history_screen_desktop_body.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../domain/entitise/history_entitise.dart';
 import '../../../components/bavbar/bottomNavbar.dart';
 import '../../../components/bavbar/topNavbar.dart';
 import '../../../components/button/button.dart';
@@ -34,7 +35,8 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
     super.dispose();
   }
 
-  void _showRatingBottomSheet(BuildContext context, BookingHistory booking) {
+  void _showRatingBottomSheet(
+      BuildContext context, BookingHistoryEntity booking) {
     int tempRating = 0;
     _commentController.clear();
 
@@ -112,6 +114,10 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
+                  if (provider.errorMessage.isNotEmpty) {
+                    return Center(child: Text(provider.errorMessage));
+                  }
+
                   return SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(Constants.padding),
@@ -129,10 +135,11 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                           ),
                           ...provider.bookingList
                               .map((booking) => Boxshowdatahistory(
-                                    roomNumber: booking.roomNumber,
-                                    date: booking.date,
-                                    payamout: booking.payAmount,
-                                    keyBooking: booking.keyBooking,
+                                    roomNumber:
+                                        int.tryParse(booking.roomNumber) ?? 0,
+                                    date: booking.formattedCheckIn,
+                                    payamout: booking.formattedAmount,
+                                    keyBooking: booking.bookingId,
                                     status: booking.reviewStatus,
                                     textStatus: booking.reviewComment,
                                     onTap: booking.isReviewed
@@ -147,7 +154,8 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                                                 Icons.star,
                                                 size: 15,
                                                 color: index <
-                                                        booking.selectedRating
+                                                        booking
+                                                            .selectedRating // ✅ เพิ่ม
                                                     ? Colors.amber
                                                     : Colors.grey[300],
                                               ),
