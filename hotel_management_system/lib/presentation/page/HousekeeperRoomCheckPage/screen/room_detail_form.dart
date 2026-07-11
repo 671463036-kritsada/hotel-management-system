@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/components/button/button.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants.dart';
 import '../../../core/form_enum.dart';
+import '../provider/HousekeeperRoomCheck_Screen_provider.dart';
 
 class RoomDetailFormScreen extends StatefulWidget {
   final String roomNo;
@@ -67,17 +69,28 @@ class _RoomDetailFormScreenState extends State<RoomDetailFormScreen> {
             // --- ปุ่ม ---
             Button(
               text: "บันทึกข้อมูล",
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("บันทึกห้อง ${widget.roomNo} สำเร็จ"),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                );
+              onTap: () async {
+                final success = await context
+                    .read<HousekeeperRoomCheckScreenProvider>()
+                    .saveRoomDetail(
+                      roomNo: widget.roomNo,
+                      cleaningStatus: _cleaningStatus,
+                    );
+
+                if (success) {
+                  //เก็บ context ไว้ก่อน pop
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.pop(context);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text("บันทึกห้อง ${widget.roomNo} สำเร็จ"),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  );
+                }
               },
               color: Colors.green,
             ),
@@ -131,7 +144,11 @@ class _RoomDetailFormScreenState extends State<RoomDetailFormScreen> {
   // --- Photo Item ---
   Widget _photoItem(String label, IconData icon) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        // Mock ส่ง path ไปก่อน ค่อยเปลี่ยนเป็น image picker จริง
+        const mockImagePath = "assets/images/mock_image.jpg";
+        print("$label → $mockImagePath");
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -153,6 +170,30 @@ class _RoomDetailFormScreenState extends State<RoomDetailFormScreen> {
       ),
     );
   }
+  // Widget _photoItem(String label, IconData icon) {
+  //   return GestureDetector(
+  //     onTap: () {},
+  //     child: Container(
+  //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //       decoration: BoxDecoration(
+  //         color: Colors.grey[100],
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(color: Constants.inputFieldBorderColor),
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Icon(icon, color: Constants.primaryColor, size: 22),
+  //           const SizedBox(width: 12),
+  //           Expanded(
+  //             child: Text(label,
+  //                 style: const TextStyle(fontSize: Constants.fontSizeBody)),
+  //           ),
+  //           Icon(Icons.camera_alt_outlined, color: Colors.grey[400], size: 20),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // --- Dropdown ---
   Widget _buildDropdown() {

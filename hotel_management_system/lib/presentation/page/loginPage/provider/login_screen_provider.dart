@@ -1,12 +1,18 @@
 // login_screen_provider.dart
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 
 enum LoginStatus { initial, loading, success, error }
 
 class LoginScreenProvider extends ChangeNotifier {
+  LoginScreenProvider(this.userProvider);
   // --- State ---
   LoginStatus _status = LoginStatus.initial;
   String _errorMessage = '';
+
+  final UserProvider userProvider;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -25,7 +31,6 @@ class LoginScreenProvider extends ChangeNotifier {
   }
 
   Future<void> login() async {
-    // TODO: validate ก่อน
     if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
       _errorMessage = 'กรุณากรอกข้อมูลให้ครบ';
       _status = LoginStatus.error;
@@ -45,6 +50,11 @@ class LoginScreenProvider extends ChangeNotifier {
 
       // Mock success
       await Future.delayed(const Duration(seconds: 1));
+      userProvider.usernamePassword = (
+        usernname: usernameController.text,
+        password: passwordController.text
+      );
+      log("username ${userProvider.username ?? ''} ");
 
       _status = LoginStatus.success;
       notifyListeners();
@@ -61,6 +71,16 @@ class LoginScreenProvider extends ChangeNotifier {
 
   void loginWithFacebook() async {
     // TODO: เชื่อม Facebook Auth
+  }
+
+  void calculate(int numA, int numB, String type) {
+    if (type == "divide") {
+      _divide(numA, numB);
+    } else {}
+  }
+
+  int _divide(int numA, int numB) {
+    return numA * numB;
   }
 
   void resetStatus() {

@@ -115,6 +115,9 @@ class _HousekeeperRoomCheckScreenState
                       if (provider.isLoading) {
                         return const Center(child: CircularProgressIndicator());
                       }
+                      if (provider.errorMessage.isNotEmpty) {
+                        return Center(child: Text(provider.errorMessage));
+                      }
 
                       if (provider.filteredRooms.isEmpty) {
                         return const Center(

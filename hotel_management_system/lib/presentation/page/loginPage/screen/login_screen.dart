@@ -1,7 +1,6 @@
 // login_screen.dart
 import 'package:flutter/material.dart';
-import 'loginScreen_desktopBody.dart';
-import 'loginScreen_mobileBody.dart';
+import 'package:hotel_management_system/presentation/page/loginPage/login_page_route.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
 
 class LoginScreen extends StatelessWidget {

@@ -200,7 +200,7 @@ class BookingFormScreenDesktopBody extends StatelessWidget {
                                                       ? () {}
                                                       : () => provider
                                                           .submitBooking(
-                                                              roomId),
+                                                              roomId: roomId),
                                                   color:
                                                       Constants.secondaryColor,
                                                 );

@@ -5,11 +5,9 @@ import 'package:hotel_management_system/presentation/components/button/buttonAut
 import 'package:hotel_management_system/presentation/core/constants.dart';
 import 'package:hotel_management_system/presentation/core/form_enum.dart';
 import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
+import 'package:hotel_management_system/presentation/page/loginPage/login_page_route.dart';
 import 'package:hotel_management_system/presentation/page/registerPage/screen/register_screen.dart';
 import 'package:provider/provider.dart';
-
-
-import '../provider/login_screen_provider.dart';
 
 class LoginScreenMobileBody extends StatelessWidget {
   const LoginScreenMobileBody({super.key});
@@ -105,18 +103,18 @@ class LoginScreenMobileBody extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // --- Input Fields ---
+
                 Consumer<LoginScreenProvider>(
-                  builder: (context, provider, _) {
-                    return Column(
-                      children: [
-                        createInputField(InputFieldType.username,
-                            controller: provider.usernameController),
-                        const SizedBox(height: 12),
-                        createInputField(InputFieldType.password,
-                            controller: provider.passwordController),
-                      ],
-                    );
-                  },
+                  builder: (context, provider, child) => Column(
+                    children: [
+                      createInputField(InputFieldType.username,
+                          controller: provider.usernameController),
+                      const SizedBox(height: 12),
+                      createInputField(InputFieldType.password,
+                          controller: provider.passwordController),
+                      // ...buildTest(data2)
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 20),

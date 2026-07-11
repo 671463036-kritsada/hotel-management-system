@@ -432,3 +432,98 @@ Widget _buildDatePickerField({
     ),
   );
 }
+
+
+
+
+
+// เรียกใช้ 
+// Consumer<LoginScreenProvider>(
+//                   builder: (context, provider, child) => Column(
+//                     children: [
+//                       createInputField(InputFieldType.username,
+//                           controller: provider.usernameController),
+//                       const SizedBox(height: 12),
+//                       createInputField(InputFieldType.password,
+//                           controller: provider.passwordController),
+
+
+//                       // ...buildTest(data2)
+
+
+//                     ],
+//                   ),
+//                 ),
+
+
+
+
+
+// enum DataType { TextField, DateTime, Radio }
+
+// final data = {
+//   "username": DataType.TextField,
+//   "date": DataType.DateTime,
+//   "gender": DataType.Radio
+// };
+
+// final data2 = {
+//   "username": {
+//     "type": DataType.TextField,
+//     "placeHolder": "กรุณากรอก",
+//     "borderColor": "codeColor",
+//     "errorColor": "codeColor"
+//   },
+//   "email": {"type": DataType.TextField, "placeHolder": "กรุณากรอก"},
+//   "date": {"type": DataType.DateTime, "placeHolder": "กรุณากรอก"},
+//   "gender": {"type": DataType.Radio, "placeHolder": "กรุณากรอก"}
+// };
+
+// List<Widget> buildTest(Map<String, dynamic> val) {
+//   List<Widget> listWidget = List.empty(growable: true);
+//   val.forEach((key, value) {
+//     final widget = switch (value["type"]) {
+//       DataType.TextField => Column(
+//           children: [
+//             Text(key),
+//             TextField(
+//               decoration: InputDecoration(hintText: value["placeHolder"]),
+//             )
+//           ],
+//         ),
+//       DataType.DateTime => Column(
+//           children: [
+//             Text(key),
+//             DatePickerDialog(
+//                 firstDate: DateTime.now(), lastDate: DateTime.now())
+//           ],
+//         ),
+//       DataType.Radio => Column(
+//           children: [
+//             Text(key),
+//             Row(
+//               children: [
+//                 Radio(
+//                     value: value,
+//                     groupValue: "",
+//                     onChanged: (_) {
+//                       print(_);
+//                     }),
+//                 Radio(
+//                     value: value,
+//                     groupValue: "",
+//                     onChanged: (_) {
+//                       print(_);
+//                     }),
+//               ],
+//             )
+//           ],
+//         ),
+//       _ => Column()
+//     };
+
+//     listWidget.add(widget);
+//   });
+
+//   return listWidget;
+// }

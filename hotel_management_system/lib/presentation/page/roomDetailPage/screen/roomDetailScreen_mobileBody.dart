@@ -1,7 +1,6 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:hotel_management_system/presentation/page/BookingFormScreen/screen/booking_form_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../components/bavbar/topNavbar.dart';
@@ -110,11 +109,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                           child: Button(
                             text: 'จองห้องนี้',
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => BookingFormScreen(
-                                          roomId: room.roomId)));
+                              Navigator.pushNamed(context, "/booking_form" , arguments: room.roomId);
                             },
                             color: Constants.secondaryColor,
                           ),

@@ -1,52 +1,39 @@
 // housekeeper_room_check_screen_provider.dart
 import 'package:flutter/material.dart';
 
-class RoomItem {
-  final String roomNo;
-  final String status;
-
-  RoomItem({
-    required this.roomNo,
-    required this.status,
-  });
-}
+import '../../../../data/data_source/remote_data_source/houseKeeper_remote.dart';
+import '../../../../data/repositorise/houseKeeper_repositorise.dart';
+import '../../../../domain/entitise/housekeeper_room_entity.dart';
+import '../../../../domain/use_case/houseKeeper_usecase.dart';
 
 class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
+  // --- Dependency ---
+  final HousekeeperRoomUseCase _useCase = HousekeeperRoomUseCase(
+    repository: HousekeeperRoomRepositoryImpl(
+      remoteDataSource: HousekeeperRoomRemoteDataSourceImpl(),
+    ),
+  );
+
   // --- State ---
-  List<RoomItem> _allRooms = [];
-  List<RoomItem> _filteredRooms = [];
+  List<HousekeeperRoomEntity> _allRooms = [];
+  List<HousekeeperRoomEntity> _filteredRooms = [];
   bool _isLoading = false;
+  String _errorMessage = '';
 
   // --- Getter ---
-  List<RoomItem> get filteredRooms => _filteredRooms;
+  List<HousekeeperRoomEntity> get filteredRooms => _filteredRooms;
   bool get isLoading => _isLoading;
+  String get errorMessage => _errorMessage;
 
   Future<void> getRooms() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      // _allRooms = await _roomRepository.getRooms();
-
-      // Mock data
-      await Future.delayed(const Duration(milliseconds: 300));
-      List<String> statuses = [
-        "มีลูกค้าพักอยู่",
-        "รอทำความสะอาด",
-        "เสร็จสิ้น",
-        "ปิดปรับปรุง"
-      ];
-      _allRooms = List.generate(50, (index) {
-        int floor = (index ~/ 10) + 1;
-        int roomNum = (index % 10) + 1;
-        String roomNo = "$floor${roomNum.toString().padLeft(2, '0')}";
-        return RoomItem(roomNo: roomNo, status: statuses[index % 4]);
-      });
-
+      _allRooms = await _useCase.getRooms();
       _filteredRooms = _allRooms;
     } catch (e) {
-      // TODO: handle error
+      _errorMessage = 'ไม่สามารถโหลดข้อมูลห้องได้';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -56,7 +43,25 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
   void filterRooms(String query) {
     _filteredRooms = query.isEmpty
         ? _allRooms
-        : _allRooms.where((room) => room.roomNo.contains(query)).toList();
+        : _allRooms
+            .where((room) => room.roomNo.contains(query))
+            .toList();
     notifyListeners();
+  }
+
+  Future<bool> saveRoomDetail({
+    required String roomNo,
+    required String cleaningStatus,
+  }) async {
+    try {
+      return await _useCase.saveRoomDetail(
+        roomNo: roomNo,
+        cleaningStatus: cleaningStatus,
+      );
+    } catch (e) {
+      _errorMessage = 'ไม่สามารถบันทึกข้อมูลได้';
+      notifyListeners();
+      return false;
+    }
   }
 }

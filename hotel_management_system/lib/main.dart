@@ -10,11 +10,12 @@ import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPa
 
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
-import 'package:hotel_management_system/presentation/page/loginPage/provider/login_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/registerPage/provider/register_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/roomDetailPage/provider/room_detail_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/splashPage/screen/splash_screen.dart';
 import 'package:hotel_management_system/presentation/page/homePage/provider/home_screen_provider.dart';
+import 'package:hotel_management_system/util/function/generate_routes.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -33,14 +34,15 @@ class MainApp extends StatelessWidget {
     final listUsecase =
         ListUsecase(ListRepositoriseImpl(ListRemoteDatasourceImpl()));
 
+// ควรใส่แค่ provider กลาง หมายความว่าทุกหน้าสามารถเข้าถึง provider หน้าอื่นได้
+// มันควรจะเป็น provider กลางเท่านั้น ที่จะอยู่ main
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
             create: (_) => HomeScreenProvider(homeUsecase, [])),
 
-        ChangeNotifierProvider(create: (_) => LoginScreenProvider()),
-
         ChangeNotifierProvider(create: (_) => RegisterScreenProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
 
         ChangeNotifierProvider(
             create: (_) => HousekeeperRoomCheckScreenProvider()),
@@ -60,6 +62,7 @@ class MainApp extends StatelessWidget {
           fontFamily: 'Prompt',
           useMaterial3: true,
         ),
+        onGenerateRoute: onGenerateRoute
       ),
     );
   }

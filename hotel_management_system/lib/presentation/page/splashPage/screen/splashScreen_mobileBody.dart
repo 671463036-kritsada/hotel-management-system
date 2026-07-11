@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../components/button/button.dart';
 import '../../../core/constants.dart';
-import '../../loginPage/screen/login_screen.dart';
 
 
 
@@ -15,9 +13,10 @@ class SplashScreenMobileBody extends StatefulWidget {
 
 class _SplashScreenMobileBodyState extends State<SplashScreenMobileBody> {
   void onTopToLoginPage() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Navigator.pushNamed(context, "/login");
   }
+
+        
 
   @override
   Widget build(BuildContext context) {

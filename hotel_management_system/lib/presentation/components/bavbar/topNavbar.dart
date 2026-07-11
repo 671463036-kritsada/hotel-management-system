@@ -3,8 +3,9 @@ import 'package:hotel_management_system/presentation/core/constants.dart';
 
 class Topnavbar extends StatelessWidget {
   final double widthFactor;
+  final String? username;
 
-  const Topnavbar({super.key, required this.widthFactor});
+  const Topnavbar({super.key, required this.widthFactor, this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +41,11 @@ class Topnavbar extends StatelessWidget {
                   color: Constants.white.withOpacity(0.3),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.person, color: Constants.white, size: 40),
+                child:
+                    const Icon(Icons.person, color: Constants.white, size: 40),
               ),
               const SizedBox(width: 10),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -56,7 +58,7 @@ class Topnavbar extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "Kritsada",
+                    username ?? "",
                     style: TextStyle(
                       color: Constants.white,
                       fontSize: Constants.fontSizeBody,
