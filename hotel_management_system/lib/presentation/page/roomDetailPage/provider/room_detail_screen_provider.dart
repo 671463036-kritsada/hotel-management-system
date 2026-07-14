@@ -22,9 +22,10 @@ class RoomDetail {
 
 class RoomDetailScreenProvider extends ChangeNotifier {
   HomeUsecase homeUsecase;
-  List<HomeEntitise> roomData;
+  late List<HomeEntitise> roomData;
 
-  RoomDetailScreenProvider(this.homeUsecase, this.roomData);
+  RoomDetailScreenProvider(this.homeUsecase);
+
 
   // --- State ---
   RoomDetail? _roomDetail;
@@ -65,3 +66,5 @@ class RoomDetailScreenProvider extends ChangeNotifier {
     }
   }
 }
+
+

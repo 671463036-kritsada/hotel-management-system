@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/page/roomDetailPage/screen/room_detail_screen.dart';
+
+import '../../util/model/model.dart';
 
 enum RoomType {
   rooms,
@@ -43,16 +44,9 @@ Widget createBoxShowData(
 
       return InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RoomDetailScreen(
-                  roomId: room.roomId,
-                  roomType: room.roomType.toLowerCase() == 'house'
-                      ? RoomType.house
-                      : RoomType.rooms),
-            ),
-          );
+          Navigator.pushNamed(context, '/room_detail',
+              arguments: RoomDetailArguments(
+                  roomId: room.roomId, roomType: room.roomType));
         },
         child: Container(
           decoration: BoxDecoration(

@@ -1,26 +1,16 @@
-// history_screen_provider.dart
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/use_case/history_usecase.dart';
 
-import '../../../../data/data_source/remote_data_source/history_remote.dart';
-import '../../../../data/repositorise/history_repository.dart';
 import '../../../../domain/entitise/history_entitise.dart';
-import '../../../../domain/use_case/history_usecase.dart';
-
 
 class HistoryScreenProvider extends ChangeNotifier {
-  // --- Dependency ---
-  final BookingHistoryUseCase _useCase = BookingHistoryUseCase(
-    repository: BookingHistoryRepositoryImpl(
-      remoteDataSource: BookingHistoryRemoteDataSourceImpl(),
-    ),
-  );
+  final BookingHistoryUseCase _useCase;
+  HistoryScreenProvider(this._useCase);
 
-  // --- State ---
   List<BookingHistoryEntity> _bookingList = [];
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // --- Getter ---
   List<BookingHistoryEntity> get bookingList => _bookingList;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
@@ -28,7 +18,6 @@ class HistoryScreenProvider extends ChangeNotifier {
   Future<void> getBookingHistory() async {
     _isLoading = true;
     notifyListeners();
-
     try {
       _bookingList = await _useCase.getBookingHistory();
     } catch (e) {
@@ -50,7 +39,6 @@ class HistoryScreenProvider extends ChangeNotifier {
         rating: rating,
         comment: comment,
       );
-
       if (result) {
         booking.selectedRating = rating;
         booking.reviewComment = comment.isEmpty ? "ไม่ได้แสดงความคิดเห็น" : comment;

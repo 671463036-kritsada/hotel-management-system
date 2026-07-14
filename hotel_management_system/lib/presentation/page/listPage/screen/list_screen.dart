@@ -4,13 +4,12 @@ import 'list_screen_desktopBody.dart';
 import 'list_screen_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
 
-
 class ListScreen extends StatefulWidget {
   final bool? checkInStatus, ckeckOutStatus, statusConCheck;
 
   const ListScreen({
     super.key,
-    this.checkInStatus,
+    this.checkInStatus = false,
     this.ckeckOutStatus = false,
     this.statusConCheck = false,
   });

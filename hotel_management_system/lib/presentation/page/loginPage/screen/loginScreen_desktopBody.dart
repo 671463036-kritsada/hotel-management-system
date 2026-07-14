@@ -5,7 +5,6 @@ import 'package:hotel_management_system/presentation/components/button/buttonAut
 import 'package:hotel_management_system/presentation/core/constants.dart';
 import 'package:hotel_management_system/presentation/core/form_enum.dart';
 import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
-import 'package:hotel_management_system/presentation/page/registerPage/screen/register_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/login_screen_provider.dart';
@@ -153,10 +152,7 @@ class LoginScreenDesktopBody extends StatelessWidget {
                           fontSize: Constants.fontSizeLabel,
                           color: Colors.grey[700])),
                   GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RegisterScreen())),
+                    onTap: () => Navigator.pushNamed(context, "register"),
                     child: const Text(' สมัครสมาชิก',
                         style: TextStyle(
                             fontSize: Constants.fontSizeLabel,

@@ -1,4 +1,4 @@
-// room_condition_check_screen.dart
+// RoomConditionCheckPage_desktopBody.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
@@ -12,7 +12,8 @@ import '../../../core/constants.dart';
 import '../../listPage/screen/list_screen.dart';
 
 class RoomConditionCheckScreenDesktopBody extends StatefulWidget {
-  const RoomConditionCheckScreenDesktopBody({super.key});
+  final int roomId;
+  const RoomConditionCheckScreenDesktopBody({super.key, required this.roomId});
 
   @override
   State<RoomConditionCheckScreenDesktopBody> createState() =>
@@ -25,7 +26,7 @@ class _RoomConditionCheckScreenDesktopBodyState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomConditionCheckScreenProvider>().init(205);
+      context.read<RoomConditionCheckScreenProvider>().init(widget.roomId);
     });
   }
 
@@ -362,7 +363,7 @@ class _RoomConditionCheckScreenDesktopBodyState
   void _showSuccessDialog({String msg = "บันทึกข้อมูลสำเร็จ"}) async {
     await context
         .read<RoomConditionCheckScreenProvider>()
-        .submitCheckCondition(205);
+        .submitCheckCondition(widget.roomId);
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: Colors.green));
     Navigator.pushReplacement(

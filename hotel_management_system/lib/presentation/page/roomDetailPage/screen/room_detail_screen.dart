@@ -1,6 +1,7 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../util/model/model.dart';
 import '../../../core/typeRoom_enum.dart';
 import 'roomDetailScreen_desktopBody.dart';
 import 'roomDetailScreen_mobileBody.dart';
@@ -8,43 +9,46 @@ import '../../../responsiveLayout/responsive_layout.dart';
 import '../provider/room_detail_screen_provider.dart';
 
 class RoomDetailScreen extends StatefulWidget {
-  final int roomId;
-  final RoomType roomType;
-
-  const RoomDetailScreen({
-    super.key,
-    required this.roomId,
-    required this.roomType
-  });
+  const RoomDetailScreen({super.key});
 
   @override
   State<RoomDetailScreen> createState() => _RoomDetailScreenState();
 }
 
 class _RoomDetailScreenState extends State<RoomDetailScreen> {
+  late final int roomId;
+  late final RoomType roomType;
+  bool _isArgsLoaded = false;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomDetailScreenProvider>().getRoomDetail(
-            widget.roomId,
-            widget.roomType
-          );
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isArgsLoaded) {
+      final args = ModalRoute.of(context)!.settings.arguments as RoomDetailArguments;
+      roomId = args.roomId;
+      roomType = args.roomType.toLowerCase() == 'house'
+          ? RoomType.house
+          : RoomType.rooms;
+      _isArgsLoaded = true;
+
+      // เรียก getRoomDetail ตรงนี้แทน initState เพราะตอนนี้มี roomId/roomType แล้ว
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<RoomDetailScreenProvider>().getRoomDetail(roomId, roomType);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return 
-     ResponsiveLayout(
+    return ResponsiveLayout(
       mobileBody: RoomDetailScreenMobileBody(
-        roomId: widget.roomId,
-        roomType: widget.roomType,
+        roomId: roomId,
+        roomType: roomType,
       ),
       desktopBody: RoomDetailScreenDesktopBody(
-        roomId: widget.roomId,
-        roomType: widget.roomType,
+        roomId: roomId,
+        roomType: roomType,
       ),
-     );
+    );
   }
 }

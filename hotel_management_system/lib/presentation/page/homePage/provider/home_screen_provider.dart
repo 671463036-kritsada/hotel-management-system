@@ -14,7 +14,7 @@ class HomeScreenProvider extends ChangeNotifier {
   String errorMessage = '';
   bool isLoading = false;
 
-  HomeScreenProvider(this.homeUsecase, this.roomData);
+  HomeScreenProvider(this.homeUsecase);
 
   void selectRoomType(RoomType type) {
     selectedRoomType = type;

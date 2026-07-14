@@ -4,9 +4,8 @@ import 'package:hotel_management_system/presentation/components/button/button.da
 import 'package:hotel_management_system/presentation/components/button/buttonAuth.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
 import 'package:hotel_management_system/presentation/core/form_enum.dart';
-import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
+
 import 'package:hotel_management_system/presentation/page/loginPage/login_page_route.dart';
-import 'package:hotel_management_system/presentation/page/registerPage/screen/register_screen.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreenMobileBody extends StatelessWidget {
@@ -62,10 +61,7 @@ class LoginScreenMobileBody extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const HomeScreen()));
+                      Navigator.pushNamed(context, "/home");
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(
@@ -147,10 +143,7 @@ class LoginScreenMobileBody extends StatelessWidget {
                             fontSize: Constants.fontSizeLabel,
                             color: Colors.grey[700])),
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const RegisterScreen())),
+                      onTap: () => Navigator.pushNamed(context, "/register"),
                       child: const Text(' สมัครสมาชิก',
                           style: TextStyle(
                               fontSize: Constants.fontSizeLabel,

@@ -36,66 +36,85 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
   }
 
   void _showRatingBottomSheet(
-      BuildContext context, BookingHistoryEntity booking) {
+    BuildContext context,
+    BookingHistoryEntity booking,
+  ) {
+    // ดึง Provider จาก HistoryScreen ก่อนเปิด BottomSheet
+    final provider = context.read<HistoryScreenProvider>();
+
     int tempRating = 0;
     _commentController.clear();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "ให้คะแนนห้อง ${booking.roomNumber}",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return IconButton(
-                      icon: Icon(
-                        index < tempRating ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 40,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "ให้คะแนนห้อง ${booking.roomNumber}",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      onPressed: () =>
-                          setSheetState(() => tempRating = index + 1),
-                    );
-                  }),
-                ),
-                TextField(
-                  controller: _commentController,
-                  decoration: const InputDecoration(
-                      hintText: "เขียนความคิดเห็นของคุณ..."),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 20),
-                Button(
-                  text: "ส่งรีวิว",
-                  color: Constants.primaryColor,
-                  onTap: () {
-                    context.read<HistoryScreenProvider>().submitReview(
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < tempRating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 40,
+                          ),
+                          onPressed: () {
+                            setSheetState(() {
+                              tempRating = index + 1;
+                            });
+                          },
+                        );
+                      }),
+                    ),
+                    TextField(
+                      controller: _commentController,
+                      decoration: const InputDecoration(
+                        hintText: "เขียนความคิดเห็นของคุณ...",
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    Button(
+                      text: "ส่งรีวิว",
+                      color: Constants.primaryColor,
+                      onTap: () async {
+                        await provider.submitReview(
                           booking: booking,
                           rating: tempRating,
                           comment: _commentController.text,
                         );
-                    Navigator.pop(context);
-                  },
+
+                        if (mounted) {
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

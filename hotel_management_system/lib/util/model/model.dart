@@ -1,8 +1,6 @@
-class Data {
+class RoomDetailArguments {
+  final int roomId;
+  final String roomType;
 
-}
-
-
-class Data2{
-  
+  RoomDetailArguments({required this.roomId, required this.roomType});
 }

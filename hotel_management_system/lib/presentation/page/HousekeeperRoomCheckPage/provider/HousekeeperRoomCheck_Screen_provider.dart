@@ -1,18 +1,15 @@
 // housekeeper_room_check_screen_provider.dart
 import 'package:flutter/material.dart';
-
-import '../../../../data/data_source/remote_data_source/houseKeeper_remote.dart';
-import '../../../../data/repositorise/houseKeeper_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/houseKeeper_usecase.dart';
 import '../../../../domain/entitise/housekeeper_room_entity.dart';
-import '../../../../domain/use_case/houseKeeper_usecase.dart';
 
 class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
   // --- Dependency ---
-  final HousekeeperRoomUseCase _useCase = HousekeeperRoomUseCase(
-    repository: HousekeeperRoomRepositoryImpl(
-      remoteDataSource: HousekeeperRoomRemoteDataSourceImpl(),
-    ),
-  );
+
+  HousekeeperRoomUseCase housekeeperRoomUseCase ;
+
+  HousekeeperRoomCheckScreenProvider(this.housekeeperRoomUseCase);
+
 
   // --- State ---
   List<HousekeeperRoomEntity> _allRooms = [];
@@ -30,7 +27,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _allRooms = await _useCase.getRooms();
+      _allRooms = await housekeeperRoomUseCase.getRooms();
       _filteredRooms = _allRooms;
     } catch (e) {
       _errorMessage = 'ไม่สามารถโหลดข้อมูลห้องได้';
@@ -54,7 +51,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
     required String cleaningStatus,
   }) async {
     try {
-      return await _useCase.saveRoomDetail(
+      return await housekeeperRoomUseCase.saveRoomDetail(
         roomNo: roomNo,
         cleaningStatus: cleaningStatus,
       );

@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/screen/HousekeeperRoomCheck_Screen.dart';
 import 'package:hotel_management_system/presentation/components/button/buttonIcon.dart';
 import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/page/historyPage/screen/history_screen.dart';
-import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
-import 'package:hotel_management_system/presentation/page/listPage/screen/list_screen.dart';
 
 class Bottomnavbar extends StatelessWidget {
-  final bool? isVisibleHousekeeper; // ตัวแปรควบคุมการมองเห็นของปุ่ม
-  const Bottomnavbar(
-      {super.key,
-      this.isVisibleHousekeeper = true}); // เพิ่มพารามิเตอร์ isVisible
+  final bool? isVisibleHousekeeper;
+  const Bottomnavbar({super.key, this.isVisibleHousekeeper = true});
 
-  // ฟังก์ชัน Navigation (เหมือนเดิม)
-  void navigateToHome(BuildContext context) => Navigator.push(
-      context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-  void navigateToList(BuildContext context) => Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ListScreen(checkInStatus: false)));
-  void navigateToHistory(BuildContext context) => Navigator.push(
-      context, MaterialPageRoute(builder: (context) => HistoryScreen()));
-  void housekeeperRoomCheck_Screen(BuildContext context) => Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const HousekeeperRoomCheckScreen()));
+  void navigateToHome(BuildContext context) =>
+      Navigator.pushNamed(context, "/home");
+
+  void navigateToList(BuildContext context) =>
+      Navigator.pushNamed(context, "/list_page");
+
+  void navigateToHistory(BuildContext context) =>
+      Navigator.pushNamed(context, "/history");
+      
+  void housekeeperRoomCheck_Screen(BuildContext context) =>
+      Navigator.pushNamed(context, "/housekeeper");
 
   @override
   Widget build(BuildContext context) {

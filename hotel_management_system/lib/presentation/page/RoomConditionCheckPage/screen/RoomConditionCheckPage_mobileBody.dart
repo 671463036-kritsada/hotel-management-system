@@ -1,9 +1,6 @@
 // room_condition_check_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/data/data_source/remote_data_source/furniture_remote.dart';
-import 'package:hotel_management_system/data/repositorise/furniture_repositorise.dart';
-import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -14,42 +11,15 @@ import '../../../core/constants.dart';
 import '../provider/room_condition_check_screen_provider.dart';
 import '../../listPage/screen/list_screen.dart';
 
-// ---------------------------------------------------------------------
-// ตัวนอก: มีหน้าที่เดียวคือสร้าง Provider แล้วส่งต่อให้ widget ลูก
-// ---------------------------------------------------------------------
-class RoomConditionCheckScreenMobileBody extends StatelessWidget {
+class RoomConditionCheckScreenMobileBody extends StatefulWidget {
   final int roomId;
-
   const RoomConditionCheckScreenMobileBody({super.key, required this.roomId});
 
   @override
-  Widget build(BuildContext context) {
-    final furnitureUsecase = FurnitureUsecase(
-      FurnitureRepositoriseImpl(furnitureRemoteDataSourceImpl()),
-    );
-
-    return ChangeNotifierProvider(
-      create: (_) => RoomConditionCheckScreenProvider(furnitureUsecase),
-      // ✅ ใช้ child: ส่ง widget แยกคลาสเข้าไป เพื่อให้ context ของลูกอยู่ใต้ provider จริง
-      child: _RoomConditionCheckContent(roomId: roomId),
-    );
-  }
+  State<RoomConditionCheckScreenMobileBody> createState() => _RoomConditionCheckScreenMobileBodyState();
 }
 
-// ---------------------------------------------------------------------
-// ตัวใน: เนื้อหาจริงของหน้าจอ เป็นลูกของ ChangeNotifierProvider แล้ว
-// ---------------------------------------------------------------------
-class _RoomConditionCheckContent extends StatefulWidget {
-  final int roomId;
-  const _RoomConditionCheckContent({required this.roomId});
-
-  @override
-  State<_RoomConditionCheckContent> createState() =>
-      _RoomConditionCheckContentState();
-}
-
-class _RoomConditionCheckContentState
-    extends State<_RoomConditionCheckContent> {
+class _RoomConditionCheckScreenMobileBodyState extends State<RoomConditionCheckScreenMobileBody> {
   @override
   void initState() {
     super.initState();
@@ -237,7 +207,6 @@ class _RoomConditionCheckContentState
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ChangeNotifierProvider.value(
-        // ✅ เพิ่มบรรทัดนี้
         value: provider,
         child: StatefulBuilder(
           builder: (context, setModalState) => Container(

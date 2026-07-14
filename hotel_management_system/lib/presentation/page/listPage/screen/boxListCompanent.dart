@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/screen/room_condition_check_screen.dart';
 
 import 'package:hotel_management_system/presentation/page/listPage/screen/list_screen.dart';
 import '../../../core/constants.dart';
@@ -131,12 +130,9 @@ class Boxlistcompanent extends StatelessWidget {
                     if (statusConCheck == true)
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    RoomConditionCheckScreen()),
-                          ),
+                          onPressed: () => Navigator.pushNamed(
+                              context, "/room_condition_check",
+                              arguments: roomNumber),
                           icon: const Icon(Icons.checklist_outlined, size: 18),
                           label: const Text("ตรวจสภาพห้อง"),
                           style: OutlinedButton.styleFrom(
