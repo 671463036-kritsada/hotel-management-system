@@ -1,27 +1,15 @@
 // login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/components/button/button.dart';
-import 'package:hotel_management_system/presentation/components/button/buttonAuth.dart';
-import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/core/form_enum.dart';
+import 'package:hotel_management_system/util/widget/components/button/button.dart';
+import 'package:hotel_management_system/util/widget/components/button/buttonAuth.dart';
+import 'package:hotel_management_system/util/widget/core/constants.dart';
+import 'package:hotel_management_system/util/widget/core/form_enum.dart';
 
 import 'package:hotel_management_system/presentation/page/loginPage/login_page_route.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreenMobileBody extends StatelessWidget {
   const LoginScreenMobileBody({super.key});
-
-  void _handleLoginResult(BuildContext context, LoginStatus status) {
-    if (status == LoginStatus.success) {
-      _showSuccessDialog(context);
-    } else if (status == LoginStatus.error) {
-      final msg = context.read<LoginScreenProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-      context.read<LoginScreenProvider>().resetStatus();
-    }
-  }
 
   void _showSuccessDialog(BuildContext context) {
     showDialog(
@@ -99,7 +87,6 @@ class LoginScreenMobileBody extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // --- Input Fields ---
-
                 Consumer<LoginScreenProvider>(
                   builder: (context, provider, child) => Column(
                     children: [
@@ -108,7 +95,6 @@ class LoginScreenMobileBody extends StatelessWidget {
                       const SizedBox(height: 12),
                       createInputField(InputFieldType.password,
                           controller: provider.passwordController),
-                      // ...buildTest(data2)
                     ],
                   ),
                 ),
@@ -118,9 +104,10 @@ class LoginScreenMobileBody extends StatelessWidget {
                 // --- Login Button ---
                 Consumer<LoginScreenProvider>(
                   builder: (context, provider, _) {
-                    // ฟังการเปลี่ยน status แล้ว handle
+                    // เรียก provider ให้จัดการ status เอง ส่ง context + dialog callback เข้าไป
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _handleLoginResult(context, provider.status);
+                      provider.handleLoginResult(
+                          context, () => _showSuccessDialog(context));
                     });
 
                     return provider.isLoading

@@ -4,22 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
+import '../../../../util/model/model.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
 import '../provider/room_condition_check_screen_provider.dart';
-import '../../listPage/screen/list_screen.dart';
 
 class RoomConditionCheckScreenMobileBody extends StatefulWidget {
   final int roomId;
   const RoomConditionCheckScreenMobileBody({super.key, required this.roomId});
 
   @override
-  State<RoomConditionCheckScreenMobileBody> createState() => _RoomConditionCheckScreenMobileBodyState();
+  State<RoomConditionCheckScreenMobileBody> createState() =>
+      _RoomConditionCheckScreenMobileBodyState();
 }
 
-class _RoomConditionCheckScreenMobileBodyState extends State<RoomConditionCheckScreenMobileBody> {
+class _RoomConditionCheckScreenMobileBodyState
+    extends State<RoomConditionCheckScreenMobileBody> {
   @override
   void initState() {
     super.initState();
@@ -365,11 +367,16 @@ class _RoomConditionCheckScreenMobileBodyState extends State<RoomConditionCheckS
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), backgroundColor: Colors.green));
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ListScreen(checkInStatus: true, statusConCheck: true)));
+      Navigator.pushNamedAndRemoveUntil(
+        
+        context,
+        '/list_page',
+        (route) => false,
+        arguments: ListScreenArguments(
+          checkInStatus: true,
+          statusConCheck: true,
+        ),
+      );
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

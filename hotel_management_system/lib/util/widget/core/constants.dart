@@ -24,9 +24,11 @@ class Constants {
   static const Color submitButtonColor = Color(0x49BF57);
   static const Color cancelButtonColor = Color(0xFF0000);
 
+// ตัวเลข ควรจะหาร 2 ลงตัว
+
 // padding and border radius
   static const double padding = 16.0;
-  static const double borderRadius = 20;
+  static const double borderRadius = 16;
 // ---------------------------------------------------------
   //Font Sizes
 

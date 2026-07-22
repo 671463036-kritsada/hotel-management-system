@@ -5,10 +5,10 @@ import 'package:hotel_management_system/presentation/page/historyPage/provider/h
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/history_entitise.dart';
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
 
 class HistoryScreenDesktopBody extends StatefulWidget {
   const HistoryScreenDesktopBody({super.key});

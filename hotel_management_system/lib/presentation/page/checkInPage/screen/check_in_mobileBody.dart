@@ -1,89 +1,103 @@
 // check_in_screen.dart
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:provider/provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
-import '../../../core/form_enum.dart';
+import '../../../../util/model/model.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/form_enum.dart';
 import '../provider/check_in_screen_provider.dart';
-import '../../listPage/screen/list_screen.dart';
+import '../../../../util/widget/components/dialog/dialog_helper.dart';
 
-class CheckInScreenMobileBody extends StatelessWidget {
-  final int? bookingID ;
-  const CheckInScreenMobileBody({super.key , this.bookingID});
+class CheckInScreenMobileBody extends StatefulWidget {
+  final int? bookingID;
+  const CheckInScreenMobileBody({super.key, this.bookingID});
 
-  void _handleCheckInResult(BuildContext context, CheckInStatus status) {
-    if (status == CheckInStatus.success) {
-      showSuccessDialog(
-        context,
-        "Check in แล้ว",
-        "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
-        ListScreen(
-          checkInStatus: true,
-          ckeckOutStatus: false,
-          statusConCheck: false,
-        ),
-        "รหัสเข้าห้อง[ 839201 ]",
-        "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
-        "หมดอายุ: 17 ก.พ. 12:00",
-      );
-      context.read<CheckInScreenProvider>().resetStatus();
-    } else if (status == CheckInStatus.error) {
-      final msg = context.read<CheckInScreenProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-      context.read<CheckInScreenProvider>().resetStatus();
-    }
+  @override
+  State<CheckInScreenMobileBody> createState() =>
+      _CheckInScreenMobileBodyState();
+}
+
+class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
+  late final CheckInScreenProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    final checkInUsecase =
+        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
+    _provider = CheckInScreenProvider(checkInUsecase);
+    _provider.addListener(_onProviderChanged);
   }
 
-  Future<void> _saveQRCode(BuildContext context) async {
-    try {
-      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
-      Uint8List bytes = byteData.buffer.asUint8List();
-      final result = await ImageGallerySaver.saveImage(
-        bytes,
-        quality: 100,
-        name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}",
-      );
-      if (result['isSuccess']) {
-        showSuccessSaveQRcodeDialog(context, "บันทึก QRcode แล้ว",
-            "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
-      } else {
-        throw Exception("Save failed");
-      }
-    } catch (e) {
+  @override
+  void dispose() {
+    _provider.removeListener(_onProviderChanged);
+    _provider.dispose();
+    super.dispose();
+  }
+
+  void _onProviderChanged() {
+    _handleCheckInResult();
+    _handleSaveQRResult();
+  }
+
+  void _handleCheckInResult() {
+  if (_provider.status == CheckInStatus.success) {
+    showSuccessDialog(
+      context,
+      "Check in แล้ว",
+      "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
+      "/list_page",
+      "รหัสเข้าห้อง[ 839201 ]",
+      "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
+      "หมดอายุ: 17 ก.พ. 12:00",
+      arguments: ListScreenArguments(
+        checkInStatus: true,
+        ckeckOutStatus: false,
+        statusConCheck: false,
+      ),
+    );
+    _provider.resetStatus();
+  } else if (_provider.status == CheckInStatus.error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(_provider.errorMessage), backgroundColor: Colors.red),
+    );
+    _provider.resetStatus();
+  }
+}
+  void _handleSaveQRResult() {
+    if (_provider.saveQRStatus == SaveQRStatus.success) {
+      showSuccessSaveQRcodeDialog(
+          context, "บันทึก QRcode แล้ว", "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
+      _provider.resetSaveQRStatus();
+    } else if (_provider.saveQRStatus == SaveQRStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("เกิดข้อผิดพลาด: $e"), backgroundColor: Colors.red),
+            content: Text(_provider.saveQRErrorMessage),
+            backgroundColor: Colors.red),
       );
+      _provider.resetSaveQRStatus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final checkInUsecase = CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl())) ;
-    return ChangeNotifierProvider(
-      create: (_) => CheckInScreenProvider(checkInUsecase),
-      builder: (context , _) => Scaffold(
+    return ChangeNotifierProvider.value(
+      value: _provider,
+      builder: (context, _) => Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Stack(
             children: [
               Consumer<CheckInScreenProvider>(
                 builder: (context, provider, _) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _handleCheckInResult(context, provider.status);
-                  });
-      
                   return SizedBox(
                     width: double.infinity,
                     height: double.infinity,
@@ -93,8 +107,6 @@ class CheckInScreenMobileBody extends StatelessWidget {
                         child: Column(
                           children: [
                             const SizedBox(height: 100),
-      
-                            // --- Input Fields ---
                             createInputField(InputFieldType.idCardNumber,
                                 controller: provider.idCardNumberController),
                             createInputField(InputFieldType.fullName,
@@ -107,29 +119,23 @@ class CheckInScreenMobileBody extends StatelessWidget {
                             ),
                             createInputField(InputFieldType.address,
                                 controller: provider.addressController),
-      
-                            // --- ID Card Image ---
                             Text('รูปบัตรประชาชน',
-                                style:
-                                    TextStyle(fontSize: Constants.fontSizeBody)),
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody)),
                             createInputField(
                               InputFieldType.idCard,
                               imageFile: provider.idCardImage,
                               onTap: provider.takeIdCardPhoto,
                             ),
                             const SizedBox(height: 20),
-      
-                            // --- Signature ---
                             Text('ลายเซ็นยืนยัน',
-                                style:
-                                    TextStyle(fontSize: Constants.fontSizeBody)),
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody)),
                             createInputField(InputFieldType.signature,
                                 sigController: provider.sigController),
-      
-                            // --- QR Code Payment ---
                             Text("จ่ายเงิน",
-                                style:
-                                    TextStyle(fontSize: Constants.fontSizeBody)),
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody)),
                             Center(
                               child: Container(
                                 width: double.infinity,
@@ -139,12 +145,14 @@ class CheckInScreenMobileBody extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(
                                       Constants.borderRadius),
                                 ),
-                                child: Image.asset("assets/images/QRcodePay.png"),
+                                child:
+                                    Image.asset("assets/images/QRcodePay.png"),
                               ),
                             ),
                             const SizedBox(height: 20),
                             GestureDetector(
-                              onTap: () => _saveQRCode(context),
+                              onTap: () =>
+                                  provider.saveQRCode(),
                               child: Center(
                                 child: Text(
                                   "บันทึก QRcode",
@@ -157,11 +165,9 @@ class CheckInScreenMobileBody extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 20),
-      
-                            // --- Payment Slip ---
                             Text("หลักฐานการชำระเงิน",
-                                style:
-                                    TextStyle(fontSize: Constants.fontSizeBody)),
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody)),
                             const SizedBox(height: 10),
                             createInputField(
                               InputFieldType.paymentSlip,
@@ -169,13 +175,12 @@ class CheckInScreenMobileBody extends StatelessWidget {
                               onTap: provider.pickSlipImage,
                             ),
                             const SizedBox(height: 20),
-      
-                            // --- Submit Button ---
                             provider.isLoading
                                 ? const CircularProgressIndicator()
                                 : Button(
                                     text: "ตกลง",
-                                    onTap: () => provider.submitCheckIn(bookingID ?? 0),
+                                    onTap: () => provider
+                                        .submitCheckIn(widget.bookingID ?? 0),
                                     color: Constants.secondaryColor,
                                   ),
                             const SizedBox(height: 150),
@@ -187,7 +192,10 @@ class CheckInScreenMobileBody extends StatelessWidget {
                 },
               ),
               Positioned(
-                  top: 0, right: 0, left: 0, child: Topnavbar(widthFactor: 0.2)),
+                  top: 0,
+                  right: 0,
+                  left: 0,
+                  child: Topnavbar(widthFactor: 0.2)),
               Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
             ],
           ),
@@ -195,55 +203,4 @@ class CheckInScreenMobileBody extends StatelessWidget {
       ),
     );
   }
-}
-
-void showSuccessSaveQRcodeDialog(
-    BuildContext context, String textTitle, String textBody) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle_outline,
-                  color: Colors.green, size: 64),
-              const SizedBox(height: 16),
-              Text(textTitle,
-                  style: TextStyle(
-                      fontSize: Constants.fontSizeTitle,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text(textBody,
-                  style: TextStyle(
-                      fontSize: Constants.fontSizeBody,
-                      color: Colors.grey[700]),
-                  textAlign: TextAlign.center),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.secondaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('ตกลง',
-                      style: TextStyle(
-                          fontSize: Constants.fontSizeBody,
-                          color: Colors.white)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
 }

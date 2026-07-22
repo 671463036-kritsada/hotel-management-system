@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/components/button/button.dart';
+import 'package:hotel_management_system/util/widget/components/button/button.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants.dart';
-import '../../../core/form_enum.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/form_enum.dart';
 import '../provider/HousekeeperRoomCheck_Screen_provider.dart';
 
 class RoomDetailFormScreen extends StatefulWidget {

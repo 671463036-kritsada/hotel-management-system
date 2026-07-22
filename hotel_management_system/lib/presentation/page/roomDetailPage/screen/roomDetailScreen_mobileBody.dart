@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
-import '../../../core/typeRoom_enum.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/room_detail_screen_provider.dart';
 
 class RoomDetailScreenMobileBody extends StatefulWidget {

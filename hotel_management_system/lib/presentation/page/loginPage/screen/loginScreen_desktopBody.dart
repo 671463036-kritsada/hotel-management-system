@@ -1,9 +1,9 @@
-// login_screen.dart
+// login_screen.dart (Desktop)
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/components/button/button.dart';
-import 'package:hotel_management_system/presentation/components/button/buttonAuth.dart';
-import 'package:hotel_management_system/presentation/core/constants.dart';
-import 'package:hotel_management_system/presentation/core/form_enum.dart';
+import 'package:hotel_management_system/util/widget/components/button/button.dart';
+import 'package:hotel_management_system/util/widget/components/button/buttonAuth.dart';
+import 'package:hotel_management_system/util/widget/core/constants.dart';
+import 'package:hotel_management_system/util/widget/core/form_enum.dart';
 import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -11,18 +11,6 @@ import '../provider/login_screen_provider.dart';
 
 class LoginScreenDesktopBody extends StatelessWidget {
   const LoginScreenDesktopBody({super.key});
-
-  void _handleLoginResult(BuildContext context, LoginStatus status) {
-    if (status == LoginStatus.success) {
-      _showSuccessDialog(context);
-    } else if (status == LoginStatus.error) {
-      final msg = context.read<LoginScreenProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-      context.read<LoginScreenProvider>().resetStatus();
-    }
-  }
 
   void _showSuccessDialog(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -126,9 +114,9 @@ class LoginScreenDesktopBody extends StatelessWidget {
               // --- Login Button ---
               Consumer<LoginScreenProvider>(
                 builder: (context, provider, _) {
-                  // ฟังการเปลี่ยน status แล้ว handle
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _handleLoginResult(context, provider.status);
+                    provider.handleLoginResult(
+                        context, () => _showSuccessDialog(context));
                   });
 
                   return provider.isLoading

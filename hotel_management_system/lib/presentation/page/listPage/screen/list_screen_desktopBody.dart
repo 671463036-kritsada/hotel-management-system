@@ -1,11 +1,11 @@
-// list_screen.dart
+// list_screen_desktopBody.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/core/constants.dart';
 import 'boxListCompanent.dart';
 import 'infoAbout.dart';
 
@@ -15,8 +15,8 @@ class ListScreenDesktopBody extends StatefulWidget {
   const ListScreenDesktopBody({
     super.key,
     this.checkInStatus,
-    this.ckeckOutStatus = false,
-    this.statusConCheck = false,
+    this.ckeckOutStatus,
+    this.statusConCheck,
   });
 
   @override
@@ -51,6 +51,12 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                               child: CircularProgressIndicator());
                         }
 
+                        final filteredList = provider.filteredBookingList(
+                          checkInStatus: widget.checkInStatus,
+                          checkOutStatus: widget.ckeckOutStatus,
+                          statusConCheck: widget.statusConCheck,
+                        );
+
                         return SingleChildScrollView(
                           child: Padding(
                             padding: const EdgeInsets.all(Constants.padding),
@@ -65,7 +71,17 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                                 Constants.fontSizeHeader)),
                                   ],
                                 ),
-                                ...provider.bookingList.map((booking) {
+                                if (filteredList.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 60),
+                                    child: Text(
+                                      "ไม่มีรายการ",
+                                      style: TextStyle(
+                                          fontSize: Constants.fontSizeBody,
+                                          color: Colors.grey[500]),
+                                    ),
+                                  ),
+                                ...filteredList.map((booking) {
                                   return Boxlistcompanent(
                                     roomNumber: booking.roomNumber,
                                     payamout: booking.totalPrice ?? 0,

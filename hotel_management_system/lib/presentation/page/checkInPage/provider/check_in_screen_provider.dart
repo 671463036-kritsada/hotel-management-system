@@ -1,14 +1,18 @@
 // check_in_screen_provider.dart
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hotel_management_system/domain/entitise/check_in_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signature/signature.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum CheckInStatus { initial, loading, success, error }
+enum SaveQRStatus { initial, success, error } // เพิ่มใหม่
 
 class CheckInScreenProvider extends ChangeNotifier {
   final CheckInUsecase usecase;
@@ -20,6 +24,9 @@ class CheckInScreenProvider extends ChangeNotifier {
   String _gender = "ชาย";
   File? _idCardImage;
   File? _paymentSlipImage;
+
+  SaveQRStatus _saveQRStatus = SaveQRStatus.initial; // เพิ่มใหม่
+  String _saveQRErrorMessage = ''; // เพิ่มใหม่
 
   final TextEditingController idCardNumberController = TextEditingController();
   final TextEditingController fullNameController = TextEditingController();
@@ -36,6 +43,9 @@ class CheckInScreenProvider extends ChangeNotifier {
   File? get idCardImage => _idCardImage;
   File? get paymentSlipImage => _paymentSlipImage;
   bool get isLoading => _status == CheckInStatus.loading;
+
+  SaveQRStatus get saveQRStatus => _saveQRStatus; // เพิ่มใหม่
+  String get saveQRErrorMessage => _saveQRErrorMessage; // เพิ่มใหม่
 
   // --- Functions ---
   void setGender(String value) {
@@ -85,9 +95,6 @@ class CheckInScreenProvider extends ChangeNotifier {
     if (addressController.text.trim().isEmpty) {
       return 'กรุณากรอกที่อยู่';
     }
-    // if (_idCardImage == null) {
-    //   return 'กรุณาถ่ายรูปบัตรประชาชน';
-    // }
     if (sigController.isEmpty) {
       return 'กรุณาเซ็นลายเซ็นยืนยัน';
     }
@@ -113,7 +120,7 @@ class CheckInScreenProvider extends ChangeNotifier {
       final signatureBytes = await sigController.toPngBytes();
       final String? signatureBase64 = signatureBytes != null
           ? base64Encode(signatureBytes)
-          : null; // แปลงตรงนี้
+          : null;
 
       final checkInData = CheckInEntitise(
         bookingId: bookingId,
@@ -123,7 +130,7 @@ class CheckInScreenProvider extends ChangeNotifier {
         address: addressController.text.trim(),
         idCardImage: _idCardImage?.path ?? '',
         paymentSlipImage: _paymentSlipImage?.path ?? '',
-        signatureImage: signatureBase64, // ส่ง string เข้าไป
+        signatureImage: signatureBase64,
       );
 
       await usecase.getCheckInData(checkInData);
@@ -135,6 +142,33 @@ class CheckInScreenProvider extends ChangeNotifier {
       _status = CheckInStatus.error;
       notifyListeners();
     }
+  }
+
+  Future<void> saveQRCode() async {
+    try {
+      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
+      Uint8List bytes = byteData.buffer.asUint8List();
+      final result = await ImageGallerySaver.saveImage(
+        bytes,
+        quality: 100,
+        name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}",
+      );
+
+      if (result['isSuccess']) {
+        _saveQRStatus = SaveQRStatus.success;
+      } else {
+        throw Exception("Save failed");
+      }
+    } catch (e) {
+      _saveQRErrorMessage = "เกิดข้อผิดพลาด: $e";
+      _saveQRStatus = SaveQRStatus.error;
+    }
+    notifyListeners();
+  }
+
+  void resetSaveQRStatus() {
+    _saveQRStatus = SaveQRStatus.initial;
+    _saveQRErrorMessage = '';
   }
 
   void resetStatus() {

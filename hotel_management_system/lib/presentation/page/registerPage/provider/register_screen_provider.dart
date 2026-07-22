@@ -7,14 +7,12 @@ class RegisterScreenProvider extends ChangeNotifier {
   // --- State ---
   RegisterStatus _status = RegisterStatus.initial;
   String _errorMessage = '';
-
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
-
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -45,12 +43,10 @@ class RegisterScreenProvider extends ChangeNotifier {
       _errorMessage = 'กรุณากรอกข้อมูลให้ครบ';
       return false;
     }
-
     if (passwordController.text != confirmPasswordController.text) {
       _errorMessage = 'รหัสผ่านไม่ตรงกัน';
       return false;
     }
-
     return true;
   }
 
@@ -60,28 +56,32 @@ class RegisterScreenProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
-
     _status = RegisterStatus.loading;
     notifyListeners();
-
     try {
       // TODO: เชื่อม API จริงตรงนี้
-      // await _authRepository.register(
-      //   username: usernameController.text,
-      //   email: emailController.text,
-      //   phone: phoneNumberController.text,
-      //   password: passwordController.text,
-      // );
-
-      // Mock success
       await Future.delayed(const Duration(seconds: 1));
-
       _status = RegisterStatus.success;
       notifyListeners();
     } catch (e) {
       _errorMessage = 'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
       _status = RegisterStatus.error;
       notifyListeners();
+    }
+  }
+
+  /// เช็คสถานะ register แล้วจัดการผลลัพธ์
+  /// [onSuccess] คือ dialog ที่แต่ละแพลตฟอร์ม (mobile/desktop) กำหนดเอง
+  void handleRegisterResult(BuildContext context, VoidCallback onSuccess) {
+    if (_status == RegisterStatus.success) {
+      onSuccess();
+      resetStatus();
+    } else if (_status == RegisterStatus.error) {
+      if (!context.mounted) return; // กัน context ตายหลัง async
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
+      );
+      resetStatus();
     }
   }
 

@@ -1,6 +1,5 @@
 // login_screen_provider.dart
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 
@@ -8,12 +7,11 @@ enum LoginStatus { initial, loading, success, error }
 
 class LoginScreenProvider extends ChangeNotifier {
   LoginScreenProvider(this.userProvider);
+
   // --- State ---
   LoginStatus _status = LoginStatus.initial;
   String _errorMessage = '';
-
   final UserProvider userProvider;
-
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -37,25 +35,16 @@ class LoginScreenProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
-
     _status = LoginStatus.loading;
     notifyListeners();
-
     try {
       // TODO: เชื่อม API จริงตรงนี้
-      // final result = await _authRepository.login(
-      //   username: usernameController.text,
-      //   password: passwordController.text,
-      // );
-
-      // Mock success
       await Future.delayed(const Duration(seconds: 1));
       userProvider.usernamePassword = (
         usernname: usernameController.text,
         password: passwordController.text
       );
       log("username ${userProvider.username ?? ''} ");
-
       _status = LoginStatus.success;
       notifyListeners();
     } catch (e) {
@@ -73,14 +62,19 @@ class LoginScreenProvider extends ChangeNotifier {
     // TODO: เชื่อม Facebook Auth
   }
 
-  void calculate(int numA, int numB, String type) {
-    if (type == "divide") {
-      _divide(numA, numB);
-    } else {}
-  }
-
-  int _divide(int numA, int numB) {
-    return numA * numB;
+  /// เช็คสถานะ login แล้วจัดการผลลัพธ์
+  /// onSucess คือ dialog ที่แต่ละแพลตฟอร์ม (mobile/desktop) กำหนดเอง
+  void handleLoginResult(BuildContext context, VoidCallback onSuccess) {
+    if (_status == LoginStatus.success) {
+      onSuccess();
+      resetStatus();
+    } else if (_status == LoginStatus.error) {
+      if (!context.mounted) return; // กัน context ตายหลัง async
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
+      );
+      resetStatus();
+    }
   }
 
   void resetStatus() {

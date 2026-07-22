@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
-import '../../../core/typeRoom_enum.dart';
+import '../../../../util/widget/core/typeRoom_enum.dart';
 
 class RoomDetail {
   final int roomId;

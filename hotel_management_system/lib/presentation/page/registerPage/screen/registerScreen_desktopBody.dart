@@ -1,27 +1,15 @@
-// register_screen.dart
+// register_screen.dart (Desktop)
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/core/form_enum.dart';
+import 'package:hotel_management_system/util/widget/core/form_enum.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
 import '../../loginPage/screen/login_screen.dart';
 import '../provider/register_screen_provider.dart';
 
 class RegisterScreenDesktopBody extends StatelessWidget {
   const RegisterScreenDesktopBody({super.key});
-
-  void _handleRegisterResult(BuildContext context, RegisterStatus status) {
-    if (status == RegisterStatus.success) {
-      _showSuccessDialog(context);
-    } else if (status == RegisterStatus.error) {
-      final msg = context.read<RegisterScreenProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-      context.read<RegisterScreenProvider>().resetStatus();
-    }
-  }
 
   void _showSuccessDialog(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -147,7 +135,8 @@ class RegisterScreenDesktopBody extends StatelessWidget {
                     Consumer<RegisterScreenProvider>(
                       builder: (context, provider, _) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _handleRegisterResult(context, provider.status);
+                          provider.handleRegisterResult(
+                              context, () => _showSuccessDialog(context));
                         });
 
                         return SizedBox(

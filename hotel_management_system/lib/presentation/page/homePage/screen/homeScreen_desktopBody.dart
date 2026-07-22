@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../core/constants.dart';
-import '../../../core/form_enum.dart';
-import '../../../core/typeRoom_enum.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/form_enum.dart';
+import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
 class HomeScreenDesktopBody extends StatefulWidget {

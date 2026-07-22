@@ -5,11 +5,11 @@ import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
-import '../../listPage/screen/list_screen.dart';
+import '../../../../util/model/model.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
 
 class RoomConditionCheckScreenDesktopBody extends StatefulWidget {
   final int roomId;
@@ -366,11 +366,15 @@ class _RoomConditionCheckScreenDesktopBodyState
         .submitCheckCondition(widget.roomId);
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: Colors.green));
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                ListScreen(checkInStatus: true, statusConCheck: true)));
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/list_page',
+      (route) => false,
+      arguments: ListScreenArguments(
+        checkInStatus: true,
+        statusConCheck: true,
+      ),
+    );
   }
 
   @override

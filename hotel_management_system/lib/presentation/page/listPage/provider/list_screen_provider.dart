@@ -46,11 +46,9 @@ class ListScreenProvider extends ChangeNotifier {
   Future<void> getBookingList(int userID) async {
     _isLoading = true;
     notifyListeners();
-
     try {
       final List<BookingListEntity> entities =
           await usecase.getListData(userID);
-
       _bookingList = entities.map((entity) {
         return BookingItem(
             bookingId: entity.bookingId,
@@ -66,7 +64,6 @@ class ListScreenProvider extends ChangeNotifier {
             bookingStatus: entity.bookingStatus,
             roomKey: entity.roomKey);
       }).toList();
-
       _isLoading = false;
       notifyListeners();
     } on SocketException {
@@ -82,6 +79,29 @@ class ListScreenProvider extends ChangeNotifier {
       notifyListeners();
       throw Exception("เกิดข้อผิดพลาด $e");
     }
+  }
+
+  /// กรองรายการตาม status ที่ส่งมา
+  /// ถ้า parameter ไหนเป็น null แปลว่า "ไม่กรองตามเงื่อนไขนั้น"
+  List<BookingItem> filteredBookingList({
+    bool? checkInStatus,
+    bool? checkOutStatus,
+    bool? statusConCheck,
+  }) {
+    return _bookingList.where((booking) {
+      if (checkInStatus != null && booking.checkInStatus != checkInStatus) {
+        return false;
+      }
+      if (checkOutStatus != null &&
+          booking.checkOutStatus != checkOutStatus) {
+        return false;
+      }
+      if (statusConCheck != null &&
+          booking.statusConCheck != statusConCheck) {
+        return false;
+      }
+      return true;
+    }).toList();
   }
 
   String _mapStatusText(String status) {

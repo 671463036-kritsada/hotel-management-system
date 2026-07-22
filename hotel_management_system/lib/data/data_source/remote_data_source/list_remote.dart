@@ -23,9 +23,9 @@ class ListRemoteDatasourceImpl implements ListRemoteDatasource {
           "totalPrice": 1000,
           "bookingStatus": "APPROVED",
           "paymentStatus": "PAID",
-          "checkInStatus": "CHECKED_IN",
+          "checkInStatus": "NOT_CHECKED_IN",
           "checkOutStatus": "NOT_CHECKED_OUT",
-          "inspectionStatus": "PENDING"
+          "inspectionStatus": "NONE"
         },
         {
           "bookingId": 2,
@@ -35,7 +35,7 @@ class ListRemoteDatasourceImpl implements ListRemoteDatasource {
           "checkInDate": "2026-02-10",
           "checkOutDate": "2026-02-12",
           "totalPrice": 2000,
-          "bookingStatus": "PENDING",
+          "bookingStatus": "APPROVED",
           "paymentStatus": "PAID",
           "checkInStatus": "NOT_CHECKED_IN",
           "checkOutStatus": "NOT_CHECKED_OUT",
@@ -49,7 +49,7 @@ class ListRemoteDatasourceImpl implements ListRemoteDatasource {
           "checkInDate": "2026-02-23",
           "checkOutDate": "2026-02-25",
           "totalPrice": 1500,
-          "bookingStatus": "REJECTED",
+          "bookingStatus": "APPROVED",
           "paymentStatus": "REFUNDED",
           "checkInStatus": "NOT_CHECKED_IN",
           "checkOutStatus": "NOT_CHECKED_OUT",

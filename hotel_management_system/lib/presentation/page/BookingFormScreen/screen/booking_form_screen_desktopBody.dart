@@ -1,75 +1,98 @@
-// booking_form_screen.dart
-import 'dart:typed_data';
+// booking_form_screen_desktopBody.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
-import 'package:hotel_management_system/presentation/components/button/button.dart';
-import 'package:hotel_management_system/presentation/page/BookingFormScreen/screen/booking_form_screen_mobileBody.dart';
+import 'package:hotel_management_system/util/widget/components/button/button.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../core/constants.dart';
-import '../../../core/form_enum.dart';
-import '../../listPage/screen/list_screen.dart';
+import '../../../../util/model/model.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/dialog/dialog_helper.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/form_enum.dart';
 
-class BookingFormScreenDesktopBody extends StatelessWidget {
+class BookingFormScreenDesktopBody extends StatefulWidget {
   final int roomId;
 
   const BookingFormScreenDesktopBody({super.key, required this.roomId});
 
-  void _handleBookingResult(BuildContext context, BookingFormStatus status) {
-    if (status == BookingFormStatus.success) {
+  @override
+  State<BookingFormScreenDesktopBody> createState() =>
+      _BookingFormScreenDesktopBodyState();
+}
+
+class _BookingFormScreenDesktopBodyState
+    extends State<BookingFormScreenDesktopBody> {
+  late final BookingFormScreenProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    final bookingUsecase = BookingFormUsecase(
+        BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()));
+    _provider = BookingFormScreenProvider(bookingUsecase);
+    _provider.addListener(_onProviderChanged);
+  }
+
+  @override
+  void dispose() {
+    _provider.removeListener(_onProviderChanged);
+    _provider.dispose();
+    super.dispose();
+  }
+
+  void _onProviderChanged() {
+    _handleBookingResult();
+    _handleSaveQRResult();
+  }
+
+  void _handleBookingResult() {
+    if (_provider.status == BookingFormStatus.success) {
       showSuccessDialog(
         context,
         "จองห้องนี้",
-        "เราได้รับข้อมูลการจองห้องพักเลขที่ $roomId เรียบร้อยแล้ว",
-        ListScreen(),
+        "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว",
+        "/list_page", // เปลี่ยนจาก ListScreen()
         "",
         "",
         "",
+        arguments: ListScreenArguments(
+          checkInStatus: false,
+          ckeckOutStatus: false,
+          statusConCheck: false,
+        ),
       );
-      context.read<BookingFormScreenProvider>().resetStatus();
-    } else if (status == BookingFormStatus.error) {
-      final msg = context.read<BookingFormScreenProvider>().errorMessage;
+      _provider.resetStatus();
+    } else if (_provider.status == BookingFormStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text(_provider.errorMessage), backgroundColor: Colors.red),
       );
-      context.read<BookingFormScreenProvider>().resetStatus();
+      _provider.resetStatus();
     }
   }
 
-  Future<void> _saveQRCode(BuildContext context) async {
-    try {
-      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
-      Uint8List bytes = byteData.buffer.asUint8List();
-      final result = await ImageGallerySaver.saveImage(
-        bytes,
-        quality: 100,
-        name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}",
-      );
-      if (result['isSuccess']) {
-        showSuccessSaveQRcodeDialog(context, "บันทึก QRcode แล้ว",
-            "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
-      } else {
-        throw Exception("Save failed");
-      }
-    } catch (e) {
+  void _handleSaveQRResult() {
+    if (_provider.saveQRStatus == SaveQRStatus.success) {
+      showSuccessSaveQRcodeDialog(
+          context, "บันทึก QRcode แล้ว", "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
+      _provider.resetSaveQRStatus();
+    } else if (_provider.saveQRStatus == SaveQRStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("เกิดข้อผิดพลาด: $e"), backgroundColor: Colors.red),
+            content: Text(_provider.saveQRErrorMessage),
+            backgroundColor: Colors.red),
       );
+      _provider.resetSaveQRStatus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BookingFormScreenProvider(BookingFormUsecase(
-          BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()))),
+    return ChangeNotifierProvider.value(
+      value: _provider,
       builder: (context, _) => Scaffold(
         backgroundColor: Constants.bgcolor,
         body: SafeArea(
@@ -79,10 +102,6 @@ class BookingFormScreenDesktopBody extends StatelessWidget {
               Expanded(
                 child: Consumer<BookingFormScreenProvider>(
                   builder: (context, provider, _) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _handleBookingResult(context, provider.status);
-                    });
-
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(32),
                       child: Center(
@@ -94,7 +113,7 @@ class BookingFormScreenDesktopBody extends StatelessWidget {
                               // --- Header ---
                               Center(
                                 child: Text(
-                                  'จองห้องพักหมายเลข $roomId',
+                                  'จองห้องพักหมายเลข ${widget.roomId}',
                                   style: TextStyle(
                                       fontSize: Constants.fontSizeHeader,
                                       fontWeight: Constants.fontWeightBold),
@@ -189,22 +208,17 @@ class BookingFormScreenDesktopBody extends StatelessWidget {
                                           const SizedBox(height: 24),
                                           SizedBox(
                                             width: double.infinity,
-                                            child: Consumer<
-                                                BookingFormScreenProvider>(
-                                              builder: (context, provider, _) {
-                                                return Button(
-                                                  text: provider.isLoading
-                                                      ? "กำลังจอง..."
-                                                      : "จองห้องนี้",
-                                                  onTap: provider.isLoading
-                                                      ? () {}
-                                                      : () => provider
-                                                          .submitBooking(
-                                                              roomId: roomId),
-                                                  color:
-                                                      Constants.secondaryColor,
-                                                );
-                                              },
+                                            child: Button(
+                                              text: provider.isLoading
+                                                  ? "กำลังจอง..."
+                                                  : "จองห้องนี้",
+                                              onTap: provider.isLoading
+                                                  ? () {}
+                                                  : () =>
+                                                      provider.submitBooking(
+                                                          roomId:
+                                                              widget.roomId),
+                                              color: Constants.secondaryColor,
                                             ),
                                           ),
                                         ],
@@ -261,8 +275,8 @@ class BookingFormScreenDesktopBody extends StatelessWidget {
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: OutlinedButton.icon(
-                                                  onPressed: () =>
-                                                      _saveQRCode(context),
+                                                  onPressed: () => provider
+                                                      .saveQRCode(), // เรียก provider แทน
                                                   icon: const Icon(
                                                       Icons.download),
                                                   label: const Text(

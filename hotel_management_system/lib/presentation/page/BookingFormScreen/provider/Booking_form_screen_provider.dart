@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hotel_management_system/domain/entitise/booking_form_entitise.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
+enum SaveQRStatus { initial, success, error }
 
 class BookingFormScreenProvider extends ChangeNotifier {
   final BookingFormUsecase bookingFormUseCase;
@@ -14,6 +18,9 @@ class BookingFormScreenProvider extends ChangeNotifier {
   BookingFormStatus _status = BookingFormStatus.initial;
   String _errorMessage = '';
   File? _paymentSlipImage;
+
+  SaveQRStatus _saveQRStatus = SaveQRStatus.initial;
+  String _saveQRErrorMessage = ''; 
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -29,6 +36,9 @@ class BookingFormScreenProvider extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   File? get paymentSlipImage => _paymentSlipImage;
   bool get isLoading => _status == BookingFormStatus.loading;
+
+  SaveQRStatus get saveQRStatus => _saveQRStatus;
+  String get saveQRErrorMessage => _saveQRErrorMessage;
 
   // --- Functions ---
   Future<void> pickSlipImage() async {
@@ -60,9 +70,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
             DateTime.tryParse(checkOutController.text) ?? DateTime.now(),
         paymentSlip: _paymentSlipImage?.path ?? '',
       );
-
       final result = await bookingFormUseCase.bookingForm(bookingFormData);
-
       if (result) {
         _status = BookingFormStatus.success;
       } else {
@@ -75,6 +83,34 @@ class BookingFormScreenProvider extends ChangeNotifier {
       _status = BookingFormStatus.error;
       notifyListeners();
     }
+  }
+
+
+  Future<void> saveQRCode() async {
+    try {
+      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
+      Uint8List bytes = byteData.buffer.asUint8List();
+      final result = await ImageGallerySaver.saveImage(
+        bytes,
+        quality: 100,
+        name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}",
+      );
+
+      if (result['isSuccess']) {
+        _saveQRStatus = SaveQRStatus.success;
+      } else {
+        throw Exception("Save failed");
+      }
+    } catch (e) {
+      _saveQRErrorMessage = "เกิดข้อผิดพลาด: $e";
+      _saveQRStatus = SaveQRStatus.error;
+    }
+    notifyListeners();
+  }
+
+  void resetSaveQRStatus() {
+    _saveQRStatus = SaveQRStatus.initial;
+    _saveQRErrorMessage = '';
   }
 
   void resetStatus() {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/checkInPage/screen/check_in_screen.dart';
 
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
 
 class Infoabout extends StatelessWidget {
   final bool? checkInStatus;

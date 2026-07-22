@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/core/constants.dart';
+import 'package:hotel_management_system/util/widget/core/constants.dart';
 import 'package:signature/signature.dart';
 
 enum InputFieldType {

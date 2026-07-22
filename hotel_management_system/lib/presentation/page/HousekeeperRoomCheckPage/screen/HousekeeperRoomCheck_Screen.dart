@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/core/constants.dart';
 import 'room_detail_form.dart';
 
 class HousekeeperRoomCheckScreen extends StatefulWidget {

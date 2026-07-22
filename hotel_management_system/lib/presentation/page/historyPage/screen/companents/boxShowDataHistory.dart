@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/screen/room_condition_check_screen.dart';
-import 'package:hotel_management_system/presentation/core/constants.dart';
+import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Boxshowdatahistory extends StatelessWidget {
   final int roomNumber;

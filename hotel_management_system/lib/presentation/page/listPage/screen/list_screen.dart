@@ -3,16 +3,10 @@ import 'package:flutter/material.dart';
 import 'list_screen_desktopBody.dart';
 import 'list_screen_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
+import '../../../../util/model/model.dart';
 
 class ListScreen extends StatefulWidget {
-  final bool? checkInStatus, ckeckOutStatus, statusConCheck;
-
-  const ListScreen({
-    super.key,
-    this.checkInStatus = false,
-    this.ckeckOutStatus = false,
-    this.statusConCheck = false,
-  });
+  const ListScreen({super.key});
 
   @override
   State<ListScreen> createState() => _ListScreenState();
@@ -20,18 +14,20 @@ class ListScreen extends StatefulWidget {
 
 class _ListScreenState extends State<ListScreen> {
   @override
-  @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)?.settings.arguments as ListScreenArguments?;
+
     return ResponsiveLayout(
       mobileBody: ListScreenMobileBody(
-        checkInStatus: widget.checkInStatus,
-        ckeckOutStatus: widget.ckeckOutStatus,
-        statusConCheck: widget.statusConCheck,
+        checkInStatus: args?.checkInStatus,
+        ckeckOutStatus: args?.ckeckOutStatus,
+        statusConCheck: args?.statusConCheck,
       ),
       desktopBody: ListScreenDesktopBody(
-        checkInStatus: widget.checkInStatus,
-        ckeckOutStatus: widget.ckeckOutStatus,
-        statusConCheck: widget.statusConCheck,
+        checkInStatus: args?.checkInStatus,
+        ckeckOutStatus: args?.ckeckOutStatus,
+        statusConCheck: args?.statusConCheck,
       ),
     );
   }

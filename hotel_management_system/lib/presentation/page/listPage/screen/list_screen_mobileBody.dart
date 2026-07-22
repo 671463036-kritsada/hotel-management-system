@@ -1,11 +1,11 @@
-// list_screen.dart
+// list_screen_mobileBody.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../core/constants.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/core/constants.dart';
 import 'boxListCompanent.dart';
 import 'infoAbout.dart';
 
@@ -15,8 +15,8 @@ class ListScreenMobileBody extends StatefulWidget {
   const ListScreenMobileBody({
     super.key,
     this.checkInStatus,
-    this.ckeckOutStatus = false,
-    this.statusConCheck = false,
+    this.ckeckOutStatus,
+    this.statusConCheck,
   });
 
   @override
@@ -28,6 +28,7 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // TODO: เปลี่ยน 1 เป็น userID จริงตอนทำระบบ auth เสร็จ
       context.read<ListScreenProvider>().getBookingList(1);
     });
   }
@@ -50,6 +51,13 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                               child: CircularProgressIndicator());
                         }
 
+                        // กรองรายการตาม status ที่ได้รับมาจาก arguments
+                        final filteredList = provider.filteredBookingList(
+                          checkInStatus: widget.checkInStatus,
+                          checkOutStatus: widget.ckeckOutStatus,
+                          statusConCheck: widget.statusConCheck,
+                        );
+
                         return SingleChildScrollView(
                           child: Padding(
                             padding: const EdgeInsets.all(Constants.padding),
@@ -64,7 +72,17 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                                 Constants.fontSizeHeader)),
                                   ],
                                 ),
-                                ...provider.bookingList.map((booking) {
+                                if (filteredList.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 60),
+                                    child: Text(
+                                      "ไม่มีรายการ",
+                                      style: TextStyle(
+                                          fontSize: Constants.fontSizeBody,
+                                          color: Colors.grey[500]),
+                                    ),
+                                  ),
+                                ...filteredList.map((booking) {
                                   return Boxlistcompanent(
                                     roomNumber: booking.roomNumber,
                                     payamout: booking.totalPrice ?? 0,
@@ -91,8 +109,7 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                             heightFactor: 0.9,
                                             child: SingleChildScrollView(
                                               child: Infoabout(
-                                                bookingId: booking
-                                                    .bookingId, //ส่งไปให้หน้า check-in
+                                                bookingId: booking.bookingId,
                                                 status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,

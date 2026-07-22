@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/components/button/buttonIcon.dart';
-import 'package:hotel_management_system/presentation/core/constants.dart';
+import 'package:hotel_management_system/util/widget/components/button/buttonIcon.dart';
+import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Bottomnavbar extends StatelessWidget {
   final bool? isVisibleHousekeeper;

@@ -1,75 +1,97 @@
-// check_in_screen.dart
-import 'dart:typed_data';
+// check_in_screen_desktop_body.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:provider/provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 
-import '../../../components/bavbar/bottomNavbar.dart';
-import '../../../components/bavbar/topNavbar.dart';
-import '../../../components/button/button.dart';
-import '../../../core/constants.dart';
-import '../../../core/form_enum.dart';
-import '../../BookingFormScreen/screen/booking_form_screen_mobileBody.dart';
+import '../../../../util/model/model.dart';
+import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
+import '../../../../util/widget/components/bavbar/topNavbar.dart';
+import '../../../../util/widget/components/button/button.dart';
+import '../../../../util/widget/core/constants.dart';
+import '../../../../util/widget/core/form_enum.dart';
 import '../provider/check_in_screen_provider.dart';
-import '../../listPage/screen/list_screen.dart';
+import '../../../../util/widget/components/dialog/dialog_helper.dart';
 
-class CheckInScreenDesktopBody extends StatelessWidget {
-  final int? bookingID ; 
-  const CheckInScreenDesktopBody({super.key , this.bookingID});
+class CheckInScreenDesktopBody extends StatefulWidget {
+  final int? bookingID;
+  const CheckInScreenDesktopBody({super.key, this.bookingID});
 
-  void _handleCheckInResult(BuildContext context, CheckInStatus status) {
-    if (status == CheckInStatus.success) {
-      showSuccessDialog(
-        context,
-        "Check in แล้ว",
-        "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
-        ListScreen(
-            checkInStatus: true, ckeckOutStatus: false, statusConCheck: false),
-        "รหัสเข้าห้อง[ 839201 ]",
-        "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
-        "หมดอายุ: 17 ก.พ. 12:00",
-      );
-      context.read<CheckInScreenProvider>().resetStatus();
-    } else if (status == CheckInStatus.error) {
-      final msg = context.read<CheckInScreenProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.red),
-      );
-      context.read<CheckInScreenProvider>().resetStatus();
-    }
+  @override
+  State<CheckInScreenDesktopBody> createState() =>
+      _CheckInScreenDesktopBodyState();
+}
+
+class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
+  late final CheckInScreenProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    final checkInUsecase = CheckInUsecase(
+        CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
+    _provider = CheckInScreenProvider(checkInUsecase);
+    _provider.addListener(_onProviderChanged);
   }
 
-  Future<void> _saveQRCode(BuildContext context) async {
-    try {
-      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
-      Uint8List bytes = byteData.buffer.asUint8List();
-      final result = await ImageGallerySaver.saveImage(bytes,
-          quality: 100,
-          name: "Hotel_QR_Payment_${DateTime.now().millisecondsSinceEpoch}");
-      if (result['isSuccess']) {
-        showSuccessSaveQRcodeDialog(context, "บันทึก QRcode แล้ว",
-            "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
-      } else {
-        throw Exception("Save failed");
-      }
-    } catch (e) {
+  @override
+  void dispose() {
+    _provider.removeListener(_onProviderChanged);
+    _provider.dispose();
+    super.dispose();
+  }
+
+  void _onProviderChanged() {
+    _handleCheckInResult();
+    _handleSaveQRResult();
+  }
+
+  void _handleCheckInResult() {
+  if (_provider.status == CheckInStatus.success) {
+    showSuccessDialog(
+      context,
+      "Check in แล้ว",
+      "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
+      "/list_page",
+      "รหัสเข้าห้อง[ 839201 ]",
+      "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
+      "หมดอายุ: 17 ก.พ. 12:00",
+      arguments: ListScreenArguments(
+        checkInStatus: true,
+        ckeckOutStatus: false,
+        statusConCheck: false,
+      ),
+    );
+    _provider.resetStatus();
+  } else if (_provider.status == CheckInStatus.error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_provider.errorMessage), backgroundColor: Colors.red),
+    );
+    _provider.resetStatus();
+  }
+}
+
+  void _handleSaveQRResult() {
+    if (_provider.saveQRStatus == SaveQRStatus.success) {
+      showSuccessSaveQRcodeDialog(
+          context, "บันทึก QRcode แล้ว", "QRcode ถูกบันทึกลงในคลังรูปภาพแล้ว");
+      _provider.resetSaveQRStatus();
+    } else if (_provider.saveQRStatus == SaveQRStatus.error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("เกิดข้อผิดพลาด: $e"), backgroundColor: Colors.red),
+            content: Text(_provider.saveQRErrorMessage),
+            backgroundColor: Colors.red),
       );
+      _provider.resetSaveQRStatus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final checkInUsecase = CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
-    return ChangeNotifierProvider(
-      create: (_) => CheckInScreenProvider(checkInUsecase),
-      builder: (context , _) => Scaffold(
+    return ChangeNotifierProvider.value(
+      value: _provider,
+      builder: (context, _) => Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
         body: SafeArea(
           child: Column(
@@ -78,10 +100,6 @@ class CheckInScreenDesktopBody extends StatelessWidget {
               Expanded(
                 child: Consumer<CheckInScreenProvider>(
                   builder: (context, provider, _) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _handleCheckInResult(context, provider.status);
-                    });
-      
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(32),
                       child: Center(
@@ -90,7 +108,6 @@ class CheckInScreenDesktopBody extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // --- Header ---
                               Center(
                                 child: Text("เช็คอินเข้าพัก",
                                     style: TextStyle(
@@ -98,12 +115,9 @@ class CheckInScreenDesktopBody extends StatelessWidget {
                                         fontWeight: Constants.fontWeightBold)),
                               ),
                               const SizedBox(height: 32),
-      
-                              // --- 2 คอลัมน์ ---
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // --- Left: ข้อมูลผู้เข้าพัก ---
                                   Expanded(
                                     flex: 3,
                                     child: Column(
@@ -170,17 +184,14 @@ class CheckInScreenDesktopBody extends StatelessWidget {
                                                     CircularProgressIndicator())
                                             : Button(
                                                 text: "ยืนยันการเช็คอิน",
-                                                onTap: () =>
-                                                    provider.submitCheckIn(bookingID ?? 0),
+                                                onTap: () => provider
+                                                    .submitCheckIn(widget.bookingID ?? 0),
                                                 color: Constants.secondaryColor,
                                               ),
                                       ],
                                     ),
                                   ),
-      
                                   const SizedBox(width: 24),
-      
-                                  // --- Right: QR Code ---
                                   Expanded(
                                     flex: 2,
                                     child: _buildCard(
@@ -203,7 +214,7 @@ class CheckInScreenDesktopBody extends StatelessWidget {
                                             width: double.infinity,
                                             child: OutlinedButton.icon(
                                               onPressed: () =>
-                                                  _saveQRCode(context),
+                                                  provider.saveQRCode(),
                                               icon: const Icon(Icons.download),
                                               label: const Text("บันทึก QRcode"),
                                               style: OutlinedButton.styleFrom(
