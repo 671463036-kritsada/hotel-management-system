@@ -29,25 +29,20 @@ import 'package:provider/provider.dart';
 
 import '../../data/data_source/remote_data_source/booking_form_remote.dart';
 import '../../data/data_source/remote_data_source/history_remote.dart';
+import '../../data/data_source/remote_data_source/login_remote.dart';
 import '../../data/repositorise/booking_form_repositorise.dart';
 import '../../data/repositorise/history_repository.dart';
+import '../../data/repositorise/login_repositorise.dart';
 import '../../domain/use_case/booking_form_usecase.dart';
 import '../../domain/use_case/houseKeeper_usecase.dart';
+import '../../domain/use_case/login_usecase.dart';
 import '../../presentation/page/historyPage/screen/history_screen.dart';
 import '../../presentation/page/homePage/screen/home_screen.dart';
 import '../../presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 
-import 'package:dio/dio.dart';
+// import dio client เข้ามาเพื่อ แนบ token ไปทุก req
+import '../widget/core/network/dio_client.dart';
 
-//  Dio instance กลาง
-final Dio _dio = Dio(
-  BaseOptions(
-    baseUrl: 'http://localhost:2000/api/',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-    headers: {'Content-Type': 'application/json'},
-  ),
-)..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
 
 RouteFactory onGenerateRoute = (settings) {
@@ -55,8 +50,14 @@ RouteFactory onGenerateRoute = (settings) {
     case "/login":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
-                create: (_) =>
-                    LoginScreenProvider(context.read<UserProvider>()),
+                create: (_) => LoginScreenProvider(
+                  context.read<UserProvider>(),
+                  LoginUseCase(
+                    LoginRepositoryImpl(
+                      LoginRemoteDataSourceImpl(DioClient.dio),
+                    ),
+                  ),
+                ),
                 child: const LoginScreen(),
               ));
     case "/register":
@@ -70,14 +71,14 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => HomeScreenProvider(HomeUsecase(
-                    HomeRepositoryImpl(HomeRemoteDataSourceImpl(_dio)))),
+                    HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const HomeScreen(),
               ));
     case '/room_detail':
       return MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
           create: (_) => RoomDetailScreenProvider(
-              HomeUsecase(HomeRepositoryImpl(HomeRemoteDataSourceImpl(_dio)))),
+              HomeUsecase(HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
           child: RoomDetailScreen(),
         ),
         settings: settings,
@@ -126,7 +127,7 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => ListScreenProvider(ListUsecase(
-                    ListRepositoriseImpl(ListRemoteDatasourceImpl(_dio)))),
+                    ListRepositoriseImpl(ListRemoteDatasourceImpl(DioClient.dio)))),
                 child: const ListScreen(),
               ),
           settings: settings);

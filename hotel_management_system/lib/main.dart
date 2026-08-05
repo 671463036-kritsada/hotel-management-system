@@ -4,6 +4,8 @@ import 'package:hotel_management_system/util/function/generate_routes.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(const MainApp());
 }
@@ -21,6 +23,7 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
           home: SplashScreen(),
           theme: ThemeData(
             fontFamily: 'Prompt',

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -45,13 +46,22 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
+    // เรียกใช้ user_provider
+    final user = context.watch<UserProvider>().user;
+
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
         child: Stack(
           children: [
             Positioned(
-                top: 0, right: 0, left: 0, child: Topnavbar(widthFactor: 0.1)),
+                top: 0,
+                right: 0,
+                left: 0,
+                child: Topnavbar(
+                  widthFactor: 0.1,
+                  username: user?.name ?? "",
+                )),
             Positioned(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16, 10, 16, 83),

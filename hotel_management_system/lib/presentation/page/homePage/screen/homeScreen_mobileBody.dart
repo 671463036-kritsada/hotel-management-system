@@ -44,6 +44,11 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
+
+  // เรียกใช้ user_provider 
+    final user = context.watch<UserProvider>().user;
+
+
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
@@ -55,7 +60,7 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                 left: 0,
                 child: Topnavbar(
                   widthFactor: 0.2,
-                  username: context.read<UserProvider>().username,
+                  username: user?.name ?? "",
                 )),
             Positioned(
               child: Padding(

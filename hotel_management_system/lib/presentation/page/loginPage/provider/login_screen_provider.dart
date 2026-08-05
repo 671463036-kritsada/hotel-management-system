@@ -1,12 +1,17 @@
 // login_screen_provider.dart
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
+
+import '../../../../domain/entitise/login_entitise.dart';
+import '../../../../domain/use_case/login_usecase.dart';
+import '../../../../util/widget/core/storage/secure_storage_service.dart';
 
 enum LoginStatus { initial, loading, success, error }
 
 class LoginScreenProvider extends ChangeNotifier {
-  LoginScreenProvider(this.userProvider);
+  final LoginUseCase loginUseCase;
+
+  LoginScreenProvider(this.userProvider, this.loginUseCase);
 
   // --- State ---
   LoginStatus _status = LoginStatus.initial;
@@ -17,6 +22,7 @@ class LoginScreenProvider extends ChangeNotifier {
   bool _obscurePassword = true;
 
   // --- Getter ---
+
   LoginStatus get status => _status;
   String get errorMessage => _errorMessage;
   bool get obscurePassword => _obscurePassword;
@@ -30,28 +36,51 @@ class LoginScreenProvider extends ChangeNotifier {
 
   Future<void> login() async {
     if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
-      _errorMessage = 'กรุณากรอกข้อมูลให้ครบ';
+      _errorMessage = "กรุณากรอกข้อมูล";
       _status = LoginStatus.error;
       notifyListeners();
       return;
     }
+
     _status = LoginStatus.loading;
     notifyListeners();
+
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      await Future.delayed(const Duration(seconds: 1));
-      userProvider.usernamePassword = (
-        username: usernameController.text,
-        password: passwordController.text
+      final result = await loginUseCase.login(
+        LoginEntities(
+          email: usernameController.text.trim(),
+          password: passwordController.text.trim(),
+        ),
       );
-      log("username ${userProvider.username ?? ''} ");
-      _status = LoginStatus.success;
-      notifyListeners();
+
+      if (result.success == true) {
+        // เก็บ Token
+        if (result.token != null && result.token!.isNotEmpty) {
+          await SecureStorageService.instance.saveToken(
+            result.token!,
+          );
+        }
+
+        // เก็บ User
+        if (result.user != null) {
+          userProvider.setUser(
+            result.user!,
+          );
+        }
+
+        _status = LoginStatus.success;
+      } else {
+        _errorMessage = result.message ?? "Login Failed";
+
+        _status = LoginStatus.error;
+      }
     } catch (e) {
-      _errorMessage = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+      _errorMessage = e.toString();
+
       _status = LoginStatus.error;
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 
   void loginWithGoogle() async {
