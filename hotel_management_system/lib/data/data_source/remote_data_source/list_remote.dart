@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:hotel_management_system/data/model/responseModelRemote/response_model.dart';
 
 abstract class ListRemoteDatasource {
-  Future<List<Map<String, dynamic>>> getListData(int userID);
+  Future<List<Map<String, dynamic>>> getListData();
 }
 
 class ListRemoteDatasourceImpl implements ListRemoteDatasource {
   @override
-  Future<List<Map<String, dynamic>>> getListData(int userID) async {
+  Future<List<Map<String, dynamic>>> getListData() async {
     final dataMock = {
       "message": "success",
       "statusCode": 200,

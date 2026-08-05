@@ -43,12 +43,12 @@ class ListScreenProvider extends ChangeNotifier {
   List<BookingItem> get bookingList => _bookingList;
   bool get isLoading => _isLoading;
 
-  Future<void> getBookingList(int userID) async {
+  Future<void> getBookingList() async {
     _isLoading = true;
     notifyListeners();
     try {
       final List<BookingListEntity> entities =
-          await usecase.getListData(userID);
+          await usecase.getListData();
       _bookingList = entities.map((entity) {
         return BookingItem(
             bookingId: entity.bookingId,

@@ -10,7 +10,7 @@ import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/room_detail_screen_provider.dart';
 
 class RoomDetailScreenMobileBody extends StatefulWidget {
-  final int roomId;
+  final String roomId;
   final RoomType roomType;
 
   const RoomDetailScreenMobileBody(

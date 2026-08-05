@@ -4,16 +4,16 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/list
 import 'package:hotel_management_system/data/model/list_model.dart';
 
 abstract class ListRepositorise {
-  Future<List<ListModel>> getListData(int userID);
+  Future<List<ListModel>> getListData();
 }
 
 class ListRepositoriseImpl implements ListRepositorise {
   final ListRemoteDatasourceImpl remoteDataSource;
   ListRepositoriseImpl(this.remoteDataSource);
   @override
-  Future<List<ListModel>> getListData(int userID) async {
+  Future<List<ListModel>> getListData() async {
     try {
-      final listData = await remoteDataSource.getListData(userID);
+      final listData = await remoteDataSource.getListData();
       return listData.map((item) => ListModel.fromJson(item)).toList();
     } on SocketException {
       throw Exception("ไม่มีการเขื่อมต่อ internet");

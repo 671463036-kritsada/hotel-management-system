@@ -1,6 +1,6 @@
 // Entity ของ Room หน้า home page
 class HomeEntitise {
-  final int roomId;
+  final String roomId;
   final String roomType;
   final String description;
   final double pricePerNight;

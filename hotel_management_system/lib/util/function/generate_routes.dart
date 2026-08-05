@@ -37,6 +37,19 @@ import '../../presentation/page/historyPage/screen/history_screen.dart';
 import '../../presentation/page/homePage/screen/home_screen.dart';
 import '../../presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 
+import 'package:dio/dio.dart';
+
+//  Dio instance กลาง
+final Dio _dio = Dio(
+  BaseOptions(
+    baseUrl: 'http://localhost:2000/api/',
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
+    headers: {'Content-Type': 'application/json'},
+  ),
+)..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+
+
 RouteFactory onGenerateRoute = (settings) {
   switch (settings.name) {
     case "/login":
@@ -57,14 +70,14 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => HomeScreenProvider(HomeUsecase(
-                    HomeRepositoryImpl(HomeRemoteDataSourceImpl()))),
+                    HomeRepositoryImpl(HomeRemoteDataSourceImpl(_dio)))),
                 child: const HomeScreen(),
               ));
     case '/room_detail':
       return MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
           create: (_) => RoomDetailScreenProvider(
-              HomeUsecase(HomeRepositoryImpl(HomeRemoteDataSourceImpl()))),
+              HomeUsecase(HomeRepositoryImpl(HomeRemoteDataSourceImpl(_dio)))),
           child: RoomDetailScreen(),
         ),
         settings: settings,

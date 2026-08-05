@@ -41,7 +41,7 @@ class LoginScreenProvider extends ChangeNotifier {
       // TODO: เชื่อม API จริงตรงนี้
       await Future.delayed(const Duration(seconds: 1));
       userProvider.usernamePassword = (
-        usernname: usernameController.text,
+        username: usernameController.text,
         password: passwordController.text
       );
       log("username ${userProvider.username ?? ''} ");

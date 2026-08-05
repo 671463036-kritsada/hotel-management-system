@@ -5,7 +5,7 @@ import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import '../../../../util/widget/core/typeRoom_enum.dart';
 
 class RoomDetail {
-  final int roomId;
+  final String roomId;
   final RoomType roomType;
   final List<String> imageUrls;
   final String description;
@@ -37,7 +37,7 @@ class RoomDetailScreenProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  Future<void> getRoomDetail(int roomId, RoomType roomType) async {
+  Future<void> getRoomDetail(String roomId, RoomType roomType) async {
     _isLoading = true;
     notifyListeners();
     try {

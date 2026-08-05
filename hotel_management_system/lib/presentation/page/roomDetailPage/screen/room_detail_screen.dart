@@ -16,7 +16,7 @@ class RoomDetailScreen extends StatefulWidget {
 }
 
 class _RoomDetailScreenState extends State<RoomDetailScreen> {
-  late final int roomId;
+  late final String roomId;
   late final RoomType roomType;
   bool _isArgsLoaded = false;
 

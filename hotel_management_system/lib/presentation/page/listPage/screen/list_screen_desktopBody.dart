@@ -28,8 +28,8 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // TODO: เปลี่ยน 1 เป็น userID จริงตอนทำระบบ auth เสร็จ
-      context.read<ListScreenProvider>().getBookingList(1);
+      
+      context.read<ListScreenProvider>().getBookingList();
     });
   }
 

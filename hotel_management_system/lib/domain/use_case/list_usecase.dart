@@ -7,9 +7,9 @@ class ListUsecase {
   final ListRepositoriseImpl repository;
   ListUsecase(this.repository);
 
-  Future<List<BookingListEntity>> getListData(int userID) async {
+  Future<List<BookingListEntity>> getListData() async {
     try {
-      final listDataModel = await repository.getListData(userID);
+      final listDataModel = await repository.getListData();
       return listDataModel
           .map((item) => BookingListEntity(
               bookingId: item.bookingId ?? -1,

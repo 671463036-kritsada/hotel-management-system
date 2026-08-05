@@ -23,6 +23,7 @@ class HomeRepositoryImpl implements HomeRepository {
     final rooms = await getRooms();
     return rooms.cast<HomeModel?>().firstWhere(
           (room) => room?.roomId == id,
+          
           orElse: () => null,
         );
   }
