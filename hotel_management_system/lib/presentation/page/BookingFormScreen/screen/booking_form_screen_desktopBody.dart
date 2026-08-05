@@ -14,7 +14,7 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 
 class BookingFormScreenDesktopBody extends StatefulWidget {
-  final int roomId;
+  final String roomId;
 
   const BookingFormScreenDesktopBody({super.key, required this.roomId});
 

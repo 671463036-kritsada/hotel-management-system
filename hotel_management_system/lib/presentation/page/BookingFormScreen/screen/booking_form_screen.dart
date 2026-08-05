@@ -10,7 +10,7 @@ class BookingFormScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ต้องเขียนเช็ค null หรือ type ที่ต้องการหรือป่าว
-    final int roomId = ModalRoute.of(context)!.settings.arguments as int ; 
+    final String roomId = ModalRoute.of(context)!.settings.arguments as String ; 
 
     return ResponsiveLayout(
       mobileBody: BookingFormScreenMobileBody(roomId: roomId),

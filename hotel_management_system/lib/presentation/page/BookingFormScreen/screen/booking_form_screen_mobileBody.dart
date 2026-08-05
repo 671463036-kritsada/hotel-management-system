@@ -13,7 +13,7 @@ import '../../../../util/widget/core/form_enum.dart';
 import '../provider/booking_form_provider_route.dart';
 
 class BookingFormScreenMobileBody extends StatefulWidget {
-  final int roomId;
+  final String roomId;
 
   const BookingFormScreenMobileBody({super.key, required this.roomId});
 

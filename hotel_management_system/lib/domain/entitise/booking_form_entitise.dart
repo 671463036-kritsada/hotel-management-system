@@ -1,5 +1,5 @@
 class BookingFormEntitise {
-  int roomId;
+  String roomId;
   String fullName;
   DateTime checkInDate;
   DateTime checkOutDate;

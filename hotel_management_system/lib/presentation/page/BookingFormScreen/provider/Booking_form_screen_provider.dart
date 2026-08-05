@@ -53,7 +53,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submitBooking({required int roomId}) async {
+  Future<void> submitBooking({required String roomId}) async {
     _status = BookingFormStatus.loading;
     notifyListeners();
     try {

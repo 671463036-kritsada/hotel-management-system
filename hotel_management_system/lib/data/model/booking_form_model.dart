@@ -9,7 +9,7 @@ BookingFormModel bookingFormModelFromJson(String str) => BookingFormModel.fromJs
 String bookingFormModelToJson(BookingFormModel data) => json.encode(data.toJson());
 
 class BookingFormModel {
-    int? roomId;
+    String? roomId;
     String? fullName;
     DateTime? checkInDate;
     DateTime? checkOutDate;
