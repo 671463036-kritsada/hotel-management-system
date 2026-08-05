@@ -1,6 +1,7 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
@@ -23,6 +24,7 @@ class RoomDetailScreenMobileBody extends StatefulWidget {
 class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -43,7 +45,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Topnavbar(widthFactor: 0.2),
+                  Topnavbar(widthFactor: 0.2, username: user?.name),
                   const SizedBox(height: 10),
                   Center(
                     child: Text(
@@ -109,7 +111,8 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                           child: Button(
                             text: 'จองห้องนี้',
                             onTap: () {
-                              Navigator.pushNamed(context, "/booking_form" , arguments: room.roomId);
+                              Navigator.pushNamed(context, "/booking_form",
+                                  arguments: room.roomId);
                             },
                             color: Constants.secondaryColor,
                           ),

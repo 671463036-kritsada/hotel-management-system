@@ -13,7 +13,7 @@ class HistoryModel {
     String? roomNumber;
     DateTime? checkInDate;
     DateTime? checkOutDate;
-    int? totalAmount;
+    String? totalAmount;
     Review? review;
 
     HistoryModel({

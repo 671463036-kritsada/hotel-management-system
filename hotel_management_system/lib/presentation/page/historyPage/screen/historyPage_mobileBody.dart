@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/history_entitise.dart';
@@ -120,6 +121,7 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.white,
       body: SafeArea(
@@ -152,39 +154,37 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                               ),
                             ],
                           ),
-                          ...provider.bookingList.map((booking) =>
-                              Boxshowdatahistory(
-                                roomNumber:
-                                    int.tryParse(booking.roomNumber ?? '0') ??
-                                        0,
-                                date: booking.formattedCheckIn,
-                                payamout: booking.formattedAmount,
-                                keyBooking: booking.bookingId ?? '',
-                                status:
-                                    booking.reviewStatus ?? 'ยังไม่ได้ให้คะแนน',
-                                textStatus: booking.reviewComment ??
-                                    'ไม่ได้แสดงความคิดเห็น',
-                                onTap: (booking.isReviewed ?? false)
-                                    ? null
-                                    : () => _showRatingBottomSheet(
-                                        context, booking),
-                                ratingWidget: (booking.isReviewed ?? false)
-                                    ? Row(
-                                        children: List.generate(
-                                          5,
-                                          (index) => Icon(
-                                            Icons.star,
-                                            size: 15,
-                                            color: index <
-                                                    (booking.selectedRating ??
-                                                        0)
-                                                ? Colors.amber
-                                                : Colors.grey[300],
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                              )),
+                          ...provider.bookingList
+                              .map((booking) => Boxshowdatahistory(
+                                    roomNumber: booking.roomNumber ?? '0',
+                                    date: booking.formattedCheckIn,
+                                    payamout: booking.formattedAmount,
+                                    keyBooking: booking.bookingId ?? '',
+                                    status: booking.reviewStatus ??
+                                        'ยังไม่ได้ให้คะแนน',
+                                    textStatus: booking.reviewComment ??
+                                        'ไม่ได้แสดงความคิดเห็น',
+                                    onTap: (booking.isReviewed ?? false)
+                                        ? null
+                                        : () => _showRatingBottomSheet(
+                                            context, booking),
+                                    ratingWidget: (booking.isReviewed ?? false)
+                                        ? Row(
+                                            children: List.generate(
+                                              5,
+                                              (index) => Icon(
+                                                Icons.star,
+                                                size: 15,
+                                                color: index <
+                                                        (booking.selectedRating ??
+                                                            0)
+                                                    ? Colors.amber
+                                                    : Colors.grey[300],
+                                              ),
+                                            ),
+                                          )
+                                        : null,
+                                  )),
                           const SizedBox(height: 150),
                         ],
                       ),
@@ -196,7 +196,7 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                   top: 0,
                   right: 0,
                   left: 0,
-                  child: Topnavbar(widthFactor: 0.2)),
+                  child: Topnavbar(widthFactor: 0.2, username: user?.name)),
               Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
             ],
           ),

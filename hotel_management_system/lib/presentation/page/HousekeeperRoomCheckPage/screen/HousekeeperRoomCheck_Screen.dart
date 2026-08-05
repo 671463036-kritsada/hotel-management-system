@@ -1,6 +1,7 @@
 // housekeeper_room_check_screen.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
@@ -70,6 +71,7 @@ class _HousekeeperRoomCheckScreenState
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.white,
       body: SafeArea(
@@ -175,7 +177,13 @@ class _HousekeeperRoomCheckScreenState
               ),
             ),
             Positioned(
-                top: 0, left: 0, right: 0, child: Topnavbar(widthFactor: 0.2)),
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Topnavbar(
+                  widthFactor: 0.2,
+                  username: user?.name,
+                )),
             const Positioned(
                 bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
           ],

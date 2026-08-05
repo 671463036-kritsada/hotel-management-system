@@ -43,8 +43,6 @@ import '../../presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 // import dio client เข้ามาเพื่อ แนบ token ไปทุก req
 import '../widget/core/network/dio_client.dart';
 
-
-
 RouteFactory onGenerateRoute = (settings) {
   switch (settings.name) {
     case "/login":
@@ -71,14 +69,15 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => HomeScreenProvider(HomeUsecase(
-                    HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
+                    HomeRepositoryImpl(
+                        HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const HomeScreen(),
               ));
     case '/room_detail':
       return MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
-          create: (_) => RoomDetailScreenProvider(
-              HomeUsecase(HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
+          create: (_) => RoomDetailScreenProvider(HomeUsecase(
+              HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
           child: RoomDetailScreen(),
         ),
         settings: settings,
@@ -88,7 +87,7 @@ RouteFactory onGenerateRoute = (settings) {
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => BookingFormScreenProvider(BookingFormUsecase(
                     BookingFormRepositoriseImpl(
-                        BookingFormRemoteDataSourceImpl()))),
+                        BookingFormRemoteDataSourceImpl(DioClient.dio)))),
                 child: const BookingFormScreen(),
               ),
           // ส่ง agument ถ้ามีหลาย aguments เราจะทำ Map แล้วส่งมา เอา Map ไปทำเป็น model ก็ได้
@@ -107,8 +106,8 @@ RouteFactory onGenerateRoute = (settings) {
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => HistoryScreenProvider(BookingHistoryUseCase(
                     repository: BookingHistoryRepositoryImpl(
-                        remoteDataSource:
-                            BookingHistoryRemoteDataSourceImpl()))),
+                        remoteDataSource: BookingHistoryRemoteDataSourceImpl(
+                            DioClient.dio)))),
                 child: const HistoryScreen(),
               ),
           settings: settings);
@@ -127,7 +126,8 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => ListScreenProvider(ListUsecase(
-                    ListRepositoriseImpl(ListRemoteDatasourceImpl(DioClient.dio)))),
+                    ListRepositoriseImpl(
+                        ListRemoteDatasourceImpl(DioClient.dio)))),
                 child: const ListScreen(),
               ),
           settings: settings);

@@ -16,7 +16,7 @@ class BookingHistoryUseCase {
         roomNumber: model.roomNumber ?? '',
         checkInDate: model.checkInDate,
         checkOutDate: model.checkOutDate,
-        totalAmount: model.totalAmount ?? 0,
+        totalAmount: model.totalAmount ?? "0",
         isReviewed: model.review != null,
         selectedRating: model.review?.rating ?? 0,
         reviewComment: model.review?.comment ?? "ไม่ได้แสดงความคิดเห็น",

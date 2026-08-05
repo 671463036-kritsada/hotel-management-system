@@ -3,7 +3,7 @@ import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Boxshowdatahistory extends StatelessWidget {
-  final int roomNumber;
+  final String roomNumber;
   final String date, payamout, keyBooking, status, textStatus;
   final Color? statusColor;
   final bool? statusChekin;

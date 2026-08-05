@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
@@ -29,8 +30,8 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
   @override
   void initState() {
     super.initState();
-    final checkInUsecase = CheckInUsecase(
-        CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
+    final checkInUsecase =
+        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
     _provider = CheckInScreenProvider(checkInUsecase);
     _provider.addListener(_onProviderChanged);
   }
@@ -48,29 +49,30 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
   }
 
   void _handleCheckInResult() {
-  if (_provider.status == CheckInStatus.success) {
-    showSuccessDialog(
-      context,
-      "Check in แล้ว",
-      "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
-      "/list_page",
-      "รหัสเข้าห้อง[ 839201 ]",
-      "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
-      "หมดอายุ: 17 ก.พ. 12:00",
-      arguments: ListScreenArguments(
-        checkInStatus: true,
-        ckeckOutStatus: false,
-        statusConCheck: false,
-      ),
-    );
-    _provider.resetStatus();
-  } else if (_provider.status == CheckInStatus.error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_provider.errorMessage), backgroundColor: Colors.red),
-    );
-    _provider.resetStatus();
+    if (_provider.status == CheckInStatus.success) {
+      showSuccessDialog(
+        context,
+        "Check in แล้ว",
+        "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
+        "/list_page",
+        "รหัสเข้าห้อง[ 839201 ]",
+        "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
+        "หมดอายุ: 17 ก.พ. 12:00",
+        arguments: ListScreenArguments(
+          checkInStatus: true,
+          ckeckOutStatus: false,
+          statusConCheck: false,
+        ),
+      );
+      _provider.resetStatus();
+    } else if (_provider.status == CheckInStatus.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(_provider.errorMessage), backgroundColor: Colors.red),
+      );
+      _provider.resetStatus();
+    }
   }
-}
 
   void _handleSaveQRResult() {
     if (_provider.saveQRStatus == SaveQRStatus.success) {
@@ -89,6 +91,7 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -96,7 +99,7 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
         body: SafeArea(
           child: Column(
             children: [
-              Topnavbar(widthFactor: 0.1),
+              Topnavbar(widthFactor: 0.1, username: user?.name),
               Expanded(
                 child: Consumer<CheckInScreenProvider>(
                   builder: (context, provider, _) {
@@ -138,13 +141,14 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                               createInputField(
                                                 InputFieldType.gender,
                                                 selectedValue: provider.gender,
-                                                onChanged: (value) => provider
-                                                    .setGender(value.toString()),
+                                                onChanged: (value) =>
+                                                    provider.setGender(
+                                                        value.toString()),
                                               ),
                                               createInputField(
                                                   InputFieldType.address,
-                                                  controller:
-                                                      provider.addressController),
+                                                  controller: provider
+                                                      .addressController),
                                             ],
                                           ),
                                         ),
@@ -164,7 +168,8 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                           icon: Icons.draw_outlined,
                                           child: createInputField(
                                             InputFieldType.signature,
-                                            sigController: provider.sigController,
+                                            sigController:
+                                                provider.sigController,
                                           ),
                                         ),
                                         const SizedBox(height: 20),
@@ -173,7 +178,8 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                           icon: Icons.receipt_outlined,
                                           child: createInputField(
                                             InputFieldType.paymentSlip,
-                                            imageFile: provider.paymentSlipImage,
+                                            imageFile:
+                                                provider.paymentSlipImage,
                                             onTap: provider.pickSlipImage,
                                           ),
                                         ),
@@ -184,8 +190,9 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                                     CircularProgressIndicator())
                                             : Button(
                                                 text: "ยืนยันการเช็คอิน",
-                                                onTap: () => provider
-                                                    .submitCheckIn(widget.bookingID ?? ""),
+                                                onTap: () =>
+                                                    provider.submitCheckIn(
+                                                        widget.bookingID ?? ""),
                                                 color: Constants.secondaryColor,
                                               ),
                                       ],
@@ -203,8 +210,9 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                             padding: const EdgeInsets.all(16),
                                             decoration: BoxDecoration(
                                               color: Constants.secondaryColor,
-                                              borderRadius: BorderRadius.circular(
-                                                  Constants.borderRadius),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      Constants.borderRadius),
                                             ),
                                             child: Image.asset(
                                                 "assets/images/QRcodePay.png"),
@@ -216,7 +224,8 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                               onPressed: () =>
                                                   provider.saveQRCode(),
                                               icon: const Icon(Icons.download),
-                                              label: const Text("บันทึก QRcode"),
+                                              label:
+                                                  const Text("บันทึก QRcode"),
                                               style: OutlinedButton.styleFrom(
                                                 foregroundColor:
                                                     Constants.primaryColor,

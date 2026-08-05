@@ -6,7 +6,7 @@ class BookingHistoryEntity {
   String roomNumber;
   DateTime? checkInDate;
   DateTime? checkOutDate;
-  int totalAmount;
+  String totalAmount;
   bool isReviewed;
   int selectedRating;
   String reviewComment;
@@ -18,7 +18,7 @@ class BookingHistoryEntity {
     this.roomNumber = '',
     this.checkInDate,
     this.checkOutDate,
-    this.totalAmount = 0,
+    this.totalAmount = "0",
     this.isReviewed = false,
     this.selectedRating = 0,
     this.reviewComment = "ไม่ได้แสดงความคิดเห็น",

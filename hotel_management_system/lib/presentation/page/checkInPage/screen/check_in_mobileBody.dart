@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
@@ -48,30 +49,31 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
   }
 
   void _handleCheckInResult() {
-  if (_provider.status == CheckInStatus.success) {
-    showSuccessDialog(
-      context,
-      "Check in แล้ว",
-      "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
-      "/list_page",
-      "รหัสเข้าห้อง[ 839201 ]",
-      "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
-      "หมดอายุ: 17 ก.พ. 12:00",
-      arguments: ListScreenArguments(
-        checkInStatus: true,
-        ckeckOutStatus: false,
-        statusConCheck: false,
-      ),
-    );
-    _provider.resetStatus();
-  } else if (_provider.status == CheckInStatus.error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(_provider.errorMessage), backgroundColor: Colors.red),
-    );
-    _provider.resetStatus();
+    if (_provider.status == CheckInStatus.success) {
+      showSuccessDialog(
+        context,
+        "Check in แล้ว",
+        "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
+        "/list_page",
+        "รหัสเข้าห้อง[ 839201 ]",
+        "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
+        "หมดอายุ: 17 ก.พ. 12:00",
+        arguments: ListScreenArguments(
+          checkInStatus: true,
+          ckeckOutStatus: false,
+          statusConCheck: false,
+        ),
+      );
+      _provider.resetStatus();
+    } else if (_provider.status == CheckInStatus.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(_provider.errorMessage), backgroundColor: Colors.red),
+      );
+      _provider.resetStatus();
+    }
   }
-}
+
   void _handleSaveQRResult() {
     if (_provider.saveQRStatus == SaveQRStatus.success) {
       showSuccessSaveQRcodeDialog(
@@ -89,6 +91,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -151,8 +154,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                             ),
                             const SizedBox(height: 20),
                             GestureDetector(
-                              onTap: () =>
-                                  provider.saveQRCode(),
+                              onTap: () => provider.saveQRCode(),
                               child: Center(
                                 child: Text(
                                   "บันทึก QRcode",
@@ -195,7 +197,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                   top: 0,
                   right: 0,
                   left: 0,
-                  child: Topnavbar(widthFactor: 0.2)),
+                  child: Topnavbar(widthFactor: 0.2, username: user?.name)),
               Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
             ],
           ),

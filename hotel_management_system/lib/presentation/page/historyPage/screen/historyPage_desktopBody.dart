@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/history_entitise.dart';
@@ -120,6 +121,7 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.white,
       body: SafeArea(
@@ -154,8 +156,7 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                           ),
                           ...provider.bookingList
                               .map((booking) => Boxshowdatahistory(
-                                    roomNumber:
-                                        int.tryParse(booking.roomNumber) ?? 0,
+                                    roomNumber: booking.roomNumber,
                                     date: booking.formattedCheckIn,
                                     payamout: booking.formattedAmount,
                                     keyBooking: booking.bookingId,
@@ -194,7 +195,7 @@ class _HistoryScreenDesktopBodyState extends State<HistoryScreenDesktopBody> {
                   top: 0,
                   right: 0,
                   left: 0,
-                  child: Topnavbar(widthFactor: 0.1)),
+                  child: Topnavbar(widthFactor: 0.1, username: user?.name)),
               Positioned(
                   bottom: 0,
                   right: 0,

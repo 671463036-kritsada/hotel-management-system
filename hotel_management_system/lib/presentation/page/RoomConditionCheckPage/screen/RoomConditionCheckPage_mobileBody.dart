@@ -1,6 +1,7 @@
 // room_condition_check_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -368,7 +369,6 @@ class _RoomConditionCheckScreenMobileBodyState
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), backgroundColor: Colors.green));
       Navigator.pushNamedAndRemoveUntil(
-        
         context,
         '/list_page',
         (route) => false,
@@ -389,6 +389,7 @@ class _RoomConditionCheckScreenMobileBodyState
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
@@ -585,7 +586,13 @@ class _RoomConditionCheckScreenMobileBodyState
               },
             ),
             Positioned(
-                top: 0, left: 0, right: 0, child: Topnavbar(widthFactor: 0.2)),
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Topnavbar(
+                  widthFactor: 0.2,
+                  username: user?.name,
+                )),
             const Positioned(
                 bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
           ],

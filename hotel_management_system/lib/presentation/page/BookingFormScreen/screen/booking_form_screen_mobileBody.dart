@@ -1,8 +1,9 @@
 // booking_form_screen_mobileBody.dart
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
-import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
-import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+// import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
+// import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
+// import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
@@ -26,15 +27,15 @@ class _BookingFormScreenMobileBodyState
     extends State<BookingFormScreenMobileBody> {
   late final BookingFormScreenProvider _provider;
 
-  @override
-  void initState() {
-    super.initState();
-    final bookingUsecase = BookingFormUsecase(
-      BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()),
-    );
-    _provider = BookingFormScreenProvider(bookingUsecase);
-    _provider.addListener(_onProviderChanged);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   final bookingUsecase = BookingFormUsecase(
+  //     BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()),
+  //   );
+  //   _provider = BookingFormScreenProvider(bookingUsecase);
+  //   _provider.addListener(_onProviderChanged);
+  // }
 
   @override
   void dispose() {
@@ -91,6 +92,7 @@ class _BookingFormScreenMobileBodyState
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -217,7 +219,7 @@ class _BookingFormScreenMobileBodyState
                     top: 0,
                     left: 0,
                     right: 0,
-                    child: Topnavbar(widthFactor: 0.2)),
+                    child: Topnavbar(widthFactor: 0.2, username: user?.name)),
               ],
             ),
           ),
