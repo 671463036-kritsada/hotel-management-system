@@ -1,33 +1,47 @@
 class BookingListEntity {
-  final int bookingId;
-  final String bookingCode;
-
-  final int roomNumber;
-  final String? roomKey;
-
-  final DateTime? checkInDate;
-  final DateTime? checkOutDate;
-
-  final double totalPrice;
-
-  final String bookingStatus;
+  final String bookingId;
+  final String userId;
+  final String customerName;
+  final String roomId;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
+  final int roomsCount;
+  final int personCount;
+  final double amount;
+  final String phone;
+  final String email;
+  final String? bankAccount;
+  final String address;
+  final String status;
   final String paymentStatus;
+  final String? slipUrl;
   final String checkInStatus;
   final String checkOutStatus;
   final String inspectionStatus;
+  final String? roomKey;
+  final DateTime? createdAt;
 
   BookingListEntity({
     required this.bookingId,
-    required this.bookingCode,
-    required this.roomNumber,
-    required this.roomKey,
-    required this.checkInDate,
-    required this.checkOutDate,
-    required this.totalPrice,
-    required this.bookingStatus,
+    required this.userId,
+    required this.customerName,
+    required this.roomId,
+    required this.checkIn,
+    required this.checkOut,
+    required this.roomsCount,
+    required this.personCount,
+    required this.amount,
+    required this.phone,
+    required this.email,
+    required this.bankAccount,
+    required this.address,
+    required this.status,
     required this.paymentStatus,
+    required this.slipUrl,
     required this.checkInStatus,
     required this.checkOutStatus,
     required this.inspectionStatus,
+    required this.roomKey,
+    required this.createdAt,
   });
 }

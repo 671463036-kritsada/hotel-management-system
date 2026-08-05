@@ -104,7 +104,7 @@ class CheckInScreenProvider extends ChangeNotifier {
     return null;
   }
 
-  Future<void> submitCheckIn(int bookingId) async {
+  Future<void> submitCheckIn(String bookingId) async {
     final validationError = _validateForm();
     if (validationError != null) {
       _errorMessage = validationError;

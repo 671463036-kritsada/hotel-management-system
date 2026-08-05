@@ -28,7 +28,6 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      
       context.read<ListScreenProvider>().getBookingList();
     });
   }
@@ -84,7 +83,7 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                   ),
                                 ...filteredList.map((booking) {
                                   return Boxlistcompanent(
-                                    roomNumber: booking.roomNumber,
+                                    roomNumber: booking.roomId,
                                     payamout: booking.totalPrice ?? 0,
                                     keyBooking: booking.bookingId,
                                     status: booking.status,
@@ -113,6 +112,17 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                                 status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,
+                                                customerName:
+                                                    booking.customerName,
+                                                phone: booking.phone,
+                                                email: booking.email,
+                                                roomId: booking.roomId,
+                                                checkIn: booking.checkIn,
+                                                checkOut: booking.checkOut,
+                                                roomsCount: booking.roomsCount,
+                                                personCount:
+                                                    booking.personCount,
+                                                slipUrl: booking.slipUrl,
                                               ),
                                             ),
                                           );

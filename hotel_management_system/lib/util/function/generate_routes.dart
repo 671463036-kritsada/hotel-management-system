@@ -126,7 +126,7 @@ RouteFactory onGenerateRoute = (settings) {
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => ListScreenProvider(ListUsecase(
-                    ListRepositoriseImpl(ListRemoteDatasourceImpl()))),
+                    ListRepositoriseImpl(ListRemoteDatasourceImpl(_dio)))),
                 child: const ListScreen(),
               ),
           settings: settings);

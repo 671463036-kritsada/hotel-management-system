@@ -5,7 +5,7 @@ import 'check_in_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
 
 class CheckInScreen extends StatelessWidget {
-  final int? bookingId;
+  final String? bookingId;
   const CheckInScreen({super.key, this.bookingId});
 
   @override

@@ -3,7 +3,7 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/furn
 import 'package:hotel_management_system/data/model/furniture_model.dart';
 
 abstract class FurnitureRepositorise {
-  Future<List<FurnitureModel>> getFurnitureData(int roomID);
+  Future<List<FurnitureModel>> getFurnitureData(String roomID);
   Future<bool> submitReport(List<FurnitureModel> submitData);
 }
 
@@ -12,7 +12,7 @@ class FurnitureRepositoriseImpl implements FurnitureRepositorise {
   FurnitureRepositoriseImpl(this.remoteDataSource);
 
   @override
-  Future<List<FurnitureModel>> getFurnitureData(int roomID) async {
+  Future<List<FurnitureModel>> getFurnitureData(String roomID) async {
     try {
       final furnitureData = await remoteDataSource.getFurnitureData(roomID);
       return furnitureData

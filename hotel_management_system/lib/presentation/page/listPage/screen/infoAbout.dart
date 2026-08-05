@@ -7,8 +7,59 @@ import '../../../../util/widget/core/constants.dart';
 class Infoabout extends StatelessWidget {
   final bool? checkInStatus;
   final String? status;
-  final int? bookingId;
-  Infoabout({super.key, this.bookingId, this.status, this.checkInStatus});
+  final String? bookingId;
+  final String? customerName;
+  final String? phone;
+  final String? email;
+  final String? roomId;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
+  final int? roomsCount;
+  final int? personCount;
+  final String? slipUrl;
+
+  Infoabout({
+    super.key,
+    this.bookingId,
+    this.status,
+    this.checkInStatus,
+    this.customerName,
+    this.phone,
+    this.email,
+    this.roomId,
+    this.checkIn,
+    this.checkOut,
+    this.roomsCount,
+    this.personCount,
+    this.slipUrl,
+  });
+
+  // ฟังก์ชันช่วยจัดรูปแบบวันที่ให้อ่านง่าย เช่น "15-17 ก.พ. 2569"
+  String _formatDateRange(DateTime? start, DateTime? end) {
+    if (start == null || end == null) return "-";
+    const thaiMonths = [
+      '',
+      'ม.ค.',
+      'ก.พ.',
+      'มี.ค.',
+      'เม.ย.',
+      'พ.ค.',
+      'มิ.ย.',
+      'ก.ค.',
+      'ส.ค.',
+      'ก.ย.',
+      'ต.ค.',
+      'พ.ย.',
+      'ธ.ค.'
+    ];
+    final buddhistYear = end.year + 543;
+    return "${start.day}-${end.day} ${thaiMonths[end.month]} $buddhistYear";
+  }
+
+  int _calculateNights(DateTime? start, DateTime? end) {
+    if (start == null || end == null) return 0;
+    return end.difference(start).inDays;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +79,17 @@ class Infoabout extends StatelessWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
             const Divider(height: 30),
-            _infoRow("ชื่อ-นามสกุล", "นาย สมชาย สมหวัง", null),
-            _infoRow("เบอร์โทร", "090-909-9900", null),
-            _infoRow("Email", "test@gmail.com", null),
+            // ใช้ข้อมูลจริงแทน hardcode
+            _infoRow("ชื่อ-นามสกุล", customerName ?? "-", null),
+            _infoRow("เบอร์โทร", phone ?? "-", null),
+            _infoRow("Email", email ?? "-", null),
             const SizedBox(height: 20),
-            _infoRow("เลขห้อง", "305", null),
-            _infoRow("วันที่เข้าพัก", "15-17 ก.พ. 2569", null),
-            _infoRow("จำนวนคืน", "2", null),
-            _infoRow("จำนวนคน", "2", null),
-            // if (status == true) _infoRow("เงินทั้งหมด", "2,000 บาท", null),
+            _infoRow("เลขห้อง", roomId ?? "-", null),
+            _infoRow(
+                "วันที่เข้าพัก", _formatDateRange(checkIn, checkOut), null),
+            _infoRow("จำนวนคืน", _calculateNights(checkIn, checkOut).toString(),
+                null),
+            _infoRow("จำนวนคน", (personCount ?? 0).toString(), null),
             SizedBox(
               height: 10,
             ),
@@ -48,7 +101,10 @@ class Infoabout extends StatelessWidget {
             ),
             Container(
               width: double.infinity,
-              child: Image.asset("assets/images/slip.png"),
+              // ใช้ slipUrl จริง ถ้าไม่มีให้ fallback เป็นรูป default
+              child: (slipUrl != null && slipUrl!.isNotEmpty)
+                  ? Image.asset(slipUrl!)
+                  : Image.asset("assets/images/QRcodePay.png"),
             ),
 
             if (checkInStatus == true)
@@ -84,8 +140,6 @@ class Infoabout extends StatelessWidget {
     );
   }
 }
-
-// Widget ช่วยจัดบรรทัดให้ตรงกัน
 
 Widget _infoRow(String label, String value, Color? textColor) {
   return Padding(

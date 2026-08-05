@@ -28,7 +28,6 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      
       context.read<ListScreenProvider>().getBookingList();
     });
   }
@@ -83,7 +82,7 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                   ),
                                 ...filteredList.map((booking) {
                                   return Boxlistcompanent(
-                                    roomNumber: booking.roomNumber,
+                                    roomNumber: booking.roomId,
                                     payamout: booking.totalPrice ?? 0,
                                     keyBooking: booking.bookingId,
                                     status: booking.status,
@@ -112,6 +111,17 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                                 status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,
+                                                customerName:
+                                                    booking.customerName,
+                                                phone: booking.phone,
+                                                email: booking.email,
+                                                roomId: booking.roomId,
+                                                checkIn: booking.checkIn,
+                                                checkOut: booking.checkOut,
+                                                roomsCount: booking.roomsCount,
+                                                personCount:
+                                                    booking.personCount,
+                                                slipUrl: booking.slipUrl,
                                               ),
                                             ),
                                           );

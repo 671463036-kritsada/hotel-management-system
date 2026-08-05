@@ -1,12 +1,11 @@
-// list_screen_provider.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/list_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/list_usecase.dart';
 
 class BookingItem {
-  final int bookingId;
-  final int roomNumber;
+  final String bookingId;
+  final String roomId;
   final double? totalPrice;
   final String status;
   final String textStatus;
@@ -16,10 +15,18 @@ class BookingItem {
   final bool? statusConCheck;
   final String? bookingStatus;
   final String? roomKey;
+  final String customerName;
+  final String phone;
+  final String email;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
+  final int roomsCount;
+  final int personCount;
+  final String? slipUrl;
 
   BookingItem(
       {required this.bookingId,
-      required this.roomNumber,
+      required this.roomId,
       required this.totalPrice,
       required this.status,
       required this.textStatus,
@@ -28,18 +35,24 @@ class BookingItem {
       this.checkOutStatus,
       this.statusConCheck,
       this.bookingStatus,
-      this.roomKey});
+      this.roomKey,
+      required this.customerName,
+      required this.phone,
+      required this.email,
+      required this.checkIn,
+      required this.checkOut,
+      required this.roomsCount,
+      required this.personCount,
+      this.slipUrl});
 }
 
 class ListScreenProvider extends ChangeNotifier {
   final ListUsecase usecase;
   ListScreenProvider(this.usecase);
 
-  // --- State ---
   List<BookingItem> _bookingList = [];
   bool _isLoading = false;
 
-  // --- Getter ---
   List<BookingItem> get bookingList => _bookingList;
   bool get isLoading => _isLoading;
 
@@ -47,22 +60,29 @@ class ListScreenProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final List<BookingListEntity> entities =
-          await usecase.getListData();
+      final List<BookingListEntity> entities = await usecase.getListData();
       _bookingList = entities.map((entity) {
         return BookingItem(
             bookingId: entity.bookingId,
-            roomNumber: entity.roomNumber,
-            totalPrice: entity.totalPrice,
-            status: entity.bookingStatus,
-            textStatus: _mapStatusText(entity.bookingStatus),
-            statusColor: _mapStatusColor(entity.bookingStatus),
+            roomId: entity.roomId,
+            totalPrice: entity.amount,
+            status: entity.status,
+            textStatus: _mapStatusText(entity.status),
+            statusColor: _mapStatusColor(entity.status),
             checkInStatus: entity.checkInStatus.toLowerCase() == 'checked_in',
             checkOutStatus:
                 entity.checkOutStatus.toLowerCase() == 'checked_out',
             statusConCheck: entity.inspectionStatus == 'PENDING',
-            bookingStatus: entity.bookingStatus,
-            roomKey: entity.roomKey);
+            bookingStatus: entity.status,
+            roomKey: entity.roomKey,
+            customerName: entity.customerName,
+            phone: entity.phone,
+            email: entity.email,
+            checkIn: entity.checkIn,
+            checkOut: entity.checkOut,
+            roomsCount: entity.roomsCount,
+            personCount: entity.personCount,
+            slipUrl: entity.slipUrl);
       }).toList();
       _isLoading = false;
       notifyListeners();
@@ -81,8 +101,6 @@ class ListScreenProvider extends ChangeNotifier {
     }
   }
 
-  /// กรองรายการตาม status ที่ส่งมา
-  /// ถ้า parameter ไหนเป็น null แปลว่า "ไม่กรองตามเงื่อนไขนั้น"
   List<BookingItem> filteredBookingList({
     bool? checkInStatus,
     bool? checkOutStatus,
@@ -92,12 +110,10 @@ class ListScreenProvider extends ChangeNotifier {
       if (checkInStatus != null && booking.checkInStatus != checkInStatus) {
         return false;
       }
-      if (checkOutStatus != null &&
-          booking.checkOutStatus != checkOutStatus) {
+      if (checkOutStatus != null && booking.checkOutStatus != checkOutStatus) {
         return false;
       }
-      if (statusConCheck != null &&
-          booking.statusConCheck != statusConCheck) {
+      if (statusConCheck != null && booking.statusConCheck != statusConCheck) {
         return false;
       }
       return true;

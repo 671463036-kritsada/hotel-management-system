@@ -65,12 +65,12 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   }
 
   // --- Init ---
-  void init(int roomID) {
+  void init(String roomID) {
     _loadFurnitureList(roomID);
     _startTimer();
   }
 
-  Future<void> _loadFurnitureList(int roomID) async {
+  Future<void> _loadFurnitureList(String roomID) async {
     _isLoading = true;
     _errorMessage = null;
     _safeNotify();
@@ -149,7 +149,7 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
     _safeNotify();
   }
 
-  Future<void> submitCheckCondition(int roomID) async {
+  Future<void> submitCheckCondition(String roomID) async {
     _timer?.cancel();
 
     try {

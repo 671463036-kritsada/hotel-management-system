@@ -9,61 +9,108 @@ ListModel listModelFromJson(String str) => ListModel.fromJson(json.decode(str));
 String listModelToJson(ListModel data) => json.encode(data.toJson());
 
 class ListModel {
-    int? bookingId;
-    String? bookingCode;
-    int? roomNumber;
-    String? roomKey;
-    DateTime? checkInDate;
-    DateTime? checkOutDate;
-    int? totalPrice;
-    String? bookingStatus;
-    String? paymentStatus;
-    String? checkInStatus;
-    String? checkOutStatus;
-    String? inspectionStatus;
+  String? id;
+  String? userId;
+  String? customerName;
+  String? roomId;
+  DateTime? checkIn;
+  DateTime? checkOut;
+  int? roomsCount;
+  int? personCount;
+  String? amount;
+  String? phone;
+  String? email;
+  dynamic bankAccount;
+  String? address;
+  String? status;
+  String? paymentStatus;
+  String? slipUrl;
+  String? checkInStatus;
+  String? checkOutStatus;
+  String? inspectionStatus;
+  dynamic roomKey;
+  DateTime? createdAt;
+  dynamic updatedAt;
 
-    ListModel({
-        this.bookingId,
-        this.bookingCode,
-        this.roomNumber,
-        this.roomKey,
-        this.checkInDate,
-        this.checkOutDate,
-        this.totalPrice,
-        this.bookingStatus,
-        this.paymentStatus,
-        this.checkInStatus,
-        this.checkOutStatus,
-        this.inspectionStatus,
-    });
+  ListModel({
+    this.id,
+    this.userId,
+    this.customerName,
+    this.roomId,
+    this.checkIn,
+    this.checkOut,
+    this.roomsCount,
+    this.personCount,
+    this.amount,
+    this.phone,
+    this.email,
+    this.bankAccount,
+    this.address,
+    this.status,
+    this.paymentStatus,
+    this.slipUrl,
+    this.checkInStatus,
+    this.checkOutStatus,
+    this.inspectionStatus,
+    this.roomKey,
+    this.createdAt,
+    this.updatedAt,
+  });
 
-    factory ListModel.fromJson(Map<String, dynamic> json) => ListModel(
-        bookingId: json["bookingId"],
-        bookingCode: json["bookingCode"],
-        roomNumber: json["roomNumber"],
-        roomKey: json["roomKey"],
-        checkInDate: json["checkInDate"] == null ? null : DateTime.parse(json["checkInDate"]),
-        checkOutDate: json["checkOutDate"] == null ? null : DateTime.parse(json["checkOutDate"]),
-        totalPrice: json["totalPrice"],
-        bookingStatus: json["bookingStatus"],
-        paymentStatus: json["paymentStatus"],
-        checkInStatus: json["checkInStatus"],
-        checkOutStatus: json["checkOutStatus"],
-        inspectionStatus: json["inspectionStatus"],
-    );
+  factory ListModel.fromJson(Map<String, dynamic> json) => ListModel(
+        id: json["id"],
+        userId: json["user_id"],
+        customerName: json["customer_name"],
+        roomId: json["room_id"],
+        checkIn: json["check_in"] == null
+            ? null
+            : DateTime.parse(json["check_in"]).toLocal(), // แปลงเป็น local 
+        checkOut: json["check_out"] == null
+            ? null
+            : DateTime.parse(json["check_out"]).toLocal(), // แปลงเป็น local
+        roomsCount: json["rooms_count"],
+        personCount: json["person_count"],
+        amount: json["amount"],
+        phone: json["phone"],
+        email: json["email"],
+        bankAccount: json["bank_account"],
+        address: json["address"],
+        status: json["status"],
+        paymentStatus: json["payment_status"],
+        slipUrl: json["slip_url"],
+        checkInStatus: json["check_in_status"],
+        checkOutStatus: json["check_out_status"],
+        inspectionStatus: json["inspection_status"],
+        roomKey: json["room_key"],
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"])
+                .toLocal(), // เผื่อใช้แสดงผลในอนาคต
+        updatedAt: json["updated_at"],
+      );
 
-    Map<String, dynamic> toJson() => {
-        "bookingId": bookingId,
-        "bookingCode": bookingCode,
-        "roomNumber": roomNumber,
-        "roomKey": roomKey,
-        "checkInDate": checkInDate == null ? null : "${checkInDate!.year.toString().padLeft(4, '0')}-${checkInDate!.month.toString().padLeft(2, '0')}-${checkInDate!.day.toString().padLeft(2, '0')}",
-        "checkOutDate": checkOutDate == null ? null : "${checkOutDate!.year.toString().padLeft(4, '0')}-${checkOutDate!.month.toString().padLeft(2, '0')}-${checkOutDate!.day.toString().padLeft(2, '0')}",
-        "totalPrice": totalPrice,
-        "bookingStatus": bookingStatus,
-        "paymentStatus": paymentStatus,
-        "checkInStatus": checkInStatus,
-        "checkOutStatus": checkOutStatus,
-        "inspectionStatus": inspectionStatus,
-    };
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "user_id": userId,
+        "customer_name": customerName,
+        "room_id": roomId,
+        "check_in": checkIn?.toIso8601String(),
+        "check_out": checkOut?.toIso8601String(),
+        "rooms_count": roomsCount,
+        "person_count": personCount,
+        "amount": amount,
+        "phone": phone,
+        "email": email,
+        "bank_account": bankAccount,
+        "address": address,
+        "status": status,
+        "payment_status": paymentStatus,
+        "slip_url": slipUrl,
+        "check_in_status": checkInStatus,
+        "check_out_status": checkOutStatus,
+        "inspection_status": inspectionStatus,
+        "room_key": roomKey,
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt,
+      };
 }

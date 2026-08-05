@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:hotel_management_system/data/model/furniture_model.dart';
 
 abstract class furnitureRemoteDataSource {
-  Future<List<Map<String, dynamic>>> getFurnitureData(int roomID);
+  Future<List<Map<String, dynamic>>> getFurnitureData(String roomID);
   Future<bool> userFurnitureReport(List<FurnitureModel> reportData);
 }
 
 class furnitureRemoteDataSourceImpl implements furnitureRemoteDataSource {
   @override
-  Future<List<Map<String, dynamic>>> getFurnitureData(int roomID) async {
+  Future<List<Map<String, dynamic>>> getFurnitureData(String roomID) async {
     final furnitureMockData = {
       "message": "error something",
       "statusCode": 200,

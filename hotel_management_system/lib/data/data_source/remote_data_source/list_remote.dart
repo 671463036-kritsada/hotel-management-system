@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:dio/dio.dart';
 import 'package:hotel_management_system/data/model/responseModelRemote/response_model.dart';
 
 abstract class ListRemoteDatasource {
@@ -7,71 +6,63 @@ abstract class ListRemoteDatasource {
 }
 
 class ListRemoteDatasourceImpl implements ListRemoteDatasource {
+  final Dio dio;
+
+  // TODO: hardcode ไว้ทดสอบก่อน ระยะยาวควรดึงจาก login/secure storage แทน
+  static const String _token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlUwMDQiLCJuYW1lIjoi4LiX4LiU4Liq4Lit4LiaIOC4o-C4sOC4muC4miIsInJvbGUiOiJVc2VyIiwiaWF0IjoxNzg1OTE5NzgyLCJleHAiOjE3ODYwMDYxODJ9.hue_BKlGjzwLe2mNDilW_ihGG1n1l8tZIhzIYAet5Lg';
+
+  static const String _endpoint = 'bookings/my-bookings';
+
+  ListRemoteDatasourceImpl(this.dio);
+
   @override
   Future<List<Map<String, dynamic>>> getListData() async {
-    final dataMock = {
-      "message": "success",
-      "statusCode": 200,
-      "data": [
-        {
-          "bookingId": 1,
-          "bookingCode": "BK-10111223",
-          "roomNumber": 205,
-          "roomKey": "839201",
-          "checkInDate": "2026-02-15",
-          "checkOutDate": "2026-02-17",
-          "totalPrice": 1000,
-          "bookingStatus": "APPROVED",
-          "paymentStatus": "PAID",
-          "checkInStatus": "NOT_CHECKED_IN",
-          "checkOutStatus": "NOT_CHECKED_OUT",
-          "inspectionStatus": "NONE"
-        },
-        {
-          "bookingId": 2,
-          "bookingCode": "BK-10111213",
-          "roomNumber": 305,
-          "roomKey": null,
-          "checkInDate": "2026-02-10",
-          "checkOutDate": "2026-02-12",
-          "totalPrice": 2000,
-          "bookingStatus": "APPROVED",
-          "paymentStatus": "PAID",
-          "checkInStatus": "NOT_CHECKED_IN",
-          "checkOutStatus": "NOT_CHECKED_OUT",
-          "inspectionStatus": "NONE"
-        },
-        {
-          "bookingId": 3,
-          "bookingCode": "BK-10111233",
-          "roomNumber": 105,
-          "roomKey": null,
-          "checkInDate": "2026-02-23",
-          "checkOutDate": "2026-02-25",
-          "totalPrice": 1500,
-          "bookingStatus": "APPROVED",
-          "paymentStatus": "REFUNDED",
-          "checkInStatus": "NOT_CHECKED_IN",
-          "checkOutStatus": "NOT_CHECKED_OUT",
-          "inspectionStatus": "NONE"
-        }
-      ]
-    };
     try {
-      final ResponseModel response = ResponseModel.fromJson(dataMock);
+      final response = await dio.get(
+        _endpoint,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $_token',
+          },
+        ),
+      );
 
-      if (response.statusCode == 200) {
-        final listData = List<Map<String, dynamic>>.from(response.data);
-        return listData;
+      final ResponseModel responseModel =
+          ResponseModel.fromJson(response.data as Map<String, dynamic>);
+
+      if (responseModel.isSuccess) {
+        final data = responseModel.data;
+        if (data is List) {
+          return data
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
+        }
+        throw Exception('Invalid booking data format');
       } else {
-        throw Exception(response.message);
+        throw Exception(responseModel.message ?? 'Failed to load bookings');
       }
-    } on SocketException {
-      throw Exception("ไม่มีการเขื่อมต่อ internet");
-    } on HttpException {
-      throw Exception("ไม่สามารถเชื่อมต่อเซิฟเวอร์ได้");
+    } on DioException catch (e) {
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+        case DioExceptionType.connectionError:
+          throw Exception(
+              'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ');
+        case DioExceptionType.badResponse:
+          if (e.response?.statusCode == 401) {
+            throw Exception('Token หมดอายุหรือไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
+          }
+          throw Exception(
+              'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+        default:
+          throw Exception('เกิดข้อผิดพลาด: ${e.message}');
+      }
     } catch (e) {
-      throw Exception("เกิดข้อผิดพลาด $e");
+      throw Exception('เกิดข้อผิดพลาด: $e');
     }
   }
 }

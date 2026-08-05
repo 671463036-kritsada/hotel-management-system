@@ -15,7 +15,7 @@ class RoomConditionCheckScreen extends StatefulWidget {
 class _RoomConditionCheckScreenState extends State<RoomConditionCheckScreen> {
   @override
   Widget build(BuildContext context) {
-    final int roomId = ModalRoute.of(context)!.settings.arguments as int;
+    final String roomId = ModalRoute.of(context)!.settings.arguments as String;
 
     return ResponsiveLayout(
       mobileBody: RoomConditionCheckScreenMobileBody(roomId: roomId),

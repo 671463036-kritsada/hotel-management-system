@@ -1,5 +1,5 @@
 class FurnitureEntitise {
-  int? roomID;
+  String? roomID;
   String? title;
   String? image;
   String? status;

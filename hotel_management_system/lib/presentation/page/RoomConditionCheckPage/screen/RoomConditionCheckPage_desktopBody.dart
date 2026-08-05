@@ -12,7 +12,7 @@ import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
 
 class RoomConditionCheckScreenDesktopBody extends StatefulWidget {
-  final int roomId;
+  final String roomId;
   const RoomConditionCheckScreenDesktopBody({super.key, required this.roomId});
 
   @override

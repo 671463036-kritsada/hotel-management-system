@@ -9,7 +9,7 @@ CheckInModel checkInModelFromJson(String str) => CheckInModel.fromJson(json.deco
 String checkInModelToJson(CheckInModel data) => json.encode(data.toJson());
 
 class CheckInModel {
-    int? bookingId;
+    String? bookingId;
     String? idCardNumber;
     String? fullName;
     String? gender;

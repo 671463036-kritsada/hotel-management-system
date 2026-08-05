@@ -1,5 +1,5 @@
 class CheckInEntitise {
-  int? bookingId;
+  String? bookingId;
   String? idCardNumber;
   String? fullName;
   String? gender;

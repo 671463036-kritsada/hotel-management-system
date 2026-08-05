@@ -15,7 +15,7 @@ import '../provider/check_in_screen_provider.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
 
 class CheckInScreenDesktopBody extends StatefulWidget {
-  final int? bookingID;
+  final String? bookingID;
   const CheckInScreenDesktopBody({super.key, this.bookingID});
 
   @override
@@ -185,7 +185,7 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                             : Button(
                                                 text: "ยืนยันการเช็คอิน",
                                                 onTap: () => provider
-                                                    .submitCheckIn(widget.bookingID ?? 0),
+                                                    .submitCheckIn(widget.bookingID ?? ""),
                                                 color: Constants.secondaryColor,
                                               ),
                                       ],

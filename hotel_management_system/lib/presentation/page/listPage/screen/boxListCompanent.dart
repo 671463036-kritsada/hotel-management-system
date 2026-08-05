@@ -4,9 +4,9 @@ import '../../../../util/model/model.dart';
 import '../../../../util/widget/core/constants.dart';
 
 class Boxlistcompanent extends StatelessWidget {
-  final int roomNumber;
+  final String roomNumber;
   final String status, textStatus;
-  final int keyBooking;
+  final String keyBooking; 
   final double payamout;
   final Color statusColor;
   final bool? statusChekin;
@@ -305,35 +305,35 @@ class Boxlistcompanent extends StatelessWidget {
 
 // ฟังก์ชันสุดท้ายแจ้งเตือนสำเร็จ
   void _showSuccessDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('เช็คเอาท์สำเร็จ'),
-        content:
-            const Text('คุณได้เช็คเอาท์เรียบร้อยแล้ว ขอบคุณที่ใช้บริการ'),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Constants.secondaryColor),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/list_page',
-                (route) => false,
-                arguments: ListScreenArguments(
-                  checkInStatus: true,
-                  ckeckOutStatus: true,
-                ),
-              );
-            },
-            child: const Text('ตกลง'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('เช็คเอาท์สำเร็จ'),
+          content:
+              const Text('คุณได้เช็คเอาท์เรียบร้อยแล้ว ขอบคุณที่ใช้บริการ'),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Constants.secondaryColor),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/list_page',
+                  (route) => false,
+                  arguments: ListScreenArguments(
+                    checkInStatus: true,
+                    ckeckOutStatus: true,
+                  ),
+                );
+              },
+              child: const Text('ตกลง'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

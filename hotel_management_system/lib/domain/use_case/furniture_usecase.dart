@@ -7,7 +7,7 @@ class FurnitureUsecase {
   final FurnitureRepositoriseImpl repository;
   FurnitureUsecase(this.repository);
 
-  Future<List<FurnitureEntitise>> getFurnitureData(int roomID) async {
+  Future<List<FurnitureEntitise>> getFurnitureData(String roomID) async {
     try {
       final modelData = await repository.getFurnitureData(roomID);
       return modelData.map((item) {

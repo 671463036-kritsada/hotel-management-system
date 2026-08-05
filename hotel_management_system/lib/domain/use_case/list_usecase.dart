@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:hotel_management_system/data/repositorise/list_repositorise.dart';
 import 'package:hotel_management_system/domain/entitise/list_entitise.dart';
 
@@ -12,23 +11,36 @@ class ListUsecase {
       final listDataModel = await repository.getListData();
       return listDataModel
           .map((item) => BookingListEntity(
-              bookingId: item.bookingId ?? -1,
-              bookingCode: item.bookingCode ?? "",
-              roomNumber: item.roomNumber ?? 0,
-              roomKey: item.roomKey ?? "",
-              checkInDate: item.checkInDate,
-              checkOutDate: item.checkOutDate,
-              totalPrice: (item.totalPrice ?? 0).toDouble(),
-              bookingStatus: item.bookingStatus ?? "",
-              paymentStatus: item.paymentStatus ?? "",
-              checkInStatus: item.checkInStatus ?? "",
-              checkOutStatus: item.checkOutStatus ?? "",
-              inspectionStatus: item.inspectionStatus ?? ""))
+                bookingId: item.id ?? "",
+                userId: item.userId ?? "",
+                customerName: item.customerName ?? "",
+                roomId: item.roomId ?? "",
+                checkIn: item.checkIn,
+                checkOut: item.checkOut,
+                roomsCount: item.roomsCount ?? 0,
+                personCount: item.personCount ?? 0,
+                //amount เป็น String ใน Model ("2100.00") ต้อง parse เป็น double
+                amount: double.tryParse(item.amount ?? '') ?? 0.0,
+                phone: item.phone ?? "",
+                email: item.email ?? "",
+                bankAccount: item.bankAccount?.toString(),
+                address: item.address ?? "",
+                status: item.status ?? "",
+                paymentStatus: item.paymentStatus ?? "",
+                slipUrl: item.slipUrl,
+                checkInStatus: item.checkInStatus ?? "",
+                checkOutStatus: item.checkOutStatus ?? "",
+                inspectionStatus: item.inspectionStatus ?? "",
+                roomKey: item.roomKey?.toString(),
+                createdAt: item.createdAt,
+              ))
           .toList();
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่อ internet");
     } on HttpException {
       throw Exception("ไม่สามารถเชื่อมต่อ server ได้");
+    } on FormatException {
+      throw Exception("รูปแบบข้อมูลไม่ถูกต้อง");
     } catch (e) {
       throw Exception("เกิดข้อผิดพลาด $e");
     }

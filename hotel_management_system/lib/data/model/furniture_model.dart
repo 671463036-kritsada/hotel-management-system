@@ -10,7 +10,7 @@ String furnitureModelToJson(FurnitureModel data) => json.encode(data.toJson());
 
 class FurnitureModel {
     int? id;
-    int? roomId;
+    String? roomId;
     String? title;
     bool? isCustom = false;
     String? image;
