@@ -91,10 +91,9 @@ void showSuccessDialog(
                     ),
                     onPressed: () {
                       Navigator.of(context).pop(); // ปิด Dialog
-                      Navigator.pushNamedAndRemoveUntil(
+                      Navigator.pushNamed(
                         context,
                         destinationRouteName,
-                        (route) => false,
                         arguments: arguments,
                       );
                     },

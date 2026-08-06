@@ -49,7 +49,7 @@ class BookingFormModel {
     this.address,
     this.paymentSlip,
   });
-
+  
   factory BookingFormModel.fromJson(Map<String, dynamic> json) =>
       BookingFormModel(
         roomId: json["roomId"],
@@ -60,10 +60,15 @@ class BookingFormModel {
         checkOutDate: json["checkOutDate"] == null
             ? null
             : DateTime.parse(json["checkOutDate"]),
-        email: json["email"],
-        bankAccount: json["bankAccount"],
-        phoneNumber: json["phoneNumber"],
+        roomsCount: json["roomsCount"],
         numberOfGuests: json["numberOfGuests"],
+        totalPrice: json["totalPrice"] != null
+            ? (json["totalPrice"] as num).toDouble()
+            : null,
+        email: json["email"],
+        phoneNumber: json["phoneNumber"],
+        bankAccount: json["bankAccount"],
+        address: json["address"],
         paymentSlip: json["paymentSlip"],
       );
 

@@ -19,6 +19,9 @@ class BookingFormUsecase {
         bankAccount: bookingData.bankAccount,
         phoneNumber: bookingData.phoneNumber,
         numberOfGuests: bookingData.numberOfGuests,
+        roomsCount: bookingData.roomsCount,
+        totalPrice: bookingData.totalPrice,
+        address: bookingData.address,
         paymentSlip: bookingData.paymentSlip,
       );
       return await repository.bookingForm(model);

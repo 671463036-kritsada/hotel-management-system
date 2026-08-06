@@ -6,7 +6,7 @@ import '../../../../util/widget/core/constants.dart';
 class Boxlistcompanent extends StatelessWidget {
   final String roomNumber;
   final String status, textStatus;
-  final String keyBooking; 
+  final String keyBooking;
   final double payamout;
   final Color statusColor;
   final bool? statusChekin;
@@ -112,7 +112,7 @@ class Boxlistcompanent extends StatelessWidget {
                     _buildInfoRow(Icons.info_outline, "สถานะ", textStatus,
                         color: statusColor),
                   ],
-                  if (roomKey != "") ...[
+                  if (roomKey != "" && roomKey != null) ...[
                     const SizedBox(height: 8),
                     _buildInfoRow(Icons.key, "รหัสเข้าห้อง", roomKey,
                         color: statusColor),
@@ -323,10 +323,10 @@ class Boxlistcompanent extends StatelessWidget {
                   context,
                   '/list_page',
                   (route) => false,
-                  arguments: ListScreenArguments(
-                    checkInStatus: true,
-                    ckeckOutStatus: true,
-                  ),
+                  // arguments: ListScreenArguments(
+                  //   checkInStatus: true,
+                  //   ckeckOutStatus: true,
+                  // ),
                 );
               },
               child: const Text('ตกลง'),

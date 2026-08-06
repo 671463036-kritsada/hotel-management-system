@@ -8,6 +8,7 @@ import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dar
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
+
 enum SaveQRStatus { initial, success, error }
 
 class BookingFormScreenProvider extends ChangeNotifier {
@@ -20,7 +21,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
   File? _paymentSlipImage;
 
   SaveQRStatus _saveQRStatus = SaveQRStatus.initial;
-  String _saveQRErrorMessage = ''; 
+  String _saveQRErrorMessage = '';
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -64,12 +65,17 @@ class BookingFormScreenProvider extends ChangeNotifier {
         bankAccount: bankController.text,
         phoneNumber: phoneController.text,
         numberOfGuests: int.tryParse(numberOfGuestsController.text) ?? 1,
+        roomsCount: 1,
+        totalPrice: 0,
+        address: "",
         checkInDate:
             DateTime.tryParse(checkInController.text) ?? DateTime.now(),
         checkOutDate:
             DateTime.tryParse(checkOutController.text) ?? DateTime.now(),
-        paymentSlip: _paymentSlipImage?.path ?? '',
+        paymentSlip: _paymentSlipImage?.path ?? "",
       );
+
+
       final result = await bookingFormUseCase.bookingForm(bookingFormData);
       if (result) {
         _status = BookingFormStatus.success;
@@ -84,7 +90,6 @@ class BookingFormScreenProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   Future<void> saveQRCode() async {
     try {

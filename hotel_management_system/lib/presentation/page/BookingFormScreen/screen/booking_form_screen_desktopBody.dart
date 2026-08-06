@@ -59,11 +59,11 @@ class _BookingFormScreenDesktopBodyState
         "",
         "",
         "",
-        arguments: ListScreenArguments(
-          checkInStatus: false,
-          ckeckOutStatus: false,
-          statusConCheck: false,
-        ),
+        // arguments: ListScreenArguments(
+        //   checkInStatus: false,
+        //   ckeckOutStatus: false,
+        //   statusConCheck: false,
+        // ),
       );
       _provider.resetStatus();
     } else if (_provider.status == BookingFormStatus.error) {

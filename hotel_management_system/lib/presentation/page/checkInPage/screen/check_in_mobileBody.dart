@@ -4,6 +4,7 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/chec
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
+import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
@@ -31,7 +32,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
   void initState() {
     super.initState();
     final checkInUsecase =
-        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl()));
+        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
     _provider = CheckInScreenProvider(checkInUsecase);
     _provider.addListener(_onProviderChanged);
   }
@@ -58,11 +59,11 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
         "รหัสเข้าห้อง[ 839201 ]",
         "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
         "หมดอายุ: 17 ก.พ. 12:00",
-        arguments: ListScreenArguments(
-          checkInStatus: true,
-          ckeckOutStatus: false,
-          statusConCheck: false,
-        ),
+        // arguments: ListScreenArguments(
+        //   checkInStatus: true,
+        //   ckeckOutStatus: false,
+        //   statusConCheck: false,
+        // ),
       );
       _provider.resetStatus();
     } else if (_provider.status == CheckInStatus.error) {

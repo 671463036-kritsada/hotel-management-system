@@ -371,10 +371,10 @@ class _RoomConditionCheckScreenDesktopBodyState
       context,
       '/list_page',
       (route) => false,
-      arguments: ListScreenArguments(
-        checkInStatus: true,
-        statusConCheck: true,
-      ),
+      // arguments: ListScreenArguments(
+      //   checkInStatus: true,
+      //   statusConCheck: true,
+      // ),
     );
   }
 

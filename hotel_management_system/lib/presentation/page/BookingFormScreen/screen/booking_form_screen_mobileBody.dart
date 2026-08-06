@@ -1,8 +1,8 @@
 // booking_form_screen_mobileBody.dart
 import 'package:flutter/material.dart';
-// import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
-// import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
-// import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
+import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +12,7 @@ import '../../../../util/widget/components/dialog/dialog_helper.dart';
 import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/booking_form_provider_route.dart';
+import '../../../../util/widget/core/network/dio_client.dart';
 
 class BookingFormScreenMobileBody extends StatefulWidget {
   final String roomId;
@@ -27,15 +28,15 @@ class _BookingFormScreenMobileBodyState
     extends State<BookingFormScreenMobileBody> {
   late final BookingFormScreenProvider _provider;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   final bookingUsecase = BookingFormUsecase(
-  //     BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl()),
-  //   );
-  //   _provider = BookingFormScreenProvider(bookingUsecase);
-  //   _provider.addListener(_onProviderChanged);
-  // }
+  @override
+  void initState() {
+    super.initState();
+    final bookingUsecase = BookingFormUsecase(
+      BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl(DioClient.dio)),
+    );
+    _provider = BookingFormScreenProvider(bookingUsecase);
+    _provider.addListener(_onProviderChanged);
+  }
 
   @override
   void dispose() {
@@ -59,11 +60,6 @@ class _BookingFormScreenMobileBodyState
         "",
         "",
         "",
-        arguments: ListScreenArguments(
-          checkInStatus: false,
-          ckeckOutStatus: false,
-          statusConCheck: false,
-        ),
       );
       _provider.resetStatus();
     } else if (_provider.status == BookingFormStatus.error) {

@@ -372,10 +372,10 @@ class _RoomConditionCheckScreenMobileBodyState
         context,
         '/list_page',
         (route) => false,
-        arguments: ListScreenArguments(
-          checkInStatus: true,
-          statusConCheck: true,
-        ),
+        // arguments: ListScreenArguments(
+        //   checkInStatus: true,
+        //   statusConCheck: true,
+        // ),
       );
     } catch (e) {
       if (!context.mounted) return;

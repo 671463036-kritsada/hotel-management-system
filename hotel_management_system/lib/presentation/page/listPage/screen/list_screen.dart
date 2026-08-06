@@ -15,19 +15,19 @@ class ListScreen extends StatefulWidget {
 class _ListScreenState extends State<ListScreen> {
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as ListScreenArguments?;
+    // final args =
+    //     ModalRoute.of(context)?.settings.arguments as ListScreenArguments?;
 
     return ResponsiveLayout(
       mobileBody: ListScreenMobileBody(
-        checkInStatus: args?.checkInStatus,
-        ckeckOutStatus: args?.ckeckOutStatus,
-        statusConCheck: args?.statusConCheck,
+        // checkInStatus: args?.checkInStatus,
+        // ckeckOutStatus: args?.ckeckOutStatus,
+        // statusConCheck: args?.statusConCheck,
       ),
       desktopBody: ListScreenDesktopBody(
-        checkInStatus: args?.checkInStatus,
-        ckeckOutStatus: args?.ckeckOutStatus,
-        statusConCheck: args?.statusConCheck,
+        // checkInStatus: args?.checkInStatus,
+        // ckeckOutStatus: args?.ckeckOutStatus,
+        // statusConCheck: args?.statusConCheck,
       ),
     );
   }

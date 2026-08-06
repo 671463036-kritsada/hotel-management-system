@@ -6,14 +6,14 @@ class RoomDetailArguments {
 }
 
 
-class ListScreenArguments {
-  final bool? checkInStatus;
-  final bool? ckeckOutStatus;
-  final bool? statusConCheck;
+// class ListScreenArguments {
+//   final bool? checkInStatus;
+//   final bool? ckeckOutStatus;
+//   final bool? statusConCheck;
 
-  ListScreenArguments({
-    this.checkInStatus,
-    this.ckeckOutStatus,
-    this.statusConCheck,
-  });
-}
+//   ListScreenArguments({
+//     this.checkInStatus,
+//     this.ckeckOutStatus,
+//     this.statusConCheck,
+//   });
+// }
