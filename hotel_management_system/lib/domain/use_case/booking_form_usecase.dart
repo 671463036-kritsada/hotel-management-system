@@ -1,12 +1,19 @@
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/entitise/booking_form_entitise.dart';
-
 import '../../data/model/booking_form_model.dart';
 
 class BookingFormUsecase {
   final BookingFormRepositoriseImpl repository;
-
   BookingFormUsecase(this.repository);
+
+  // ดึงราคาต่อคืนของห้อง ไว้ให้ provider คำนวณ preview ราคารวม/มัดจำ
+  Future<double> getRoomPricePerNight(String roomId) async {
+    try {
+      return await repository.getRoomPricePerNight(roomId);
+    } catch (e) {
+      throw Exception("UseCase error: $e");
+    }
+  }
 
   Future<bool> bookingForm(BookingFormEntitise bookingData) async {
     try {

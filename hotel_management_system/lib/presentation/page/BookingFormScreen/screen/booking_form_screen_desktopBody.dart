@@ -8,7 +8,6 @@ import 'package:hotel_management_system/util/widget/components/button/button.dar
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
 import '../../../../util/widget/core/constants.dart';

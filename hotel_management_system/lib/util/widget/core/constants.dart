@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Constants {
+
+  static const double depositPercent = 0.30;
+  
   // Colors App
   static const Color secondaryColor = Color(0xFFFF9500);
   static const Color primaryColor = Color.fromRGBO(147, 37, 87, 1);

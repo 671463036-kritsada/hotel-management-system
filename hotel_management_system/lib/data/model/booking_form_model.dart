@@ -1,7 +1,6 @@
 // To parse this JSON data, do
 //
 //     final bookingFormModel = bookingFormModelFromJson(jsonString);
-
 import 'dart:convert';
 
 BookingFormModel bookingFormModelFromJson(String str) =>
@@ -12,27 +11,18 @@ String bookingFormModelToJson(BookingFormModel data) =>
 
 class BookingFormModel {
   String? roomId;
-
   String? fullName;
-
   DateTime? checkInDate;
-
   DateTime? checkOutDate;
-
   int? roomsCount;
-
   int? numberOfGuests;
-
   double? totalPrice;
-
+  double? depositAmount;    // เพิ่มใหม่: ค่ามัดจำที่คำนวณจริงจาก backend/repository
+  double? remainingAmount;  // เพิ่มใหม่: ยอดคงเหลือหลังหักมัดจำ (ให้ check-in ดึงไปแสดง)
   String? email;
-
   String? phoneNumber;
-
   String? bankAccount;
-
   String? address;
-
   String? paymentSlip;
 
   BookingFormModel({
@@ -43,13 +33,15 @@ class BookingFormModel {
     this.roomsCount,
     this.numberOfGuests,
     this.totalPrice,
+    this.depositAmount,    // เพิ่มใหม่
+    this.remainingAmount,  // เพิ่มใหม่
     this.email,
     this.phoneNumber,
     this.bankAccount,
     this.address,
     this.paymentSlip,
   });
-  
+
   factory BookingFormModel.fromJson(Map<String, dynamic> json) =>
       BookingFormModel(
         roomId: json["roomId"],
@@ -64,6 +56,12 @@ class BookingFormModel {
         numberOfGuests: json["numberOfGuests"],
         totalPrice: json["totalPrice"] != null
             ? (json["totalPrice"] as num).toDouble()
+            : null,
+        depositAmount: json["depositAmount"] != null // เพิ่มใหม่
+            ? (json["depositAmount"] as num).toDouble()
+            : null,
+        remainingAmount: json["remainingAmount"] != null // เพิ่มใหม่
+            ? (json["remainingAmount"] as num).toDouble()
             : null,
         email: json["email"],
         phoneNumber: json["phoneNumber"],
@@ -81,6 +79,8 @@ class BookingFormModel {
       "roomsCount": roomsCount,
       "numberOfGuests": numberOfGuests,
       "totalPrice": totalPrice,
+      "depositAmount": depositAmount,     // เพิ่มใหม่ — สำคัญมาก ถ้าลืมใส่ backend จะไม่ได้รับค่านี้เลย
+      "remainingAmount": remainingAmount, // เพิ่มใหม่
       "email": email,
       "phoneNumber": phoneNumber,
       "bankAccount": bankAccount,

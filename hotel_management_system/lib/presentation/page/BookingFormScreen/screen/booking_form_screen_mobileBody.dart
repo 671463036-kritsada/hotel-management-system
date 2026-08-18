@@ -1,12 +1,12 @@
 // booking_form_screen_mobileBody.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -32,14 +32,25 @@ class _BookingFormScreenMobileBodyState
   void initState() {
     super.initState();
     final bookingUsecase = BookingFormUsecase(
-      BookingFormRepositoriseImpl(BookingFormRemoteDataSourceImpl(DioClient.dio)),
+      BookingFormRepositoriseImpl(
+          BookingFormRemoteDataSourceImpl(DioClient.dio),
+          HomeRemoteDataSourceImpl(DioClient.dio)),
     );
     _provider = BookingFormScreenProvider(bookingUsecase);
     _provider.addListener(_onProviderChanged);
+
+    // เพิ่มใหม่: โหลดราคาห้องจาก DB มาแสดง preview ทันทีที่เปิดหน้า
+    _provider.loadRoomPrice(widget.roomId);
+
+    // เพิ่มใหม่: คำนวณราคาใหม่ทุกครั้งที่ผู้ใช้แก้วันที่เช็คอิน/เช็คเอาท์
+    _provider.checkInController.addListener(_provider.recalculatePrice);
+    _provider.checkOutController.addListener(_provider.recalculatePrice);
   }
 
   @override
   void dispose() {
+    _provider.checkInController.removeListener(_provider.recalculatePrice);
+    _provider.checkOutController.removeListener(_provider.recalculatePrice);
     _provider.removeListener(_onProviderChanged);
     _provider.dispose();
     super.dispose();
@@ -56,7 +67,7 @@ class _BookingFormScreenMobileBodyState
         context,
         "จองห้องนี้",
         "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว",
-        "/list_page", // เปลี่ยนจาก ListScreen()
+        "/list_page",
         "",
         "",
         "",
@@ -84,6 +95,92 @@ class _BookingFormScreenMobileBodyState
       );
       _provider.resetSaveQRStatus();
     }
+  }
+
+  // เพิ่มใหม่: format ตัวเลขเป็นสกุลเงินบาท
+  String _formatBaht(double value) => "${value.toStringAsFixed(2)} บาท";
+
+  // เพิ่มใหม่: การ์ดสรุปราคาเต็ม + ค่ามัดจำ 30%
+  Widget _buildPriceSummary(BookingFormScreenProvider provider) {
+    print(
+        "=== DEBUG: _buildPriceSummary called, pricePerNight = ${provider.pricePerNight}, isLoadingPrice = ${provider.isLoadingPrice} ===");
+        
+    if (provider.isLoadingPrice) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (provider.priceError.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(provider.priceError,
+            style: const TextStyle(color: Colors.red)),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(Constants.borderRadius),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("ราคาต่อคืน",
+                  style: TextStyle(fontSize: Constants.fontSizeBody)),
+              Text(_formatBaht(provider.pricePerNight),
+                  style: TextStyle(fontSize: Constants.fontSizeBody)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("จำนวนคืน",
+                  style: TextStyle(fontSize: Constants.fontSizeBody)),
+              Text("${provider.nights} คืน",
+                  style: TextStyle(fontSize: Constants.fontSizeBody)),
+            ],
+          ),
+          const Divider(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("ราคาค่าเช่าซื้อทั้งหมด",
+                  style: TextStyle(
+                      fontSize: Constants.fontSizeBody,
+                      fontWeight: FontWeight.bold)),
+              Text(_formatBaht(provider.totalPrice),
+                  style: TextStyle(
+                      fontSize: Constants.fontSizeBody,
+                      fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("ค่ามัดจำที่ต้องชำระตอนนี้ (30%)",
+                  style: TextStyle(
+                      fontSize: Constants.fontSizeBody,
+                      color: Colors.red[600])),
+              Text(_formatBaht(provider.depositAmount),
+                  style: TextStyle(
+                      fontSize: Constants.fontSizeBody,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red[600])),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -162,6 +259,12 @@ class _BookingFormScreenMobileBodyState
                               controller: provider.phoneController),
                           createInputField(InputFieldType.numberOfGuests,
                               controller: provider.numberOfGuestsController),
+
+                          const SizedBox(height: 20),
+                          // เพิ่มใหม่: แสดงราคาเต็ม + ค่ามัดจำ 30% ก่อนถึงส่วนจ่ายเงิน
+                          _buildPriceSummary(provider),
+                          const SizedBox(height: 20),
+
                           Text("จ่ายค่ามัดจำผ่าน QR code",
                               style:
                                   TextStyle(fontSize: Constants.fontSizeBody)),
@@ -179,8 +282,7 @@ class _BookingFormScreenMobileBodyState
                           ),
                           Center(
                             child: GestureDetector(
-                              onTap: () =>
-                                  provider.saveQRCode(), // เรียก provider แทน
+                              onTap: () => provider.saveQRCode(),
                               child: Container(
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 10),

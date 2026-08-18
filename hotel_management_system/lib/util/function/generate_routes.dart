@@ -98,7 +98,7 @@ RouteFactory onGenerateRoute = (settings) {
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => BookingFormScreenProvider(BookingFormUsecase(
                     BookingFormRepositoriseImpl(
-                        BookingFormRemoteDataSourceImpl(DioClient.dio)))),
+                        BookingFormRemoteDataSourceImpl(DioClient.dio), HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const BookingFormScreen(),
               ),
           // ส่ง agument ถ้ามีหลาย aguments เราจะทำ Map แล้วส่งมา เอา Map ไปทำเป็น model ก็ได้

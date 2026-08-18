@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
+import '../../../../util/widget/core/constants.dart';
+
 enum BookingFormStatus { initial, loading, success, error }
 
 enum SaveQRStatus { initial, success, error }
@@ -31,6 +33,57 @@ class BookingFormScreenProvider extends ChangeNotifier {
       TextEditingController();
   final TextEditingController checkInController = TextEditingController();
   final TextEditingController checkOutController = TextEditingController();
+
+  // --- Price / Deposit State (เพิ่มใหม่) ---
+  double _pricePerNight = 0;
+  bool _isLoadingPrice = false;
+  String _priceError = '';
+
+  double get pricePerNight => _pricePerNight;
+  bool get isLoadingPrice => _isLoadingPrice;
+  String get priceError => _priceError;
+
+  /// เรียกตอนเปิดหน้า booking form เพื่อดึงราคาห้องจาก DB มาแสดง preview
+  /// (ราคาจริงที่ insert จะถูกคำนวณซ้ำที่ repository อีกครั้งตอน submit เสมอ)
+  Future<void> loadRoomPrice(String roomId) async {
+    _isLoadingPrice = true;
+    _priceError = '';
+    notifyListeners();
+    try {
+      _pricePerNight = await bookingFormUseCase.getRoomPricePerNight(roomId);
+      print("=== DEBUG: pricePerNight = $_pricePerNight ==="); // เพิ่มบรรทัดนี้
+    } catch (e) {
+      print("=== DEBUG: loadRoomPrice error = $e ==="); // เพิ่มบรรทัดนี้
+      _priceError = 'ไม่สามารถโหลดราคาห้องพักได้ กรุณาลองใหม่';
+      _pricePerNight = 0;
+    }
+    _isLoadingPrice = false;
+    notifyListeners();
+  }
+
+  /// จำนวนคืน คำนวณจากวันที่ในฟอร์ม
+  int get nights {
+    final checkIn = DateTime.tryParse(checkInController.text);
+    final checkOut = DateTime.tryParse(checkOutController.text);
+    if (checkIn == null || checkOut == null) return 0;
+    final diff = checkOut.difference(checkIn).inDays;
+    return diff > 0 ? diff : 0;
+  }
+
+  /// ราคาค่าเช่าซื้อทั้งหมด (preview) = ราคาต่อคืน x จำนวนคืน
+  double get totalPrice => _pricePerNight * nights;
+
+  /// ค่ามัดจำที่ต้องชำระตอนจอง (preview) = 30% ของราคารวม
+  double get depositAmount => totalPrice * Constants.depositPercent;
+
+  /// ยอดคงเหลือหลังหักมัดจำ (preview) — โชว์ให้ผู้ใช้เห็นเฉยๆ ยอดจริงคำนวณที่ backend อีกที
+  double get remainingAmount => totalPrice - depositAmount;
+
+  /// เรียกทุกครั้งที่ผู้ใช้แก้วันที่เช็คอิน/เช็คเอาท์ เพื่อ re-calculate ราคา preview
+  void recalculatePrice() {
+    notifyListeners();
+  }
+  // --- End Price / Deposit State ---
 
   // --- Getter ---
   BookingFormStatus get status => _status;
@@ -66,7 +119,8 @@ class BookingFormScreenProvider extends ChangeNotifier {
         phoneNumber: phoneController.text,
         numberOfGuests: int.tryParse(numberOfGuestsController.text) ?? 1,
         roomsCount: 1,
-        totalPrice: 0,
+        totalPrice:
+            0, // ไม่ต้องส่งค่าจริง repository จะคำนวณเองจากราคาห้องใน DB
         address: "",
         checkInDate:
             DateTime.tryParse(checkInController.text) ?? DateTime.now(),
@@ -74,7 +128,6 @@ class BookingFormScreenProvider extends ChangeNotifier {
             DateTime.tryParse(checkOutController.text) ?? DateTime.now(),
         paymentSlip: _paymentSlipImage?.path ?? "",
       );
-
 
       final result = await bookingFormUseCase.bookingForm(bookingFormData);
       if (result) {
