@@ -1,9 +1,12 @@
 // register_screen_provider.dart
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/domain/entitise/register_entitise.dart';
+import 'package:hotel_management_system/domain/use_case/register_usecase.dart';
 
 enum RegisterStatus { initial, loading, success, error }
 
 class RegisterScreenProvider extends ChangeNotifier {
+  final RegisterUsecase usecase;
   // --- State ---
   RegisterStatus _status = RegisterStatus.initial;
   String _errorMessage = '';
@@ -13,8 +16,11 @@ class RegisterScreenProvider extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final TextEditingController addressController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  RegisterScreenProvider({required this.usecase});
 
   // --- Getter ---
   RegisterStatus get status => _status;
@@ -59,8 +65,12 @@ class RegisterScreenProvider extends ChangeNotifier {
     _status = RegisterStatus.loading;
     notifyListeners();
     try {
-      // TODO: เชื่อม API จริงตรงนี้
-      await Future.delayed(const Duration(seconds: 1));
+      await usecase.register(RegisterEntitise(
+          username: usernameController.text.trim(),
+          email: emailController.text.trim(),
+          address: addressController.text.trim(),
+          phoneNumber: phoneNumberController.text.trim(),
+          password: passwordController.text.trim()));
       _status = RegisterStatus.success;
       notifyListeners();
     } catch (e) {
@@ -98,6 +108,7 @@ class RegisterScreenProvider extends ChangeNotifier {
     phoneNumberController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    addressController.dispose();
     super.dispose();
   }
 }

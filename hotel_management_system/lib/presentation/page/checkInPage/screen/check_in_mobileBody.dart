@@ -7,7 +7,6 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -18,7 +17,15 @@ import '../../../../util/widget/components/dialog/dialog_helper.dart';
 
 class CheckInScreenMobileBody extends StatefulWidget {
   final String? bookingID;
-  const CheckInScreenMobileBody({super.key, this.bookingID});
+  final double totalPrice; // เพิ่มใหม่: ราคาค่าเช่าซื้อทั้งหมด (ก่อนหักใดๆ)
+  final double depositAmount; // เพิ่มใหม่: ค่าหมัดจำที่ชำระไปแล้ว
+
+  const CheckInScreenMobileBody({
+    super.key,
+    this.bookingID,
+    this.totalPrice = 0,
+    this.depositAmount = 0,
+  });
 
   @override
   State<CheckInScreenMobileBody> createState() =>
@@ -31,10 +38,15 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
   @override
   void initState() {
     super.initState();
-    final checkInUsecase =
-        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
+    final checkInUsecase = CheckInUsecase(
+        CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
     _provider = CheckInScreenProvider(checkInUsecase);
     _provider.addListener(_onProviderChanged);
+    // เพิ่มใหม่: ตั้งค่าราคาตั้งต้นจากข้อมูลการจองที่ส่งเข้ามา
+    _provider.setPricing(
+      totalPrice: widget.totalPrice,
+      depositAmount: widget.depositAmount,
+    );
   }
 
   @override
@@ -90,6 +102,32 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     }
   }
 
+  /// เพิ่มใหม่: format ตัวเลขเป็นสกุลเงินบาท
+  String _formatBaht(double value) {
+    return "${value.toStringAsFixed(2)} บาท";
+  }
+
+  /// เพิ่มใหม่: widget แถวสรุปราคาแต่ละบรรทัด
+  Widget _priceRow(String label, double amount, {bool isTotal = false}) {
+    final style = TextStyle(
+      fontSize: isTotal ? Constants.fontSizeBody : Constants.fontSizeBody - 2,
+      fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+      color: amount < 0 ? Colors.red[400] : Colors.black87,
+    );
+    final displayAmount =
+        amount < 0 ? "-${_formatBaht(amount.abs())}" : _formatBaht(amount);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: style),
+          Text(displayAmount, style: style),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().user;
@@ -137,6 +175,76 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                     fontSize: Constants.fontSizeBody)),
                             createInputField(InputFieldType.signature,
                                 sigController: provider.sigController),
+                            const SizedBox(height: 20),
+
+                            // ================= เพิ่มใหม่: คูปองส่วนลด =================
+                            Text('คูปองส่วนลด',
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody)),
+                            const SizedBox(height: 8),
+                            Card(
+                              margin: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    Constants.borderRadius),
+                                side: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              child: Column(
+                                children: provider.coupons.map((coupon) {
+                                  return RadioListTile<String>(
+                                    value: coupon.id,
+                                    groupValue: provider.selectedCoupon.id,
+                                    title: Text(coupon.title),
+                                    subtitle: coupon.code != '-'
+                                        ? Text(coupon.code)
+                                        : null,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        provider.selectCoupon(value);
+                                      }
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ================= เพิ่มใหม่: สรุปค่าใช้จ่าย =================
+                            Text('สรุปค่าใช้จ่าย',
+                                style: TextStyle(
+                                    fontSize: Constants.fontSizeBody,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(
+                                    Constants.borderRadius),
+                              ),
+                              child: Column(
+                                children: [
+                                  _priceRow("ค่าเช่าซื้อทั้งหมด",
+                                      provider.totalPrice),
+                                  _priceRow(
+                                      "หัก ค่าหมัดจำ", -provider.depositAmount),
+                                  if (provider.discountAmount > 0)
+                                    _priceRow(
+                                      "หัก ส่วนลดคูปอง (${provider.selectedCoupon.title})",
+                                      -provider.discountAmount,
+                                    ),
+                                  const Divider(height: 24),
+                                  _priceRow(
+                                    "ยอดที่ต้องชำระ",
+                                    provider.amountDue,
+                                    isTotal: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
                             Text("จ่ายเงิน",
                                 style: TextStyle(
                                     fontSize: Constants.fontSizeBody)),
@@ -182,8 +290,18 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                 ? const CircularProgressIndicator()
                                 : Button(
                                     text: "ตกลง",
-                                    onTap: () => provider
-                                        .submitCheckIn(widget.bookingID ?? "0"),
+                                    onTap: () {
+                                      if (widget.bookingID == null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content:
+                                                  Text("ไม่พบข้อมูลการจอง")),
+                                        );
+                                        return;
+                                      }
+                                      provider.submitCheckIn(widget.bookingID!);
+                                    },
                                     color: Constants.secondaryColor,
                                   ),
                             const SizedBox(height: 150),

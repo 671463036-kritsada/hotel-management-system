@@ -49,7 +49,7 @@ class LoginScreenMobileBody extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Navigator.pushNamed(context, "/home");
+                      Navigator.pushNamed(context, "/promotion_page");
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(

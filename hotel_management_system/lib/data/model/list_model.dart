@@ -64,7 +64,7 @@ class ListModel {
         roomId: json["room_id"],
         checkIn: json["check_in"] == null
             ? null
-            : DateTime.parse(json["check_in"]).toLocal(), // แปลงเป็น local 
+            : DateTime.parse(json["check_in"]).toLocal(), // แปลงเป็น local
         checkOut: json["check_out"] == null
             ? null
             : DateTime.parse(json["check_out"]).toLocal(), // แปลงเป็น local

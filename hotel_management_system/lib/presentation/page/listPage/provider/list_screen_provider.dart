@@ -128,6 +128,8 @@ class ListScreenProvider extends ChangeNotifier {
         return 'รอดำเนินการ';
       case 'REJECTED':
         return 'ถูกปฏิเสธ';
+      case 'CHECKED_IN':
+        return 'เช็คอินแล้ว';
       default:
         return status;
     }
@@ -141,6 +143,8 @@ class ListScreenProvider extends ChangeNotifier {
         return Colors.orange;
       case 'REJECTED':
         return Colors.red;
+      case 'CHECKED_IN':
+        return Colors.blue;
       default:
         return Colors.grey;
     }

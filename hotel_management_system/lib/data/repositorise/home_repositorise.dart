@@ -3,7 +3,12 @@ import '../model/home_model.dart';
 
 abstract class HomeRepository {
   Future<List<HomeModel>> getRooms();
-  Future<HomeModel?> getRoomById(int id);
+  Future<List<HomeModel>> getAvailableRooms({
+    required String checkIn,
+    required String checkOut,
+    String? roomType,
+  });
+  Future<HomeModel?> getRoomById(String id);
 }
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -12,19 +17,29 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<List<HomeModel>> getRooms() async {
-    final roomsData = await remoteDataSource.getRooms();
-    return roomsData
-        .map((item) => HomeModel.fromJson(Map<String, dynamic>.from(item)))
-        .toList();
+    return await remoteDataSource.getRooms();
   }
 
   @override
-  Future<HomeModel?> getRoomById(int id) async {
+  Future<List<HomeModel>> getAvailableRooms({
+    required String checkIn,
+    required String checkOut,
+    String? roomType,
+  }) async {
+    return await remoteDataSource.getAvailableRooms(
+      checkIn: checkIn,
+      checkOut: checkOut,
+      roomType: roomType,
+    );
+  }
+
+  @override
+  Future<HomeModel?> getRoomById(String id) async {
     final rooms = await getRooms();
-    return rooms.cast<HomeModel?>().firstWhere(
-          (room) => room?.roomId == id,
-          
-          orElse: () => null,
-        );
+    try {
+      return rooms.firstWhere((room) => room.roomId == id);
+    } catch (e) {
+      return null;
+    }
   }
 }

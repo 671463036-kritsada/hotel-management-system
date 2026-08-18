@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
-import '../../loginPage/screen/login_screen.dart';
 import '../provider/register_screen_provider.dart';
 
 class RegisterScreenMobileBody extends StatelessWidget {
@@ -49,8 +48,7 @@ class RegisterScreenMobileBody extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (_) => const LoginScreen()));
+                      Navigator.of(context).pushReplacementNamed("/login");
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(
@@ -138,14 +136,26 @@ class RegisterScreenMobileBody extends StatelessWidget {
                           padding: const EdgeInsets.all(Constants.padding),
                           child: Column(
                             children: [
+                              // input username
                               createInputField(InputFieldType.username,
                                   controller: provider.usernameController),
+
+                              // input email
                               createInputField(InputFieldType.email,
                                   controller: provider.emailController),
+                              // input phone number
                               createInputField(InputFieldType.phoneNumber,
                                   controller: provider.phoneNumberController),
+
+                              // input address
+                              createInputField(InputFieldType.address,
+                                  controller: provider.addressController),
+
+                              // input password
                               createInputField(InputFieldType.password,
                                   controller: provider.passwordController),
+
+                              //input confirm password
                               createInputField(InputFieldType.confirmPassword,
                                   controller:
                                       provider.confirmPasswordController),

@@ -6,7 +6,6 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -14,7 +13,12 @@ import '../../../../util/widget/core/constants.dart';
 
 class RoomConditionCheckScreenDesktopBody extends StatefulWidget {
   final String roomId;
-  const RoomConditionCheckScreenDesktopBody({super.key, required this.roomId});
+  final String bookingId;
+  const RoomConditionCheckScreenDesktopBody({
+    super.key,
+    required this.roomId,
+    required this.bookingId,
+  });
 
   @override
   State<RoomConditionCheckScreenDesktopBody> createState() =>
@@ -27,9 +31,13 @@ class _RoomConditionCheckScreenDesktopBodyState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomConditionCheckScreenProvider>().init(widget.roomId);
+      context
+          .read<RoomConditionCheckScreenProvider>()
+          .init(widget.roomId, widget.bookingId); // ✅ เพิ่ม bookingId
     });
   }
+
+  // ... โค้ดส่วนอื่นเหมือนเดิมทั้งหมด ไม่ต้องแก้
 
   Widget _buildTimerBadge(int seconds) {
     return Container(

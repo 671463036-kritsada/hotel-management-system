@@ -1,4 +1,3 @@
-// room_condition_check_screen_provider.dart
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../domain/entitise/furniture_entitise.dart';
 
 class FurnitureItem {
+  final int? id;
   final String title;
   final dynamic image;
   String status;
@@ -16,6 +16,7 @@ class FurnitureItem {
   File? damageImage;
 
   FurnitureItem({
+    this.id,
     required this.title,
     required this.image,
     this.status = "ปกติ",
@@ -35,8 +36,11 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   Timer? _timer;
   bool _isLoading = false;
   bool _disposed = false;
-  bool _autoSubmitTriggered = false; // กันเรียก auto-submit ซ้ำเมื่อหมดเวลา
+  bool _autoSubmitTriggered = false;
   String? _errorMessage;
+
+  String? _roomID; // ✅ เก็บไว้ใช้ตอน submit
+  String? _bookingId; // ✅ เก็บไว้ใช้ตอน submit
 
   // --- Getter ---
   List<FurnitureItem> get furnitureList => _furnitureList;
@@ -49,7 +53,6 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   int get damagedCount =>
       _furnitureList.where((f) => f.status == "ชำรุด").length;
 
-  // เช็คว่าควร trigger auto-submit หรือยัง (เรียกครั้งเดียวจาก UI แล้ว mark ว่า trigger ไปแล้ว)
   bool consumeAutoSubmitTrigger() {
     if (isTimeUp && !_autoSubmitTriggered) {
       _autoSubmitTriggered = true;
@@ -65,21 +68,24 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   }
 
   // --- Init ---
-  void init(String roomID) {
-    _loadFurnitureList(roomID);
+  void init(String roomID, String bookingId) {
+    _roomID = roomID;
+    _bookingId = bookingId;
+    _loadFurnitureList(roomID, bookingId);
     _startTimer();
   }
 
-  Future<void> _loadFurnitureList(String roomID) async {
+  Future<void> _loadFurnitureList(String roomID, String bookingId) async {
     _isLoading = true;
     _errorMessage = null;
     _safeNotify();
 
     try {
-      final entities = await usecase.getFurnitureData(roomID);
+      final entities = await usecase.getFurnitureData(roomID, bookingId);
 
       _furnitureList = entities.map((entity) {
         return FurnitureItem(
+          id: entity.id,
           title: entity.title ?? "",
           image: entity.image ?? "",
           status: entity.status ?? "ปกติ",
@@ -140,6 +146,7 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
     File? damageImage,
   }) async {
     _furnitureList.add(FurnitureItem(
+      id: null, // ✅ item ใหม่ ไม่มี id เดิม backend จะ insert furniture ใหม่ให้เอง
       title: title,
       image: null,
       status: "ชำรุด",
@@ -152,10 +159,16 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
   Future<void> submitCheckCondition(String roomID) async {
     _timer?.cancel();
 
+    if (_bookingId == null) {
+      throw Exception("ไม่พบ bookingId กรุณาเริ่มการตรวจสอบใหม่");
+    }
+
     try {
       final reportData = _furnitureList.map((item) {
         return FurnitureEntitise(
+          id: item.id,
           roomID: roomID,
+          bookingId: _bookingId,
           title: item.title,
           image: item.image is String ? item.image as String : null,
           status: item.status,
@@ -165,7 +178,7 @@ class RoomConditionCheckScreenProvider extends ChangeNotifier {
         );
       }).toList();
 
-      await usecase.submitReport(reportData);
+      await usecase.submitReport(reportData, _bookingId!);
     } catch (e) {
       debugPrint("Submit error: $e");
       rethrow;

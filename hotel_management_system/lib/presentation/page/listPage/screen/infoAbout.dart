@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/checkInPage/screen/check_in_screen.dart';
+import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -34,7 +35,6 @@ class Infoabout extends StatelessWidget {
     this.slipUrl,
   });
 
-  // ฟังก์ชันช่วยจัดรูปแบบวันที่ให้อ่านง่าย เช่น "15-17 ก.พ. 2569"
   String _formatDateRange(DateTime? start, DateTime? end) {
     if (start == null || end == null) return "-";
     const thaiMonths = [
@@ -61,6 +61,34 @@ class Infoabout extends StatelessWidget {
     return end.difference(start).inDays;
   }
 
+  // ดึง root URL จาก DioClient (ตัด "/api/" ท้าย baseUrl ออก)
+  String get _serverRootUrl {
+    final apiBaseUrl = DioClient.dio.options.baseUrl; // "http://localhost:2000/api/"
+    return apiBaseUrl.replaceFirst(RegExp(r'/api/?$'), ''); // -> "http://localhost:2000"
+  }
+
+  Widget _buildSlipImage() {
+    if (slipUrl == null || slipUrl!.isEmpty) {
+      return Image.asset("assets/images/QRcodePay.png");
+    }
+
+    if (slipUrl!.startsWith("assets/")) {
+      return Image.asset(slipUrl!);
+    }
+
+    final fullUrl = "$_serverRootUrl/$slipUrl";
+    return Image.network(
+      fullUrl,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset("assets/images/QRcodePay.png");
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,7 +107,6 @@ class Infoabout extends StatelessWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             ),
             const Divider(height: 30),
-            // ใช้ข้อมูลจริงแทน hardcode
             _infoRow("ชื่อ-นามสกุล", customerName ?? "-", null),
             _infoRow("เบอร์โทร", phone ?? "-", null),
             _infoRow("Email", email ?? "-", null),
@@ -101,10 +128,7 @@ class Infoabout extends StatelessWidget {
             ),
             Container(
               width: double.infinity,
-              // ใช้ slipUrl จริง ถ้าไม่มีให้ fallback เป็นรูป default
-              child: (slipUrl != null && slipUrl!.isNotEmpty)
-                  ? Image.asset(slipUrl!)
-                  : Image.asset("assets/images/QRcodePay.png"),
+              child: _buildSlipImage(),
             ),
 
             if (checkInStatus == true)

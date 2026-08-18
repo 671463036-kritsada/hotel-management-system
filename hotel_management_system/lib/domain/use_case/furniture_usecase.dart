@@ -7,15 +7,19 @@ class FurnitureUsecase {
   final FurnitureRepositoriseImpl repository;
   FurnitureUsecase(this.repository);
 
-  Future<List<FurnitureEntitise>> getFurnitureData(String roomID) async {
+  Future<List<FurnitureEntitise>> getFurnitureData(
+      String roomID, String bookingId) async {
     try {
-      final modelData = await repository.getFurnitureData(roomID);
+      final modelData =
+          await repository.getFurnitureData(roomID, bookingId);
       return modelData.map((item) {
         final housekeeperInspection = item.inspections
             ?.where((i) => i.inspectorRole == 'housekeeper')
             .lastOrNull;
         return FurnitureEntitise(
+          id: item.id,
           roomID: roomID,
+          bookingId: bookingId,
           title: item.title,
           image: item.image,
           isCustom: item.isCustom ?? false,
@@ -31,11 +35,14 @@ class FurnitureUsecase {
     }
   }
 
-  Future<bool> submitReport(List<FurnitureEntitise> reportData) async {
+  Future<bool> submitReport(
+      List<FurnitureEntitise> reportData, String bookingId) async {
     try {
       final reportModels = reportData.map((e) {
         return FurnitureModel(
+          id: e.id,
           roomId: e.roomID,
+          bookingId: bookingId,
           title: e.title,
           image: e.image,
           isCustom: e.isCustom,

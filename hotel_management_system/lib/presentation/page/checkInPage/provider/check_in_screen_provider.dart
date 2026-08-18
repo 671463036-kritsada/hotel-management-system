@@ -12,7 +12,60 @@ import 'package:signature/signature.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum CheckInStatus { initial, loading, success, error }
-enum SaveQRStatus { initial, success, error } // เพิ่มใหม่
+enum SaveQRStatus { initial, success, error }
+
+/// Mock model สำหรับคูปองส่วนลด
+/// TODO: เมื่อมี API คูปองจริงจาก backend แล้ว ให้ลบ mockCoupons()
+/// และดึงรายการคูปองผ่าน usecase แทน
+class CouponModel {
+  final String id;
+  final String code;
+  final String title;
+  final double? discountPercent; // ส่วนลดแบบ % เช่น 10 = 10%
+  final double? discountAmount; // ส่วนลดแบบจำนวนเงินคงที่
+
+  const CouponModel({
+    required this.id,
+    required this.code,
+    required this.title,
+    this.discountPercent,
+    this.discountAmount,
+  });
+
+  double calculateDiscount(double baseAmount) {
+    if (discountPercent != null) {
+      return baseAmount * (discountPercent! / 100);
+    }
+    if (discountAmount != null) {
+      return discountAmount!;
+    }
+    return 0;
+  }
+
+  static List<CouponModel> mockCoupons() {
+    return const [
+      CouponModel(id: 'no_coupon', code: '-', title: 'ไม่ใช้คูปอง'),
+      CouponModel(
+        id: 'coupon_10',
+        code: 'SAVE10',
+        title: 'ส่วนลด 10%',
+        discountPercent: 10,
+      ),
+      CouponModel(
+        id: 'coupon_15',
+        code: 'SAVE15',
+        title: 'ส่วนลด 15%',
+        discountPercent: 15,
+      ),
+      CouponModel(
+        id: 'coupon_200',
+        code: 'FLAT200',
+        title: 'ส่วนลด 200 บาท',
+        discountAmount: 200,
+      ),
+    ];
+  }
+}
 
 class CheckInScreenProvider extends ChangeNotifier {
   final CheckInUsecase usecase;
@@ -25,8 +78,8 @@ class CheckInScreenProvider extends ChangeNotifier {
   File? _idCardImage;
   File? _paymentSlipImage;
 
-  SaveQRStatus _saveQRStatus = SaveQRStatus.initial; // เพิ่มใหม่
-  String _saveQRErrorMessage = ''; // เพิ่มใหม่
+  SaveQRStatus _saveQRStatus = SaveQRStatus.initial;
+  String _saveQRErrorMessage = '';
 
   final TextEditingController idCardNumberController = TextEditingController();
   final TextEditingController fullNameController = TextEditingController();
@@ -36,6 +89,44 @@ class CheckInScreenProvider extends ChangeNotifier {
     penColor: Colors.black,
   );
 
+  // --- Coupon & Price State ---
+  // TODO: totalPrice / depositAmount ควรรับมาจากหน้ารายการจอง (BookingItem)
+  // เรียก setPricing() ตอน initState ของหน้า UI เพื่อกำหนดค่าตั้งต้น
+  double _totalPrice = 0;
+  double _depositAmount = 0;
+  final List<CouponModel> _coupons = CouponModel.mockCoupons();
+  late CouponModel _selectedCoupon = _coupons.first;
+
+  double get totalPrice => _totalPrice;
+  double get depositAmount => _depositAmount;
+  List<CouponModel> get coupons => _coupons;
+  CouponModel get selectedCoupon => _selectedCoupon;
+
+  /// ส่วนลดที่คำนวณจากคูปองที่เลือกอยู่
+  double get discountAmount => _selectedCoupon.calculateDiscount(_totalPrice);
+
+  /// ยอดที่ต้องชำระจริง = ราคาทั้งหมด - ค่าหมัดจำ - ส่วนลดคูปอง
+  double get amountDue {
+    final result = _totalPrice - _depositAmount - discountAmount;
+    return result < 0 ? 0 : result;
+  }
+
+  /// เรียกใช้ตอนเปิดหน้า check-in เพื่อตั้งค่าราคาจากข้อมูลการจอง
+  void setPricing({required double totalPrice, required double depositAmount}) {
+    _totalPrice = totalPrice;
+    _depositAmount = depositAmount;
+    notifyListeners();
+  }
+
+  void selectCoupon(String couponId) {
+    _selectedCoupon = _coupons.firstWhere(
+      (c) => c.id == couponId,
+      orElse: () => _coupons.first,
+    );
+    notifyListeners();
+  }
+  // --- End Coupon & Price State ---
+
   // --- Getter ---
   CheckInStatus get status => _status;
   String get errorMessage => _errorMessage;
@@ -44,8 +135,8 @@ class CheckInScreenProvider extends ChangeNotifier {
   File? get paymentSlipImage => _paymentSlipImage;
   bool get isLoading => _status == CheckInStatus.loading;
 
-  SaveQRStatus get saveQRStatus => _saveQRStatus; // เพิ่มใหม่
-  String get saveQRErrorMessage => _saveQRErrorMessage; // เพิ่มใหม่
+  SaveQRStatus get saveQRStatus => _saveQRStatus;
+  String get saveQRErrorMessage => _saveQRErrorMessage;
 
   // --- Functions ---
   void setGender(String value) {
@@ -118,9 +209,8 @@ class CheckInScreenProvider extends ChangeNotifier {
 
     try {
       final signatureBytes = await sigController.toPngBytes();
-      final String? signatureBase64 = signatureBytes != null
-          ? base64Encode(signatureBytes)
-          : null;
+      final String? signatureBase64 =
+          signatureBytes != null ? base64Encode(signatureBytes) : null;
 
       final checkInData = CheckInEntitise(
         bookingId: bookingId,
@@ -131,6 +221,10 @@ class CheckInScreenProvider extends ChangeNotifier {
         idCardImage: _idCardImage?.path ?? '',
         paymentSlipImage: _paymentSlipImage?.path ?? '',
         signatureImage: signatureBase64,
+        // TODO: เพิ่ม field couponId / amountDue ใน CheckInEntitise
+        // เมื่อ backend รองรับแล้ว เพื่อส่งข้อมูลคูปองและยอดที่ชำระจริงไปด้วย
+        // couponId: _selectedCoupon.id,
+        // amountDue: amountDue,
       );
 
       await usecase.getCheckInData(checkInData);

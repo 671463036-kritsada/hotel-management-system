@@ -139,6 +139,10 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                     return Center(child: Text(provider.errorMessage));
                   }
 
+                  if (provider.bookingList.isEmpty) {
+                    return const Center(child: Text("ไม่มีรายการ"));
+                  }
+
                   return SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(Constants.padding),

@@ -5,7 +5,6 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -14,7 +13,12 @@ import '../provider/room_condition_check_screen_provider.dart';
 
 class RoomConditionCheckScreenMobileBody extends StatefulWidget {
   final String roomId;
-  const RoomConditionCheckScreenMobileBody({super.key, required this.roomId});
+  final String bookingId; // ✅ เพิ่มใหม่
+  const RoomConditionCheckScreenMobileBody({
+    super.key,
+    required this.roomId,
+    required this.bookingId, // ✅ เพิ่มใหม่
+  });
 
   @override
   State<RoomConditionCheckScreenMobileBody> createState() =>
@@ -27,7 +31,9 @@ class _RoomConditionCheckScreenMobileBodyState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RoomConditionCheckScreenProvider>().init(widget.roomId);
+      context
+          .read<RoomConditionCheckScreenProvider>()
+          .init(widget.roomId, widget.bookingId); // ✅ เพิ่ม bookingId
     });
   }
 
@@ -429,7 +435,8 @@ class _RoomConditionCheckScreenMobileBodyState
                           ElevatedButton(
                             onPressed: () => context
                                 .read<RoomConditionCheckScreenProvider>()
-                                .init(widget.roomId),
+                                .init(widget.roomId,
+                                    widget.bookingId),
                             child: const Text("ลองใหม่อีกครั้ง"),
                           ),
                         ],

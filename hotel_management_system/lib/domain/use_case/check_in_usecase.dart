@@ -19,7 +19,7 @@ class CheckInUsecase {
           idCardImage: checkInData.idCardImage,
           signatureImage: checkInData.signatureImage,
           paymentSlipImage: checkInData.paymentSlipImage,
-          paymentStatus: checkInData.paymentSlipImage);
+          paymentStatus: "PAID");
 
       return await repository.getCheckInData(checkInDataModel);
     } on SocketException {

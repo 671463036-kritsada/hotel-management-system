@@ -7,24 +7,50 @@ abstract class CheckInRemoteDataSource {
 
 class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
   final Dio dio;
-
   CheckInRemoteDataSourceImpl(this.dio);
 
   @override
   Future<bool> getCheckInData(CheckInModel checkInData) async {
-    final response = await dio.patch(
-      "bookings/${checkInData.bookingId}/checkin",
-      data: {
+    try {
+      final formData = FormData.fromMap({
+        "bookingId": checkInData.bookingId,
         "idCardNumber": checkInData.idCardNumber,
         "fullName": checkInData.fullName,
         "gender": checkInData.gender,
         "address": checkInData.address,
-        "idCardImage": checkInData.idCardImage,
-        "signatureImage": checkInData.signatureImage,
-        "paymentSlipImage": checkInData.paymentSlipImage,
-      },
-    );
+        "paymentStatus": checkInData.paymentStatus,
+        // signature เป็น base64 string ธรรมดา ส่งเป็น field ปกติได้เลย
+        if (checkInData.signatureImage != null)
+          "signatureImage": checkInData.signatureImage,
+        // รูปจริง ส่งเป็นไฟล์แบบ multipart
+        if (checkInData.idCardImage != null &&
+            checkInData.idCardImage!.isNotEmpty)
+          "idCardImage":
+              await MultipartFile.fromFile(checkInData.idCardImage!),
+        if (checkInData.paymentSlipImage != null &&
+            checkInData.paymentSlipImage!.isNotEmpty)
+          "paymentSlipImage":
+              await MultipartFile.fromFile(checkInData.paymentSlipImage!),
+      });
 
-    return response.statusCode == 200;
+      final response = await dio.post("checkin", data: formData);
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+        case DioExceptionType.connectionError:
+          throw Exception('ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้');
+        case DioExceptionType.badResponse:
+          throw Exception(
+              'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+        default:
+          throw Exception('เกิดข้อผิดพลาด: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('เกิดข้อผิดพลาด: $e');
+    }
   }
 }

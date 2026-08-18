@@ -7,7 +7,6 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';

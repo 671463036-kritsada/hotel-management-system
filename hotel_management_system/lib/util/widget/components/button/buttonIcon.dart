@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Buttonicon extends StatelessWidget {
@@ -11,22 +11,25 @@ class Buttonicon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(side: BorderSide.none),
-        onPressed: onTap,
-        child: Column(
-          children: [
-            Icon(icon, color: Constants.white, size: 30),
-            Text(
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(side: BorderSide.none),
+      onPressed: onTap,
+      child: Column(
+        children: [
+          Icon(icon, color: Constants.white, size: 30),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
               text,
               style: TextStyle(
                 color: Constants.white,
                 fontSize: Constants.fontSizeBody,
               ),
+              maxLines: 1,
+              softWrap: false,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

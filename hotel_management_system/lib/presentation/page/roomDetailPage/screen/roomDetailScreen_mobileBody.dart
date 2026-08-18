@@ -62,26 +62,44 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'ห้องหมายเลข ${room.roomId}',
-                              style: const TextStyle(
-                                  fontSize: 26, fontWeight: FontWeight.bold),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color:
-                                    Constants.secondaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'ห้องหมายเลข ${room.roomId}',
+                                  style: const TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  softWrap: false,
+                                ),
                               ),
-                              child: Text(
-                                room.roomType == RoomType.rooms
-                                    ? 'Standard Room'
-                                    : 'Private House',
-                                style: const TextStyle(
-                                    color: Constants.secondaryColor,
-                                    fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color:
+                                      Constants.secondaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    room.roomType == RoomType.rooms
+                                        ? 'Standard Room'
+                                        : 'Private House',
+                                    style: const TextStyle(
+                                        color: Constants.secondaryColor,
+                                        fontWeight: FontWeight.bold),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                  ),
+                                ),
                               ),
                             ),
                           ],

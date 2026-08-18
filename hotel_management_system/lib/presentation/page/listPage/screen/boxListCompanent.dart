@@ -132,7 +132,11 @@ class Boxlistcompanent extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () => Navigator.pushNamed(
                               context, "/room_condition_check",
-                              arguments: roomNumber),
+                              arguments: RoomConditionCheckArguments(
+                                roomId: roomNumber,
+                                bookingId:
+                                    keyBooking, // ใช้ keyBooking ที่มีอยู่แล้วเป็น bookingId
+                              )),
                           icon: const Icon(Icons.checklist_outlined, size: 18),
                           label: const Text("ตรวจสภาพห้อง"),
                           style: OutlinedButton.styleFrom(

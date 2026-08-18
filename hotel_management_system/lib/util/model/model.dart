@@ -6,6 +6,17 @@ class RoomDetailArguments {
 }
 
 
+class RoomConditionCheckArguments {
+  final String roomId;
+  final String bookingId;
+
+  RoomConditionCheckArguments({
+    required this.roomId,
+    required this.bookingId,
+  });
+}
+
+
 // class ListScreenArguments {
 //   final bool? checkInStatus;
 //   final bool? ckeckOutStatus;

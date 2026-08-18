@@ -42,12 +42,65 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
     );
   }
 
+  Future<void> _pickDateRange(BuildContext context) async {
+    final provider = context.read<HomeScreenProvider>();
+    final now = DateTime.now();
+
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      initialDateRange:
+          provider.checkInDate != null && provider.checkOutDate != null
+              ? DateTimeRange(
+                  start: provider.checkInDate!, end: provider.checkOutDate!)
+              : null,
+    );
+
+    if (picked != null) {
+      provider.setDateRange(picked.start, picked.end);
+    }
+  }
+
+  Widget _buildDateFilterChip(BuildContext context) {
+    final provider = context.watch<HomeScreenProvider>();
+    final hasDateFilter =
+        provider.checkInDate != null && provider.checkOutDate != null;
+
+    return Row(
+      children: [
+        OutlinedButton.icon(
+          onPressed: () => _pickDateRange(context),
+          icon: const Icon(Icons.calendar_today, size: 16),
+          label: Text(
+            hasDateFilter
+                ? "${provider.checkInDate!.day}/${provider.checkInDate!.month} - ${provider.checkOutDate!.day}/${provider.checkOutDate!.month}"
+                : "เลือกวันที่เข้าพัก",
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Constants.primaryColor,
+            side: BorderSide(color: Constants.primaryColor),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+        ),
+        if (hasDateFilter) ...[
+          IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: () =>
+                context.read<HomeScreenProvider>().clearDateFilter(),
+            tooltip: "ล้างตัวกรองวันที่",
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
-  // เรียกใช้ user_provider 
+    // เรียกใช้ user_provider
     final user = context.watch<UserProvider>().user;
-
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Constants.bgcolor,
@@ -69,21 +122,31 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                   children: [
                     SizedBox(height: 100),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                            child: createInputField(InputFieldType.search)),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Constants.secondaryColor,
-                              shape: BoxShape.circle,
+                            child: _buildDateFilterChip(
+                                context)), // เพิ่มตัวกรองวันที่
+                        Row(
+                          children: [
+                            SizedBox(
+                                width: screenWidth * 0.3,
+                                child: createInputField(InputFieldType.search)),
+                            GestureDetector(
+                              onTap: () {
+                                print("ค้นหา");
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Constants.secondaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.search,
+                                    color: Constants.white, size: 35),
+                              ),
                             ),
-                            child: const Icon(Icons.search,
-                                color: Constants.white, size: 35),
-                          ),
+                          ],
                         ),
                       ],
                     ),
