@@ -14,10 +14,10 @@ class HomeUsecase {
       pricePerNight: double.tryParse(item.pricePerNight ?? '') ?? 0.0,
       imageUrls: item.imageUrl != null ? [item.imageUrl!] : <String>[],
       bedCount: 1,
-      status: item.status ?? "",
     );
   }
 
+  /// โหลดห้องทั้งหมด ไม่มี filter (GET /rooms)
   Future<List<HomeEntitise>> getRooms() async {
     try {
       final model = await repository.getRooms();
@@ -27,6 +27,7 @@ class HomeUsecase {
     }
   }
 
+  /// โหลดห้องว่างตามวันที่ + roomType (GET /rooms/available)
   Future<List<HomeEntitise>> getAvailableRooms({
     required String checkIn,
     required String checkOut,

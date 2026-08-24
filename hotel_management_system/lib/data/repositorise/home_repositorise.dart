@@ -2,13 +2,12 @@ import '../data_source/remote_data_source/home_remote.dart';
 import '../model/home_model.dart';
 
 abstract class HomeRepository {
-  Future<List<HomeModel>> getRooms();
+  Future<List<HomeModel>> getRooms(); // ไม่รับ param เลย ตรงกับ GET /rooms
   Future<List<HomeModel>> getAvailableRooms({
     required String checkIn,
     required String checkOut,
     String? roomType,
   });
-  Future<HomeModel?> getRoomById(String id);
 }
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -31,15 +30,5 @@ class HomeRepositoryImpl implements HomeRepository {
       checkOut: checkOut,
       roomType: roomType,
     );
-  }
-
-  @override
-  Future<HomeModel?> getRoomById(String id) async {
-    final rooms = await getRooms();
-    try {
-      return rooms.firstWhere((room) => room.roomId == id);
-    } catch (e) {
-      return null;
-    }
   }
 }

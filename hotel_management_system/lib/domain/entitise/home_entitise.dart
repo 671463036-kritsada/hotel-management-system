@@ -6,7 +6,6 @@ class HomeEntitise {
   final double pricePerNight;
   final List<String> imageUrls;
   final int bedCount;
-  final String status;
 
   HomeEntitise({
     required this.roomId,
@@ -15,7 +14,6 @@ class HomeEntitise {
     required this.pricePerNight,
     required this.imageUrls,
     required this.bedCount,
-    required this.status,
   });
 }
 

@@ -16,6 +16,16 @@ class RoomConditionCheckArguments {
   });
 }
 
+class HomeFilterArgs {
+  final DateTime checkIn;
+  final DateTime checkOut;
+
+  const HomeFilterArgs({
+    required this.checkIn,
+    required this.checkOut,
+  });
+}
+
 
 // class ListScreenArguments {
 //   final bool? checkInStatus;

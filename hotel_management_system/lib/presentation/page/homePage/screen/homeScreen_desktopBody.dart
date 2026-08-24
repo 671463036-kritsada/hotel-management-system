@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/model/model.dart';
 import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
@@ -11,7 +12,9 @@ import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
 class HomeScreenDesktopBody extends StatefulWidget {
-  const HomeScreenDesktopBody({super.key});
+  final HomeFilterArgs? filterArgs;
+
+  const HomeScreenDesktopBody({super.key, this.filterArgs});
 
   @override
   State<HomeScreenDesktopBody> createState() => _HomeScreenDesktopBodyState();
@@ -23,7 +26,16 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
     super.initState();
     Future.microtask(() {
       if (!mounted) return;
-      context.read<HomeScreenProvider>().getRoomdata();
+
+      final provider = context.read<HomeScreenProvider>();
+
+      if (widget.filterArgs != null) {
+        // มีวันที่ส่งมาจาก Promotion page -> กรองห้องตามวันที่เลย
+        provider.setDateRange(
+          widget.filterArgs!.checkIn,
+          widget.filterArgs!.checkOut,
+        );
+      } 
     });
   }
 
@@ -50,9 +62,11 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
       context: context,
       firstDate: now,
       lastDate: now.add(const Duration(days: 365)),
-      initialDateRange: provider.checkInDate != null && provider.checkOutDate != null
-          ? DateTimeRange(start: provider.checkInDate!, end: provider.checkOutDate!)
-          : null,
+      initialDateRange:
+          provider.checkInDate != null && provider.checkOutDate != null
+              ? DateTimeRange(
+                  start: provider.checkInDate!, end: provider.checkOutDate!)
+              : null,
     );
 
     if (picked != null) {
@@ -62,7 +76,8 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
 
   Widget _buildDateFilterChip(BuildContext context) {
     final provider = context.watch<HomeScreenProvider>();
-    final hasDateFilter = provider.checkInDate != null && provider.checkOutDate != null;
+    final hasDateFilter =
+        provider.checkInDate != null && provider.checkOutDate != null;
 
     return Row(
       children: [
@@ -77,14 +92,16 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
           style: OutlinedButton.styleFrom(
             foregroundColor: Constants.primaryColor,
             side: BorderSide(color: Constants.primaryColor),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
         ),
         if (hasDateFilter) ...[
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.close, size: 18),
-            onPressed: () => context.read<HomeScreenProvider>().clearDateFilter(),
+            onPressed: () =>
+                context.read<HomeScreenProvider>().clearDateFilter(),
             tooltip: "ล้างตัวกรองวันที่",
           ),
         ],
@@ -160,7 +177,9 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
                               : provider.errorMessage.isNotEmpty
                                   ? Center(child: Text(provider.errorMessage))
                                   : provider.roomData.isEmpty
-                                      ? const Center(child: Text("ไม่มีห้องว่างในช่วงวันที่เลือก"))
+                                      ? const Center(
+                                          child: Text(
+                                              "ไม่มีห้องว่างในช่วงวันที่เลือก"))
                                       : createBoxShowData(
                                           provider.selectedRoomType,
                                           provider.roomData,

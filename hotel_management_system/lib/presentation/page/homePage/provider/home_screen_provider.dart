@@ -12,40 +12,22 @@ class HomeScreenProvider extends ChangeNotifier {
   String errorMessage = '';
   bool isLoading = false;
 
-  // --- เพิ่มใหม่: state สำหรับ filter วันที่ ---
+  // --- state สำหรับ filter วันที่ (nullable: ยังไม่เลือกวันที่ = ยังไม่มีข้อมูล) ---
   DateTime? checkInDate;
   DateTime? checkOutDate;
 
   HomeScreenProvider(this.homeUsecase);
+
+  bool get hasDateFilter => checkInDate != null && checkOutDate != null;
 
   void selectRoomType(RoomType type) {
     selectedRoomType = type;
     len = type == RoomType.rooms ? 10 : 15;
     notifyListeners();
 
-    // ถ้ามีวันที่เลือกไว้แล้ว ให้ filter ใหม่ตาม type ที่เปลี่ยน
-    if (checkInDate != null && checkOutDate != null) {
+    // กรองใหม่เฉพาะตอนมีวันที่แล้วเท่านั้น เพราะไม่มี "ดึงห้องทั้งหมด" ให้ fallback อีกต่อไป
+    if (hasDateFilter) {
       filterAvailableRooms();
-    } else {
-      getRoomdata();
-    }
-  }
-
-  /// เรียกตอนเปิดหน้าครั้งแรก (ห้องทั้งหมด ยังไม่กรองวันที่)
-  Future<List<HomeEntitise>> getRoomdata() async {
-    isLoading = true;
-    errorMessage = '';
-    notifyListeners();
-    try {
-      roomData = await homeUsecase.getRooms();
-      isLoading = false;
-      notifyListeners();
-      return roomData;
-    } catch (e) {
-      isLoading = false;
-      errorMessage = 'error fetch roomdata: $e';
-      notifyListeners();
-      throw Exception(errorMessage);
     }
   }
 
@@ -57,21 +39,21 @@ class HomeScreenProvider extends ChangeNotifier {
     filterAvailableRooms();
   }
 
-  /// ล้างวันที่ที่เลือก กลับไปแสดงห้องทั้งหมด
+  /// ล้างวันที่ที่เลือก -> ไม่มีวันที่แล้ว = ไม่มีข้อมูลห้องให้แสดง (เพราะกรองอย่างเดียว ไม่มี "ห้องทั้งหมด")
   void clearDateFilter() {
     checkInDate = null;
     checkOutDate = null;
+    roomData = [];
+    errorMessage = '';
     notifyListeners();
-    getRoomdata();
   }
 
   Future<void> filterAvailableRooms() async {
-    if (checkInDate == null || checkOutDate == null) return;
+    if (!hasDateFilter) return;
 
     isLoading = true;
     errorMessage = '';
     notifyListeners();
-
     try {
       roomData = await homeUsecase.getAvailableRooms(
         checkIn: _formatDate(checkInDate!),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -11,7 +12,9 @@ import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
 class HomeScreenMobileBody extends StatefulWidget {
-  const HomeScreenMobileBody({super.key});
+  final HomeFilterArgs? filterArgs;
+
+  const HomeScreenMobileBody({super.key, this.filterArgs});
 
   @override
   State<HomeScreenMobileBody> createState() => _HomeScreenMobileBodyState();
@@ -23,7 +26,17 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
     super.initState();
     Future.microtask(() {
       if (!mounted) return;
-      context.read<HomeScreenProvider>().getRoomdata();
+
+      final provider = context.read<HomeScreenProvider>();
+
+      if (widget.filterArgs != null) {
+        // มีวันที่ส่งมาจาก Promotion page -> กรองห้องตามวันที่ทันที
+        provider.setDateRange(
+          widget.filterArgs!.checkIn,
+          widget.filterArgs!.checkOut,
+        );
+      }
+      // ถ้าไม่มี filterArgs -> ไม่ทำอะไร รอให้ user กดเลือกวันที่เอง
     });
   }
 
@@ -33,7 +46,8 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Constants.primaryColor : Colors.grey[200],
+        backgroundColor:
+            isSelected ? Constants.primaryColor : Colors.grey[200],
         foregroundColor: isSelected ? Colors.white : Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
@@ -80,8 +94,8 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
           style: OutlinedButton.styleFrom(
             foregroundColor: Constants.primaryColor,
             side: BorderSide(color: Constants.primaryColor),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
           ),
         ),
         if (hasDateFilter) ...[
@@ -96,9 +110,31 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
     );
   }
 
+  /// สถานะตอนยังไม่ได้เลือกวันที่ -> บอก user ให้เลือกวันที่ก่อน แทนที่จะแสดงห้องทั้งหมด
+  Widget _buildEmptyDatePrompt(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.calendar_month, size: 48, color: Colors.grey),
+          const SizedBox(height: 12),
+          const Text(
+            "กรุณาเลือกวันที่เข้าพัก\nเพื่อดูห้องว่าง",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () => _pickDateRange(context),
+            child: const Text("เลือกวันที่"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // เรียกใช้ user_provider
     final user = context.watch<UserProvider>().user;
     double screenWidth = MediaQuery.of(context).size.width;
 
@@ -124,14 +160,13 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                            child: _buildDateFilterChip(
-                                context)), // เพิ่มตัวกรองวันที่
+                        Expanded(child: _buildDateFilterChip(context)),
                         Row(
                           children: [
                             SizedBox(
                                 width: screenWidth * 0.3,
-                                child: createInputField(InputFieldType.search)),
+                                child:
+                                    createInputField(InputFieldType.search)),
                             GestureDetector(
                               onTap: () {
                                 print("ค้นหา");
@@ -162,16 +197,19 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                     Consumer<HomeScreenProvider>(
                         builder: (context, provider, child) {
                       return Expanded(
-                        child: provider.isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : provider.errorMessage.isNotEmpty
-                                ? Center(child: Text(provider.errorMessage))
-                                : createBoxShowData(
-                                    provider.selectedRoomType,
-                                    provider.roomData,
-                                    len: provider.len,
-                                    crossAxisCount: 2,
-                                  ),
+                        child: !provider.hasDateFilter
+                            ? _buildEmptyDatePrompt(context)
+                            : provider.isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : provider.errorMessage.isNotEmpty
+                                    ? Center(child: Text(provider.errorMessage))
+                                    : createBoxShowData(
+                                        provider.selectedRoomType,
+                                        provider.roomData,
+                                        len: provider.len,
+                                        crossAxisCount: 2,
+                                      ),
                       );
                     })
                   ],

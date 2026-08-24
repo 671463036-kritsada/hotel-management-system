@@ -14,7 +14,6 @@ class HomeModel {
     String? name;
     String? description;
     String? pricePerNight;
-    String? status;
     String? imageUrl;
     DateTime? createdAt;
 
@@ -24,7 +23,6 @@ class HomeModel {
         this.name,
         this.description,
         this.pricePerNight,
-        this.status,
         this.imageUrl,
         this.createdAt,
     });
@@ -35,7 +33,7 @@ class HomeModel {
         name: json["name"],
         description: json["description"],
         pricePerNight: json["pricePerNight"],
-        status: json["status"],
+
         imageUrl: json["imageUrl"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     );
@@ -46,7 +44,6 @@ class HomeModel {
         "name": name,
         "description": description,
         "pricePerNight": pricePerNight,
-        "status": status,
         "imageUrl": imageUrl,
         "createdAt": createdAt?.toIso8601String(),
     };

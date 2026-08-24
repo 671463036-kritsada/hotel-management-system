@@ -3,16 +3,19 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/furn
 import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/houseKeeper_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/list_remote.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/promotion_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/register_remote.dart';
 import 'package:hotel_management_system/data/repositorise/furniture_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/home_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/houseKeeper_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/list_repositorise.dart';
+import 'package:hotel_management_system/data/repositorise/promotion_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/register_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/history_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/list_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/promotion_usecase.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/screen/HousekeeperRoomCheck_Screen.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
@@ -83,7 +86,9 @@ RouteFactory onGenerateRoute = (settings) {
                     HomeRepositoryImpl(
                         HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const HomeScreen(),
-              ));
+              ),
+          settings: settings);
+
     case '/room_detail':
       return MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
@@ -98,7 +103,8 @@ RouteFactory onGenerateRoute = (settings) {
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => BookingFormScreenProvider(BookingFormUsecase(
                     BookingFormRepositoriseImpl(
-                        BookingFormRemoteDataSourceImpl(DioClient.dio), HomeRemoteDataSourceImpl(DioClient.dio)))),
+                        BookingFormRemoteDataSourceImpl(DioClient.dio),
+                        HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const BookingFormScreen(),
               ),
           // ส่ง agument ถ้ามีหลาย aguments เราจะทำ Map แล้วส่งมา เอา Map ไปทำเป็น model ก็ได้
@@ -145,15 +151,19 @@ RouteFactory onGenerateRoute = (settings) {
     case "/promotion_page":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
-                create: (_) => PromotionProvider(),
+                create: (_) => PromotionProvider(PromotionUsecase(
+                    PromotionRepositoriseImpl(
+                        PromotionRemoteDataSourceImpl(DioClient.dio)))),
                 child: PromotionScreen(),
-              ));
+              ),
+          settings: settings);
     case "/promotion_detail_page":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
                 create: (_) => PromotiondetailProvide(),
                 child: PromotionDetailScreen(),
-              ));
+              ),
+          settings: settings);
     default:
       return null;
   }

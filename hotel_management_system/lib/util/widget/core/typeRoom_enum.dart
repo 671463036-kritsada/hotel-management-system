@@ -92,7 +92,7 @@ Widget createBoxShowData(
                     const SizedBox(height: 4),
                     _buildInfoRow(
                       bedCount: room.bedCount,
-                      status: room.status,
+                      // status: room.status,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -114,7 +114,7 @@ Widget createBoxShowData(
   );
 }
 
-Widget _buildInfoRow({required int bedCount, required String status}) {
+Widget _buildInfoRow({required int bedCount}) {
   return Row(
     children: [
       Icon(Icons.king_bed_outlined, size: 16, color: Colors.grey[600]),
@@ -124,13 +124,13 @@ Widget _buildInfoRow({required int bedCount, required String status}) {
       const SizedBox(width: 10),
       Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      Text(
-        status,
-        style: TextStyle(
-          fontSize: 12,
-          color: status == 'ว่าง' ? Colors.green[600] : Colors.orange[700],
-        ),
-      ),
+      // Text(
+      //   status,
+      //   style: TextStyle(
+      //     fontSize: 12,
+      //     color: status == 'ว่าง' ? Colors.green[600] : Colors.orange[700],
+      //   ),
+      // ),
     ],
   );
 }
