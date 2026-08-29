@@ -8,17 +8,22 @@ import 'package:hotel_management_system/util/widget/core/form_enum.dart';
 import 'package:hotel_management_system/presentation/page/loginPage/login_page_route.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/model/model.dart';
+
 class LoginScreenMobileBody extends StatelessWidget {
   const LoginScreenMobileBody({super.key});
 
-  void _showSuccessDialog(BuildContext context) {
+   void _showSuccessDialog(BuildContext context) {
+    // อ่าน arguments ที่ส่งมาตอนเปิดหน้านี้ (ถ้ามี)
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final loginArgs = args is LoginPageArguments ? args : null;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -48,8 +53,19 @@ class LoginScreenMobileBody extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.pushNamed(context, "/promotion_page");
+                      Navigator.of(context).pop(); // ปิด dialog ก่อน
+
+                      if (loginArgs != null) {
+                        // มี "ปลายทางเดิม" ที่ user ตั้งใจจะไป → พาไปต่อทันที
+                        Navigator.pushReplacementNamed(
+                          context,
+                          loginArgs.redirectRoute,
+                          arguments: loginArgs.redirectArguments,
+                        );
+                      } else {
+                        // login แบบปกติ ไม่มี redirect → ไปหน้า promotion ตามเดิม
+                        Navigator.pushReplacementNamed(context, "/promotion_page");
+                      }
                     },
                     child: const Text('ตกลง',
                         style: TextStyle(

@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/provider/room_condition_check_screen_provider.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -388,7 +388,6 @@ class _RoomConditionCheckScreenDesktopBodyState
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
@@ -396,7 +395,6 @@ class _RoomConditionCheckScreenDesktopBodyState
           children: [
             Topnavbar(
               widthFactor: 0.1,
-              username: user?.name,
             ),
             Expanded(
               child: Consumer<RoomConditionCheckScreenProvider>(

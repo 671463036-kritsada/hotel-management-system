@@ -8,7 +8,8 @@ class CheckInEntitise {
   String? signatureImage;
   String? paymentSlipImage;
   String? paymentStatus;
-  
+  int? userPromotionId; // เพิ่ม
+
   CheckInEntitise(
       {this.bookingId,
       this.idCardNumber,
@@ -18,5 +19,6 @@ class CheckInEntitise {
       this.idCardImage,
       this.signatureImage,
       this.paymentSlipImage,
-      this.paymentStatus});
+      this.paymentStatus,
+      this.userPromotionId}); // เพิ่ม
 }

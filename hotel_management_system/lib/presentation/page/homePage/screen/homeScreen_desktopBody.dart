@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
-import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -112,7 +111,6 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    final user = context.watch<UserProvider>().user;
 
     return Scaffold(
       backgroundColor: Constants.bgcolor,
@@ -125,7 +123,6 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
                 left: 0,
                 child: Topnavbar(
                   widthFactor: 0.1,
-                  username: user?.name ?? "",
                 )),
             Positioned(
               child: Padding(

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 // import 'package:hotel_management_system/data/data_source/remote_data_source/booking_form_remote.dart';
 // import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 // import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/components/button/button.dart';
 import 'package:hotel_management_system/presentation/page/BookingFormScreen/provider/Booking_form_screen_provider.dart';
 import 'package:provider/provider.dart';
@@ -91,7 +90,6 @@ class _BookingFormScreenDesktopBodyState
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -101,7 +99,6 @@ class _BookingFormScreenDesktopBodyState
             children: [
               Topnavbar(
                 widthFactor: 0.1,
-                username: user?.name,
               ),
               Expanded(
                 child: Consumer<BookingFormScreenProvider>(

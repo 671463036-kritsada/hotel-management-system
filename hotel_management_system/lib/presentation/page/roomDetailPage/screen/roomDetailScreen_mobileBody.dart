@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -24,7 +25,6 @@ class RoomDetailScreenMobileBody extends StatefulWidget {
 class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -46,7 +46,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Topnavbar(widthFactor: 0.2, username: user?.name),
+                  Topnavbar(widthFactor: 0.2),
                   const SizedBox(height: 10),
                   Center(
                     child: Text(
@@ -130,6 +130,26 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                           child: Button(
                             text: 'จองห้องนี้',
                             onTap: () {
+                              final isLogin =
+                                  context.read<UserProvider>().isLogin;
+
+                              if (!isLogin) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('กรุณาเข้าสู่ระบบก่อนทำการจอง')),
+                                );
+                                Navigator.pushNamed(
+                                  context,
+                                  "/login",
+                                  arguments: LoginPageArguments(
+                                    redirectRoute: "/booking_form",
+                                    redirectArguments: room.roomId,
+                                  ),
+                                );
+                                return;
+                              }
+
                               Navigator.pushNamed(context, "/booking_form",
                                   arguments: room.roomId);
                             },

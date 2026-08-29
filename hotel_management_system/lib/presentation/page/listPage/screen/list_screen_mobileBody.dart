@@ -1,7 +1,6 @@
 // list_screen_mobileBody.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
@@ -35,7 +34,6 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.white,
       body: SafeArea(
@@ -169,7 +167,6 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                       left: 0,
                       child: Topnavbar(
                         widthFactor: 0.2,
-                        username: user?.name,
                       )),
                   const Positioned(
                       bottom: 0, right: 0, left: 0, child: Bottomnavbar()),

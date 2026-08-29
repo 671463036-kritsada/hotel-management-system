@@ -19,8 +19,8 @@ class CheckInUsecase {
           idCardImage: checkInData.idCardImage,
           signatureImage: checkInData.signatureImage,
           paymentSlipImage: checkInData.paymentSlipImage,
-          paymentStatus: "PAID");
-
+          paymentStatus: "PAID",
+          userPromotionId: checkInData.userPromotionId); // เพิ่ม
       return await repository.getCheckInData(checkInDataModel);
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่อ internet");

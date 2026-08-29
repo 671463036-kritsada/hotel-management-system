@@ -1,6 +1,5 @@
 // home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/model/model.dart';
@@ -135,7 +134,6 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -149,7 +147,6 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                 left: 0,
                 child: Topnavbar(
                   widthFactor: 0.2,
-                  username: user?.name ?? "",
                 )),
             Positioned(
               child: Padding(

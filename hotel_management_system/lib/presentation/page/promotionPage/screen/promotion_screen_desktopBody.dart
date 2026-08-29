@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -20,7 +18,6 @@ class _promotion_screen_desktopBodyState
     extends State<promotion_screen_desktopBody> {
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -168,7 +165,6 @@ class _promotion_screen_desktopBodyState
             right: 0,
             child: Topnavbar(
               widthFactor: 0.2,
-              username: user?.name,
             )),
         Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
       ])),

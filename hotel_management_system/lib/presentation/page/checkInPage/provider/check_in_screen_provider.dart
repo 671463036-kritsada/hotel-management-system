@@ -1,11 +1,12 @@
-// check_in_screen_provider.dart
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotel_management_system/domain/entitise/check_in_entitise.dart';
+import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart'; // เพิ่ม: UserCouponEntitise อยู่ในนี้
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/promotion_usecase.dart'; // เพิ่ม
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signature/signature.dart';
@@ -13,65 +14,16 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum CheckInStatus { initial, loading, success, error }
 enum SaveQRStatus { initial, success, error }
+enum CouponLoadStatus { initial, loading, loaded, error } // เพิ่ม
 
-/// Mock model สำหรับคูปองส่วนลด
-/// TODO: เมื่อมี API คูปองจริงจาก backend แล้ว ให้ลบ mockCoupons()
-/// และดึงรายการคูปองผ่าน usecase แทน
-class CouponModel {
-  final String id;
-  final String code;
-  final String title;
-  final double? discountPercent; // ส่วนลดแบบ % เช่น 10 = 10%
-  final double? discountAmount; // ส่วนลดแบบจำนวนเงินคงที่
-
-  const CouponModel({
-    required this.id,
-    required this.code,
-    required this.title,
-    this.discountPercent,
-    this.discountAmount,
-  });
-
-  double calculateDiscount(double baseAmount) {
-    if (discountPercent != null) {
-      return baseAmount * (discountPercent! / 100);
-    }
-    if (discountAmount != null) {
-      return discountAmount!;
-    }
-    return 0;
-  }
-
-  static List<CouponModel> mockCoupons() {
-    return const [
-      CouponModel(id: 'no_coupon', code: '-', title: 'ไม่ใช้คูปอง'),
-      CouponModel(
-        id: 'coupon_10',
-        code: 'SAVE10',
-        title: 'ส่วนลด 10%',
-        discountPercent: 10,
-      ),
-      CouponModel(
-        id: 'coupon_15',
-        code: 'SAVE15',
-        title: 'ส่วนลด 15%',
-        discountPercent: 15,
-      ),
-      CouponModel(
-        id: 'coupon_200',
-        code: 'FLAT200',
-        title: 'ส่วนลด 200 บาท',
-        discountAmount: 200,
-      ),
-    ];
-  }
-}
+// ลบคลาส CouponModel ทั้งหมดทิ้ง
 
 class CheckInScreenProvider extends ChangeNotifier {
   final CheckInUsecase usecase;
-  CheckInScreenProvider(this.usecase);
+  final PromotionUsecase promotionUsecase; // แก้: ใช้ตัวจริง
+  CheckInScreenProvider(this.usecase, this.promotionUsecase); // แก้ constructor
 
-  // --- State ---
+  // --- State เดิม (ไม่แก้) ---
   CheckInStatus _status = CheckInStatus.initial;
   String _errorMessage = '';
   String _gender = "ชาย";
@@ -89,45 +41,75 @@ class CheckInScreenProvider extends ChangeNotifier {
     penColor: Colors.black,
   );
 
-  // --- Coupon & Price State ---
-  // TODO: totalPrice / depositAmount ควรรับมาจากหน้ารายการจอง (BookingItem)
-  // เรียก setPricing() ตอน initState ของหน้า UI เพื่อกำหนดค่าตั้งต้น
+  // --- Coupon & Price State (แก้ใหม่) ---
   double _totalPrice = 0;
   double _depositAmount = 0;
-  final List<CouponModel> _coupons = CouponModel.mockCoupons();
-  late CouponModel _selectedCoupon = _coupons.first;
 
+  CouponLoadStatus _couponLoadStatus = CouponLoadStatus.initial;
+  String _couponLoadError = '';
+  List<UserCouponEntitise> _coupons = [];
+  UserCouponEntitise? _selectedCoupon; // null = ไม่ใช้คูปอง
+
+  CouponLoadStatus get couponLoadStatus => _couponLoadStatus;
+  String get couponLoadError => _couponLoadError;
   double get totalPrice => _totalPrice;
   double get depositAmount => _depositAmount;
-  List<CouponModel> get coupons => _coupons;
-  CouponModel get selectedCoupon => _selectedCoupon;
+  List<UserCouponEntitise> get coupons => _coupons;
+  UserCouponEntitise? get selectedCoupon => _selectedCoupon;
 
-  /// ส่วนลดที่คำนวณจากคูปองที่เลือกอยู่
-  double get discountAmount => _selectedCoupon.calculateDiscount(_totalPrice);
+  /// baseAmount สำหรับคำนวณส่วนลด = ยอดคงเหลือหลังหักมัดจำ
+  /// (ตรงกับ backend ที่ใช้ booking.remaining_amount เป็น baseAmount)
+  double get _baseAmountForDiscount {
+    final base = _totalPrice - _depositAmount;
+    return base < 0 ? 0 : base;
+  }
 
-  /// ยอดที่ต้องชำระจริง = ราคาทั้งหมด - ค่าหมัดจำ - ส่วนลดคูปอง
+  double get discountAmount {
+    if (_selectedCoupon == null) return 0;
+    return _selectedCoupon!.calculateDiscount(_baseAmountForDiscount);
+  }
+
   double get amountDue {
     final result = _totalPrice - _depositAmount - discountAmount;
     return result < 0 ? 0 : result;
   }
 
-  /// เรียกใช้ตอนเปิดหน้า check-in เพื่อตั้งค่าราคาจากข้อมูลการจอง
   void setPricing({required double totalPrice, required double depositAmount}) {
     _totalPrice = totalPrice;
     _depositAmount = depositAmount;
     notifyListeners();
   }
 
-  void selectCoupon(String couponId) {
-    _selectedCoupon = _coupons.firstWhere(
-      (c) => c.id == couponId,
-      orElse: () => _coupons.first,
-    );
+  /// เรียกตอนเปิดหน้า check-in เพื่อโหลดคูปองจริงของ user คนนี้
+  Future<void> loadCoupons() async {
+    _couponLoadStatus = CouponLoadStatus.loading;
+    notifyListeners();
+    try {
+      _coupons = await promotionUsecase.getMyCoupons();
+      _couponLoadStatus = CouponLoadStatus.loaded;
+      notifyListeners();
+    } catch (e) {
+      _couponLoadError = 'ไม่สามารถโหลดคูปองได้';
+      _couponLoadStatus = CouponLoadStatus.error;
+      notifyListeners();
+    }
+  }
+
+  /// เลือกคูปอง — ส่ง null เพื่อ "ไม่ใช้คูปอง"
+  void selectCoupon(int? userPromotionId) {
+    if (userPromotionId == null) {
+      _selectedCoupon = null;
+    } else {
+      _selectedCoupon = _coupons.firstWhere(
+        (c) => c.userPromotionId == userPromotionId,
+        orElse: () => _coupons.first,
+      );
+    }
     notifyListeners();
   }
   // --- End Coupon & Price State ---
 
-  // --- Getter ---
+  // --- Getter เดิม (ไม่แก้) ---
   CheckInStatus get status => _status;
   String get errorMessage => _errorMessage;
   String get gender => _gender;
@@ -138,7 +120,7 @@ class CheckInScreenProvider extends ChangeNotifier {
   SaveQRStatus get saveQRStatus => _saveQRStatus;
   String get saveQRErrorMessage => _saveQRErrorMessage;
 
-  // --- Functions ---
+  // --- Functions เดิม (ไม่แก้) ---
   void setGender(String value) {
     _gender = value;
     notifyListeners();
@@ -175,7 +157,6 @@ class CheckInScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// เช็คว่าฟอร์มกรอกครบและเซ็นลายเซ็นแล้วหรือยัง ก่อนส่ง
   String? _validateForm() {
     if (idCardNumberController.text.trim().isEmpty) {
       return 'กรุณากรอกเลขบัตรประชาชน';
@@ -221,10 +202,7 @@ class CheckInScreenProvider extends ChangeNotifier {
         idCardImage: _idCardImage?.path ?? '',
         paymentSlipImage: _paymentSlipImage?.path ?? '',
         signatureImage: signatureBase64,
-        // TODO: เพิ่ม field couponId / amountDue ใน CheckInEntitise
-        // เมื่อ backend รองรับแล้ว เพื่อส่งข้อมูลคูปองและยอดที่ชำระจริงไปด้วย
-        // couponId: _selectedCoupon.id,
-        // amountDue: amountDue,
+        userPromotionId: _selectedCoupon?.userPromotionId, // เพิ่ม
       );
 
       await usecase.getCheckInData(checkInData);

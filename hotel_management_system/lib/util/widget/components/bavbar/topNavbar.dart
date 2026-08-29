@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Topnavbar extends StatelessWidget {
   final double widthFactor;
-  final String? username;
 
-  const Topnavbar({super.key, required this.widthFactor, this.username});
+  const Topnavbar({super.key, required this.widthFactor});
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    final userName = context.watch<UserProvider>().user?.name;
+    final displayName = (userName == null || userName.isEmpty)
+        ? "ท่านยังไม่ได้เข้าสู่ระบบ"
+        : userName;
 
+    double screenWidth = MediaQuery.of(context).size.width;
     return Container(
       padding: const EdgeInsets.all(Constants.padding),
       decoration: BoxDecoration(
@@ -58,7 +63,7 @@ class Topnavbar extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    username ?? "",
+                    displayName,
                     style: TextStyle(
                       color: Constants.white,
                       fontSize: Constants.fontSizeBody,

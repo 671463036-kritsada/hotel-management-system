@@ -11,7 +11,8 @@ class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
   CheckInRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<bool> getCheckInData(CheckInModel checkInData) async {
+  @override
+Future<bool> getCheckInData(CheckInModel checkInData) async {
     try {
       final formData = FormData.fromMap({
         "bookingId": checkInData.bookingId,
@@ -20,10 +21,12 @@ class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
         "gender": checkInData.gender,
         "address": checkInData.address,
         "paymentStatus": checkInData.paymentStatus,
-        // signature เป็น base64 string ธรรมดา ส่งเป็น field ปกติได้เลย
+        // เพิ่ม: ส่งเฉพาะตอนมีการเลือกคูปอง (ไม่ใส่ key นี้เลยถ้าไม่ได้เลือก
+        // เพราะ backend เช็ค data.userPromotionId ด้วย if (userPromotionId) เฉยๆ)
+        if (checkInData.userPromotionId != null)
+          "userPromotionId": checkInData.userPromotionId.toString(),
         if (checkInData.signatureImage != null)
           "signatureImage": checkInData.signatureImage,
-        // รูปจริง ส่งเป็นไฟล์แบบ multipart
         if (checkInData.idCardImage != null &&
             checkInData.idCardImage!.isNotEmpty)
           "idCardImage":
@@ -33,7 +36,6 @@ class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
           "paymentSlipImage":
               await MultipartFile.fromFile(checkInData.paymentSlipImage!),
       });
-
       final response = await dio.post("checkin", data: formData);
       return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
@@ -53,7 +55,7 @@ class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
     } catch (e) {
       throw Exception('เกิดข้อผิดพลาด: $e');
     }
-  }
+}
 
 
    @override

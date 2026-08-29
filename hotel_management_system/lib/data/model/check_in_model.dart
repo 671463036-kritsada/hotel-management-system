@@ -1,13 +1,6 @@
-// To parse this JSON data, do
-//
-//     final checkInModel = checkInModelFromJson(jsonString);
-
 import 'dart:convert';
-
 CheckInModel checkInModelFromJson(String str) => CheckInModel.fromJson(json.decode(str));
-
 String checkInModelToJson(CheckInModel data) => json.encode(data.toJson());
-
 class CheckInModel {
     String? bookingId;
     String? idCardNumber;
@@ -18,6 +11,7 @@ class CheckInModel {
     String? signatureImage;
     String? paymentSlipImage;
     String? paymentStatus;
+    int? userPromotionId; // เพิ่ม
 
     CheckInModel({
         this.bookingId,
@@ -29,6 +23,7 @@ class CheckInModel {
         this.signatureImage,
         this.paymentSlipImage,
         this.paymentStatus,
+        this.userPromotionId, // เพิ่ม
     });
 
     factory CheckInModel.fromJson(Map<String, dynamic> json) => CheckInModel(
@@ -41,6 +36,7 @@ class CheckInModel {
         signatureImage: json["signatureImage"],
         paymentSlipImage: json["paymentSlipImage"],
         paymentStatus: json["paymentStatus"],
+        userPromotionId: json["userPromotionId"], // เพิ่ม
     );
 
     Map<String, dynamic> toJson() => {
@@ -53,5 +49,6 @@ class CheckInModel {
         "signatureImage": signatureImage,
         "paymentSlipImage": paymentSlipImage,
         "paymentStatus": paymentStatus,
+        "userPromotionId": userPromotionId, // เพิ่ม
     };
 }

@@ -26,6 +26,16 @@ class HomeFilterArgs {
   });
 }
 
+class LoginPageArguments {
+  final String redirectRoute;
+  final Object? redirectArguments;
+
+  LoginPageArguments({
+    required this.redirectRoute,
+    this.redirectArguments,
+  });
+}
+
 
 // class ListScreenArguments {
 //   final bool? checkInStatus;

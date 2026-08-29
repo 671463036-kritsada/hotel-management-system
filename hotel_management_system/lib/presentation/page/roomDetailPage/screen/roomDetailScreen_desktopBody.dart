@@ -1,7 +1,6 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
@@ -35,7 +34,6 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.bgcolor,
       body: SafeArea(
@@ -56,7 +54,6 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                 children: [
                   Topnavbar(
                     widthFactor: 0.1,
-                    username: user?.name,
                   ),
 
                   // --- Slider เต็มความกว้าง ---

@@ -190,7 +190,6 @@ class _BookingFormScreenMobileBodyState
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -322,7 +321,7 @@ class _BookingFormScreenMobileBodyState
                     top: 0,
                     left: 0,
                     right: 0,
-                    child: Topnavbar(widthFactor: 0.2, username: user?.name)),
+                    child: Topnavbar(widthFactor: 0.2)),
               ],
             ),
           ),

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../data/data_source/remote_data_source/promotion_remote.dart';
+import '../../../../data/repositorise/promotion_repositorise.dart';
+import '../../../../domain/use_case/promotion_usecase.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -40,13 +42,17 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     super.initState();
     final checkInUsecase = CheckInUsecase(
         CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
-    _provider = CheckInScreenProvider(checkInUsecase);
+    final promotionUsecase = PromotionUsecase(// เพิ่ม
+        PromotionRepositoriseImpl(
+            PromotionRemoteDataSourceImpl(DioClient.dio)));
+    _provider = CheckInScreenProvider(
+        checkInUsecase, promotionUsecase); // แก้: เพิ่ม param
     _provider.addListener(_onProviderChanged);
-    // เพิ่มใหม่: ตั้งค่าราคาตั้งต้นจากข้อมูลการจองที่ส่งเข้ามา
     _provider.setPricing(
       totalPrice: widget.totalPrice,
       depositAmount: widget.depositAmount,
     );
+    _provider.loadCoupons(); // เพิ่ม: โหลดคูปองจริงตอนเปิดหน้า
   }
 
   @override
@@ -130,7 +136,6 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -182,33 +187,53 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                 style: TextStyle(
                                     fontSize: Constants.fontSizeBody)),
                             const SizedBox(height: 8),
-                            Card(
-                              margin: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    Constants.borderRadius),
-                                side: BorderSide(color: Colors.grey[300]!),
+                            if (provider.couponLoadStatus ==
+                                CouponLoadStatus.loading)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              )
+                            else if (provider.couponLoadStatus ==
+                                CouponLoadStatus.error)
+                              Text(provider.couponLoadError,
+                                  style: const TextStyle(color: Colors.red))
+                            else if (provider.coupons.isEmpty)
+                              Text("ไม่มีคูปองที่ใช้ได้ในขณะนี้",
+                                  style: TextStyle(color: Colors.grey[500]))
+                            else
+                              Card(
+                                margin: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      Constants.borderRadius),
+                                  side: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                child: Column(
+                                  children: [
+                                    RadioListTile<int?>(
+                                      value: null,
+                                      groupValue: provider
+                                          .selectedCoupon?.userPromotionId,
+                                      title: const Text("ไม่ใช้คูปอง"),
+                                      onChanged: (value) =>
+                                          provider.selectCoupon(null),
+                                    ),
+                                    ...provider.coupons.map((coupon) {
+                                      return RadioListTile<int?>(
+                                        value: coupon.userPromotionId,
+                                        groupValue: provider
+                                            .selectedCoupon?.userPromotionId,
+                                        title: Text(coupon.title),
+                                        subtitle: Text(coupon.code),
+                                        onChanged: (value) =>
+                                            provider.selectCoupon(value),
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                              child: Column(
-                                children: provider.coupons.map((coupon) {
-                                  return RadioListTile<String>(
-                                    value: coupon.id,
-                                    groupValue: provider.selectedCoupon.id,
-                                    title: Text(coupon.title),
-                                    subtitle: coupon.code != '-'
-                                        ? Text(coupon.code)
-                                        : null,
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        provider.selectCoupon(value);
-                                      }
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            ),
                             const SizedBox(height: 20),
-
                             // ================= เพิ่มใหม่: สรุปค่าใช้จ่าย =================
                             Text('สรุปค่าใช้จ่าย',
                                 style: TextStyle(
@@ -231,7 +256,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                       "หัก ค่าหมัดจำ", -provider.depositAmount),
                                   if (provider.discountAmount > 0)
                                     _priceRow(
-                                      "หัก ส่วนลดคูปอง (${provider.selectedCoupon.title})",
+                                      "หัก ส่วนลดคูปอง (${provider.selectedCoupon?.title ?? ''})", // แก้
                                       -provider.discountAmount,
                                     ),
                                   const Divider(height: 24),
@@ -316,7 +341,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                   top: 0,
                   right: 0,
                   left: 0,
-                  child: Topnavbar(widthFactor: 0.2, username: user?.name)),
+                  child: Topnavbar(widthFactor: 0.2)),
               Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
             ],
           ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart';
 import 'package:hotel_management_system/presentation/page/promotionPage/components/boxShow_new.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/components/bavbar/bottomNavbar.dart';
 import 'package:hotel_management_system/util/widget/components/bavbar/topNavbar.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
@@ -154,7 +153,6 @@ class _PromotionScreenMobilebodyState
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -233,7 +231,6 @@ class _PromotionScreenMobilebodyState
             right: 0,
             child: Topnavbar(
               widthFactor: 0.2,
-              username: user?.name,
             )),
         Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
       ])),

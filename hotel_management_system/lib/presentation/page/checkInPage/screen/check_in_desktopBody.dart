@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/check_in_remote.dart';
 import 'package:hotel_management_system/data/repositorise/check_in_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../data/data_source/remote_data_source/promotion_remote.dart';
+import '../../../../data/repositorise/promotion_repositorise.dart';
+import '../../../../domain/use_case/promotion_usecase.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -17,7 +19,15 @@ import '../../../../util/widget/components/dialog/dialog_helper.dart';
 
 class CheckInScreenDesktopBody extends StatefulWidget {
   final String? bookingID;
-  const CheckInScreenDesktopBody({super.key, this.bookingID});
+  final double totalPrice;
+  final double depositAmount;
+
+  const CheckInScreenDesktopBody({
+    super.key,
+    this.bookingID,
+    this.totalPrice = 0,
+    this.depositAmount = 0,
+  });
 
   @override
   State<CheckInScreenDesktopBody> createState() =>
@@ -30,10 +40,17 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
   @override
   void initState() {
     super.initState();
-    final checkInUsecase =
-        CheckInUsecase(CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
-    _provider = CheckInScreenProvider(checkInUsecase);
+    final checkInUsecase = CheckInUsecase(
+        CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
+    final promotionUsecase = PromotionUsecase(PromotionRepositoriseImpl(
+        PromotionRemoteDataSourceImpl(DioClient.dio)));
+    _provider = CheckInScreenProvider(checkInUsecase, promotionUsecase);
     _provider.addListener(_onProviderChanged);
+    _provider.setPricing(
+      totalPrice: widget.totalPrice,
+      depositAmount: widget.depositAmount,
+    );
+    _provider.loadCoupons();
   }
 
   @override
@@ -58,11 +75,6 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
         "รหัสเข้าห้อง[ 839201 ]",
         "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
         "หมดอายุ: 17 ก.พ. 12:00",
-        // arguments: ListScreenArguments(
-        //   checkInStatus: true,
-        //   ckeckOutStatus: false,
-        //   statusConCheck: false,
-        // ),
       );
       _provider.resetStatus();
     } else if (_provider.status == CheckInStatus.error) {
@@ -89,9 +101,32 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
     }
   }
 
+  String _formatBaht(double value) {
+    return "${value.toStringAsFixed(2)} บาท";
+  }
+
+  Widget _priceRow(String label, double amount, {bool isTotal = false}) {
+    final style = TextStyle(
+      fontSize: isTotal ? Constants.fontSizeBody : Constants.fontSizeBody - 2,
+      fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+      color: amount < 0 ? Colors.red[400] : Colors.black87,
+    );
+    final displayAmount =
+        amount < 0 ? "-${_formatBaht(amount.abs())}" : _formatBaht(amount);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: style),
+          Text(displayAmount, style: style),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return ChangeNotifierProvider.value(
       value: _provider,
       builder: (context, _) => Scaffold(
@@ -99,7 +134,7 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
         body: SafeArea(
           child: Column(
             children: [
-              Topnavbar(widthFactor: 0.1, username: user?.name),
+              Topnavbar(widthFactor: 0.1),
               Expanded(
                 child: Consumer<CheckInScreenProvider>(
                   builder: (context, provider, _) {
@@ -201,50 +236,147 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                   const SizedBox(width: 24),
                                   Expanded(
                                     flex: 2,
-                                    child: _buildCard(
-                                      title: "ชำระค่าบริการ",
-                                      icon: Icons.qr_code_outlined,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              color: Constants.secondaryColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      Constants.borderRadius),
-                                            ),
-                                            child: Image.asset(
-                                                "assets/images/QRcodePay.png"),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: OutlinedButton.icon(
-                                              onPressed: () =>
-                                                  provider.saveQRCode(),
-                                              icon: const Icon(Icons.download),
-                                              label:
-                                                  const Text("บันทึก QRcode"),
-                                              style: OutlinedButton.styleFrom(
-                                                foregroundColor:
-                                                    Constants.primaryColor,
-                                                side: BorderSide(
-                                                    color:
-                                                        Constants.primaryColor),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 12),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            Constants
-                                                                .borderRadius)),
+                                    child: Column(
+                                      children: [
+                                        // ================= คูปองส่วนลด =================
+                                        _buildCard(
+                                          title: "คูปองส่วนลด",
+                                          icon: Icons.local_offer_outlined,
+                                          child: provider.couponLoadStatus ==
+                                                  CouponLoadStatus.loading
+                                              ? const Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 12),
+                                                  child: Center(
+                                                      child:
+                                                          CircularProgressIndicator()),
+                                                )
+                                              : provider.couponLoadStatus ==
+                                                      CouponLoadStatus.error
+                                                  ? Text(
+                                                      provider.couponLoadError,
+                                                      style: const TextStyle(
+                                                          color: Colors.red))
+                                                  : provider.coupons.isEmpty
+                                                      ? Text(
+                                                          "ไม่มีคูปองที่ใช้ได้ในขณะนี้",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[500]))
+                                                      : Column(
+                                                          children: [
+                                                            RadioListTile<int?>(
+                                                              value: null,
+                                                              groupValue: provider
+                                                                  .selectedCoupon
+                                                                  ?.userPromotionId,
+                                                              title: const Text(
+                                                                  "ไม่ใช้คูปอง"),
+                                                              onChanged: (value) =>
+                                                                  provider
+                                                                      .selectCoupon(
+                                                                          null),
+                                                            ),
+                                                            ...provider.coupons
+                                                                .map((coupon) {
+                                                              return RadioListTile<
+                                                                  int?>(
+                                                                value: coupon
+                                                                    .userPromotionId,
+                                                                groupValue: provider
+                                                                    .selectedCoupon
+                                                                    ?.userPromotionId,
+                                                                title: Text(
+                                                                    coupon
+                                                                        .title),
+                                                                subtitle: Text(
+                                                                    coupon
+                                                                        .code),
+                                                                onChanged: (value) =>
+                                                                    provider
+                                                                        .selectCoupon(
+                                                                            value),
+                                                              );
+                                                            }),
+                                                          ],
+                                                        ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        // ================= สรุปค่าใช้จ่าย =================
+                                        _buildCard(
+                                          title: "สรุปค่าใช้จ่าย",
+                                          icon: Icons.receipt_long_outlined,
+                                          child: Column(
+                                            children: [
+                                              _priceRow("ค่าเช่าซื้อทั้งหมด",
+                                                  provider.totalPrice),
+                                              _priceRow("หัก ค่าหมัดจำ",
+                                                  -provider.depositAmount),
+                                              if (provider.discountAmount > 0)
+                                                _priceRow(
+                                                  "หัก ส่วนลดคูปอง (${provider.selectedCoupon?.title ?? ''})",
+                                                  -provider.discountAmount,
+                                                ),
+                                              const Divider(height: 24),
+                                              _priceRow(
+                                                "ยอดที่ต้องชำระ",
+                                                provider.amountDue,
+                                                isTotal: true,
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildCard(
+                                          title: "ชำระค่าบริการ",
+                                          icon: Icons.qr_code_outlined,
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      Constants.secondaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          Constants
+                                                              .borderRadius),
+                                                ),
+                                                child: Image.asset(
+                                                    "assets/images/QRcodePay.png"),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: OutlinedButton.icon(
+                                                  onPressed: () =>
+                                                      provider.saveQRCode(),
+                                                  icon: const Icon(
+                                                      Icons.download),
+                                                  label: const Text(
+                                                      "บันทึก QRcode"),
+                                                  style:
+                                                      OutlinedButton.styleFrom(
+                                                    foregroundColor:
+                                                        Constants.primaryColor,
+                                                    side: BorderSide(
+                                                        color: Constants
+                                                            .primaryColor),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 12),
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius
+                                                            .circular(Constants
+                                                                .borderRadius)),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

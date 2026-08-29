@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/provider/histoty_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/historyPage/screen/companents/boxShowDataHistory.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/history_entitise.dart';
@@ -121,7 +120,6 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserProvider>().user;
     return Scaffold(
       backgroundColor: Constants.white,
       body: SafeArea(
@@ -200,7 +198,7 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                   top: 0,
                   right: 0,
                   left: 0,
-                  child: Topnavbar(widthFactor: 0.2, username: user?.name)),
+                  child: Topnavbar(widthFactor: 0.2)),
               Positioned(bottom: 0, right: 0, left: 0, child: Bottomnavbar()),
             ],
           ),

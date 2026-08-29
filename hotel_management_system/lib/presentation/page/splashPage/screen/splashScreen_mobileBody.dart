@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
 
-
-
 class SplashScreenMobileBody extends StatefulWidget {
   const SplashScreenMobileBody({super.key});
 
@@ -12,11 +10,13 @@ class SplashScreenMobileBody extends StatefulWidget {
 }
 
 class _SplashScreenMobileBodyState extends State<SplashScreenMobileBody> {
-  void onTopToLoginPage() {
+  void onTapToLoginPage() {
     Navigator.pushNamed(context, "/login");
   }
 
-        
+  void onTapToHomePage() {
+    Navigator.pushNamed(context, "/home");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,19 @@ class _SplashScreenMobileBodyState extends State<SplashScreenMobileBody> {
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Button(
               text: "เข้าสู่ระบบ",
-              onTap: onTopToLoginPage,
+              onTap: onTapToLoginPage,
+              color: Constants.secondaryColor,
+              btnSize: double.infinity,
+            ),
+          ),
+          SizedBox(
+            height: 12,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Button(
+              text: "เลือกดูห้องเลย",
+              onTap: onTapToHomePage,
               color: Constants.secondaryColor,
               btnSize: double.infinity,
             ),

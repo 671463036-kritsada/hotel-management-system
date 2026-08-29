@@ -70,7 +70,8 @@ RouteFactory onGenerateRoute = (settings) {
                   ),
                 ),
                 child: const LoginScreen(),
-              ));
+              ),
+          settings: settings);
     case "/register":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
