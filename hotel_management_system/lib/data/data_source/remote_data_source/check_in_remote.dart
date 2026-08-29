@@ -3,6 +3,7 @@ import 'package:hotel_management_system/data/model/check_in_model.dart';
 
 abstract class CheckInRemoteDataSource {
   Future<bool> getCheckInData(CheckInModel checkInData);
+  Future<bool> checkOut(String bookingId);
 }
 
 class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
@@ -46,6 +47,30 @@ class CheckInRemoteDataSourceImpl implements CheckInRemoteDataSource {
         case DioExceptionType.badResponse:
           throw Exception(
               'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+        default:
+          throw Exception('เกิดข้อผิดพลาด: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('เกิดข้อผิดพลาด: $e');
+    }
+  }
+
+
+   @override
+  Future<bool> checkOut(String bookingId) async {
+    try {
+      final response = await dio.patch("bookings/$bookingId/checkout");
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+        case DioExceptionType.connectionError:
+          throw Exception('ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้');
+        case DioExceptionType.badResponse:
+          throw Exception('เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
         default:
           throw Exception('เกิดข้อผิดพลาด: ${e.message}');
       }

@@ -10,6 +10,7 @@ abstract class RegisterRemoteDataSource {
     required String phoneNumber,
     required String address,
     required String password,
+    required String bankName
   });
 }
 
@@ -25,6 +26,7 @@ class RegisterRemoteDataSourceImpl implements RegisterRemoteDataSource {
     required String phoneNumber,
     required String address,
     required String password,
+    required String bankName
   }) async {
     try {
       final response = await dio.post(_endpoint, data: {
@@ -33,6 +35,7 @@ class RegisterRemoteDataSourceImpl implements RegisterRemoteDataSource {
         "password": password,
         "phone": phoneNumber,
         "address": address,
+        "bankName": bankName
       });
       return RegisterModel.fromJson(response.data);
     } on SocketException {

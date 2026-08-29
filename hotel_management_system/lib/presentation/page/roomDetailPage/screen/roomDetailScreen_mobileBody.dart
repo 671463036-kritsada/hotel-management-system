@@ -39,6 +39,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
             }
 
             final room = provider.roomDetail;
+
             if (room == null) return const SizedBox.shrink();
 
             return SingleChildScrollView(
@@ -163,6 +164,14 @@ class _RoomImageSliderState extends State<RoomImageSlider> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.imageUrls.isEmpty) {
+      return Container(
+        height: 300,
+        color: Colors.grey[200],
+        child:
+            const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
+      );
+    }
     return Column(
       children: [
         CarouselSlider(
@@ -179,10 +188,22 @@ class _RoomImageSliderState extends State<RoomImageSlider> {
             },
           ),
           items: widget.imageUrls.map((imageUrl) {
-            return Image.asset(
+            return Image.network(
               imageUrl,
               fit: BoxFit.cover,
               width: double.infinity,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return const Center(child: CircularProgressIndicator());
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.broken_image,
+                      size: 40, color: Colors.grey),
+                );
+              },
             );
           }).toList(),
         ),

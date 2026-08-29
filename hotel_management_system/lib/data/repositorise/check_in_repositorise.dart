@@ -6,6 +6,8 @@ import 'package:hotel_management_system/data/model/check_in_model.dart';
 
 abstract class CheckInRepositorise {
   Future<bool> getCheckInData(CheckInModel checkInData);
+
+  Future<bool> checkOut(String bookingId);
 }
 
 class CheckInRepositoriseImpl implements CheckInRepositorise{
@@ -22,6 +24,19 @@ class CheckInRepositoriseImpl implements CheckInRepositorise{
     } on HttpException{
       throw Exception("ไม่สามารถเชื่อมต่อ server ได้");
     } catch(e){
+      throw Exception("เกิดข้อผิดพลาด $e");
+    }
+  }
+
+  @override
+  Future<bool> checkOut(String bookingId) async {
+    try {
+      return await remoteDataSource.checkOut(bookingId);
+    } on SocketException {
+      throw Exception("ไม่มีการเชื่อมต่อ internet");
+    } on HttpException {
+      throw Exception("ไม่สามารถเชื่อมต่อ server ได้");
+    } catch (e) {
       throw Exception("เกิดข้อผิดพลาด $e");
     }
   }

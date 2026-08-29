@@ -4,13 +4,13 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/regi
 import 'package:hotel_management_system/data/model/register_model.dart';
 
 abstract class RegisterRepositorise {
-  Future<RegisterModel> register({
-    required String username,
-    required String email,
-    required String address,
-    required String phoneNumber,
-    required String password,
-  });
+  Future<RegisterModel> register(
+      {required String username,
+      required String email,
+      required String address,
+      required String phoneNumber,
+      required String password,
+      required String bankName});
 }
 
 class RegisterRepositoriseImpl implements RegisterRepositorise {
@@ -24,14 +24,16 @@ class RegisterRepositoriseImpl implements RegisterRepositorise {
       required String email,
       required String address,
       required String phoneNumber,
-      required String password}) {
+      required String password,
+      required String bankName}) {
     try {
       return remoteDataSource.register(
           username: username,
           email: email,
           phoneNumber: phoneNumber,
           address: address,
-          password: password);
+          password: password,
+          bankName: bankName);
     } on SocketException {
       throw Exception("ไม่มีการเขื่อมต่อ internet");
     } on HttpException {

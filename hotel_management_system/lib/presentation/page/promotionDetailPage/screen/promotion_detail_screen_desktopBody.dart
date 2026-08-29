@@ -5,9 +5,12 @@ import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
+import '../provider/promotionDetail_provider.dart';
 
 class PromotionDetailScreenDesktopbody extends StatefulWidget {
-  const PromotionDetailScreenDesktopbody({super.key});
+  final String promoId;
+
+  const PromotionDetailScreenDesktopbody({super.key, required this.promoId});
 
   @override
   State<PromotionDetailScreenDesktopbody> createState() =>
@@ -17,157 +20,116 @@ class PromotionDetailScreenDesktopbody extends StatefulWidget {
 class _PromotionDetailScreenDesktopbodyState
     extends State<PromotionDetailScreenDesktopbody> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context
+          .read<PromotiondetailProvide>()
+          .fetchPromotionDetail(widget.promoId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().user;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: Stack(children: [
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 100,
-              ),
+        child: Stack(children: [
+          Consumer<PromotiondetailProvide>(
+            builder: (context, provider, _) {
+              if (provider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              // รูปข่าว
-              SizedBox(
-                width: double.infinity,
-                height: 300,
-                child: Image.network(
-                  "https://www.amarinsamuiresort.com/images/promotion/banner-promotion-amarin-1.jpg",
-                  fit: BoxFit.cover,
-                ),
-              ),
+              if (provider.errorMessage.isNotEmpty) {
+                return Center(child: Text(provider.errorMessage));
+              }
 
-              // รายละเอียด
-              const Padding(
-                padding: EdgeInsets.all(
-                  Constants.padding,
-                ),
+              final promo = provider.promotion;
+              if (promo == null) {
+                return const Center(child: Text('ไม่พบข้อมูลโปรโมชั่น'));
+              }
+
+              return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "รายละเอียดข่าวสาร",
-                      style: TextStyle(
-                        fontSize: Constants.fontSizeHeader,
-                        fontWeight: Constants.fontWeightBold,
-                      ),
-                    ),
-
+                    const SizedBox(height: 100),
                     SizedBox(
-                      height: 16,
+                      width: double.infinity,
+                      height: 300,
+                      child: (promo.imageUrl != null &&
+                              promo.imageUrl!.isNotEmpty)
+                          ? Image.network(promo.imageUrl!, fit: BoxFit.cover)
+                          : Container(color: Colors.grey[200]),
                     ),
-
-                    // หัวข้อข่าว
-                    Text(
-                      "โปรโมชั่นพิเศษสำหรับลูกค้าของเรา",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.all(Constants.padding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "รายละเอียดโปรโมชั่น",
+                            style: TextStyle(
+                              fontSize: Constants.fontSizeHeader,
+                              fontWeight: Constants.fontWeightBold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            promo.title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "รหัสโปรโมชั่น: ${promo.code}",
+                            style:
+                                const TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            promo.description ?? '',
+                            style:
+                                const TextStyle(fontSize: 16, height: 1.6),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            promo.discountType == 'percentage'
+                                ? "ส่วนลด ${promo.discountValue.toStringAsFixed(0)}%"
+                                : "ส่วนลด ฿${promo.discountValue.toStringAsFixed(0)}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    SizedBox(
-                      height: 8,
-                    ),
-
-                    // วันที่
-                    Text(
-                      "เผยแพร่วันที่ 11 สิงหาคม 2569",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    // เนื้อหาข่าว
-                    Text(
-                      "ทางโรงแรมขอมอบโปรโมชั่นพิเศษสำหรับลูกค้าทุกท่าน "
-                      "พบกับส่วนลดค่าห้องพักและสิทธิพิเศษมากมาย "
-                      "เพื่อให้การเข้าพักของคุณเต็มไปด้วยความประทับใจ",
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.6,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    Text(
-                      "สิทธิพิเศษ",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 10,
-                    ),
-
-                    Text(
-                      "• ลดค่าห้องพักสูงสุด 20%\n"
-                      "• ฟรีอาหารเช้าสำหรับ 2 ท่าน\n"
-                      "• ฟรี Welcome Drink\n"
-                      "• สามารถใช้บริการได้ตลอดช่วงโปรโมชั่น",
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.8,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    Text(
-                      "เงื่อนไขการใช้บริการ",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 10,
-                    ),
-
-                    Text(
-                      "โปรโมชั่นนี้สามารถใช้ได้ตั้งแต่วันที่ 1 สิงหาคม "
-                      "ถึง 31 สิงหาคม 2569 และไม่สามารถใช้ร่วมกับโปรโมชั่นอื่นได้",
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.6,
-                      ),
-                    ),
+                    const SizedBox(height: 100),
                   ],
                 ),
-              ),
-              const SizedBox(
-                height: 100,
-              )
-            ],
+              );
+            },
           ),
-        ),
-        Positioned(
-            top: 0,
-            right: 0,
-            left: 0,
-            child: Topnavbar(
-              widthFactor: 0.2,
-              username: user?.name,
-            )),
-        const Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
-      ])),
+          Positioned(
+              top: 0,
+              right: 0,
+              left: 0,
+              child: Topnavbar(
+                widthFactor: 0.2,
+                username: user?.name,
+              )),
+          const Positioned(
+              bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
+        ]),
+      ),
     );
   }
 }

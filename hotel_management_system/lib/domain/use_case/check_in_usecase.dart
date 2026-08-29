@@ -30,4 +30,19 @@ class CheckInUsecase {
       throw Exception("เกิดข้อผิดพลาด $e");
     }
   }
+
+  Future<bool> checkOut(String bookingId) async {
+    if (bookingId.isEmpty) {
+      throw Exception("ต้องระบุ booking ID");
+    }
+    try {
+      return await repository.checkOut(bookingId);
+    } on SocketException {
+      throw Exception("ไม่มีการเชื่อมต่อ internet");
+    } on HttpException {
+      throw Exception("ไม่สามารถเชื่อมต่อ server ได้");
+    } catch (e) {
+      throw Exception("เกิดข้อผิดพลาด $e");
+    }
+  }
 }

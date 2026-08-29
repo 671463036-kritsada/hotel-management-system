@@ -4,6 +4,7 @@ class RegisterEntitise {
   final String address;
   final String phoneNumber;
   final String password;
+  final String bankName;
 
   RegisterEntitise({
     required this.username,
@@ -11,5 +12,6 @@ class RegisterEntitise {
     required this.address,
     required this.phoneNumber,
     required this.password,
+    required this.bankName
   });
 }

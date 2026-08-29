@@ -37,12 +37,15 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/data_source/remote_data_source/booking_form_remote.dart';
+import '../../data/data_source/remote_data_source/check_in_remote.dart';
 import '../../data/data_source/remote_data_source/history_remote.dart';
 import '../../data/data_source/remote_data_source/login_remote.dart';
 import '../../data/repositorise/booking_form_repositorise.dart';
+import '../../data/repositorise/check_in_repositorise.dart';
 import '../../data/repositorise/history_repository.dart';
 import '../../data/repositorise/login_repositorise.dart';
 import '../../domain/use_case/booking_form_usecase.dart';
+import '../../domain/use_case/check_in_usecase.dart';
 import '../../domain/use_case/houseKeeper_usecase.dart';
 import '../../domain/use_case/login_usecase.dart';
 import '../../domain/use_case/register_usecase.dart';
@@ -142,9 +145,16 @@ RouteFactory onGenerateRoute = (settings) {
     case "/list_page":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
-                create: (_) => ListScreenProvider(ListUsecase(
-                    ListRepositoriseImpl(
-                        ListRemoteDatasourceImpl(DioClient.dio)))),
+                create: (_) => ListScreenProvider(
+                  ListUsecase(ListRepositoriseImpl(
+                      ListRemoteDatasourceImpl(DioClient.dio))),
+                  CheckInUsecase(CheckInRepositoriseImpl(
+                      CheckInRemoteDataSourceImpl(DioClient.dio))),
+                  BookingHistoryUseCase(
+                      repository: BookingHistoryRepositoryImpl(
+                          remoteDataSource: BookingHistoryRemoteDataSourceImpl(
+                              DioClient.dio))),
+                ),
                 child: const ListScreen(),
               ),
           settings: settings);
@@ -160,7 +170,9 @@ RouteFactory onGenerateRoute = (settings) {
     case "/promotion_detail_page":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
-                create: (_) => PromotiondetailProvide(),
+                create: (_) => PromotiondetailProvide(PromotionUsecase(
+                    PromotionRepositoriseImpl(
+                        PromotionRemoteDataSourceImpl(DioClient.dio)))),
                 child: PromotionDetailScreen(),
               ),
           settings: settings);

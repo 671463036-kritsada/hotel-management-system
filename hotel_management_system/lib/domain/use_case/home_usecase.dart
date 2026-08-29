@@ -2,22 +2,25 @@ import 'package:hotel_management_system/data/model/home_model.dart';
 import 'package:hotel_management_system/data/repositorise/home_repositorise.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 
+import '../../util/function/image_url.dart';
+
 class HomeUsecase {
   final HomeRepositoryImpl repository;
   HomeUsecase(this.repository);
 
   HomeEntitise _toEntity(HomeModel item) {
+    final fullImageUrls = ImageUrlHelper.toFullImageUrlList(item.imageUrls);
+
     return HomeEntitise(
       roomId: item.roomId ?? '',
       roomType: item.roomType ?? "",
       description: item.description ?? "",
       pricePerNight: double.tryParse(item.pricePerNight ?? '') ?? 0.0,
-      imageUrls: item.imageUrl != null ? [item.imageUrl!] : <String>[],
+      imageUrls: fullImageUrls,
       bedCount: 1,
     );
   }
 
-  /// โหลดห้องทั้งหมด ไม่มี filter (GET /rooms)
   Future<List<HomeEntitise>> getRooms() async {
     try {
       final model = await repository.getRooms();
@@ -27,7 +30,6 @@ class HomeUsecase {
     }
   }
 
-  /// โหลดห้องว่างตามวันที่ + roomType (GET /rooms/available)
   Future<List<HomeEntitise>> getAvailableRooms({
     required String checkIn,
     required String checkOut,

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
+import '../../../../data/model/login_model.dart';
 import '../../../../util/widget/core/constants.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
@@ -42,6 +43,16 @@ class BookingFormScreenProvider extends ChangeNotifier {
   double get pricePerNight => _pricePerNight;
   bool get isLoadingPrice => _isLoadingPrice;
   String get priceError => _priceError;
+
+  void prefillUserInfo(User? user) {
+    if (user != null && fullNameController.text.isEmpty) {
+      fullNameController.text = user.name ?? '';
+
+      if(emailController.text.isEmpty){
+        emailController.text = user.email ?? '';
+      }
+    }
+  }
 
   /// เรียกตอนเปิดหน้า booking form เพื่อดึงราคาห้องจาก DB มาแสดง preview
   /// (ราคาจริงที่ insert จะถูกคำนวณซ้ำที่ repository อีกครั้งตอน submit เสมอ)

@@ -45,6 +45,11 @@ class _BookingFormScreenMobileBodyState
     // เพิ่มใหม่: คำนวณราคาใหม่ทุกครั้งที่ผู้ใช้แก้วันที่เช็คอิน/เช็คเอาท์
     _provider.checkInController.addListener(_provider.recalculatePrice);
     _provider.checkOutController.addListener(_provider.recalculatePrice);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<UserProvider>().user;
+      _provider.prefillUserInfo(user);
+    });
   }
 
   @override
@@ -104,7 +109,7 @@ class _BookingFormScreenMobileBodyState
   Widget _buildPriceSummary(BookingFormScreenProvider provider) {
     print(
         "=== DEBUG: _buildPriceSummary called, pricePerNight = ${provider.pricePerNight}, isLoadingPrice = ${provider.isLoadingPrice} ===");
-        
+
     if (provider.isLoadingPrice) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
@@ -231,6 +236,14 @@ class _BookingFormScreenMobileBodyState
                           const SizedBox(height: 20),
                           createInputField(InputFieldType.fullName,
                               controller: provider.fullNameController),
+                          createInputField(InputFieldType.email,
+                              controller: provider.emailController),
+                          createInputField(InputFieldType.bank,
+                              controller: provider.bankController),
+                          createInputField(InputFieldType.phoneNumber,
+                              controller: provider.phoneController),
+                          createInputField(InputFieldType.numberOfGuests,
+                              controller: provider.numberOfGuestsController),
                           Row(
                             children: [
                               Expanded(
@@ -251,14 +264,6 @@ class _BookingFormScreenMobileBodyState
                               ),
                             ],
                           ),
-                          createInputField(InputFieldType.email,
-                              controller: provider.emailController),
-                          createInputField(InputFieldType.bank,
-                              controller: provider.bankController),
-                          createInputField(InputFieldType.phoneNumber,
-                              controller: provider.phoneController),
-                          createInputField(InputFieldType.numberOfGuests,
-                              controller: provider.numberOfGuestsController),
 
                           const SizedBox(height: 20),
                           // เพิ่มใหม่: แสดงราคาเต็ม + ค่ามัดจำ 30% ก่อนถึงส่วนจ่ายเงิน

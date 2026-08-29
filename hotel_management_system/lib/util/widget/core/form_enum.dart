@@ -30,7 +30,8 @@ enum InputFieldType {
   housekeeperCheck,
   housekeeperStatus,
   datePicker,
-  bank
+  bank,
+  bankName
 }
 
 Widget createInputField(InputFieldType type,
@@ -107,6 +108,12 @@ Widget createInputField(InputFieldType type,
           label: "เลขบัญชีธนาคาร",
           icon: Icons.account_balance,
           hint: "กรอกเลขบัญชีธนาคาร",
+          controller: controller);
+    case InputFieldType.bankName:
+      return _buildBaseTextField(
+          label: "บัญชีธนาคาร",
+          icon: Icons.account_balance,
+          hint: "กรอกบัญชีธนาคาร",
           controller: controller);
     case InputFieldType.numberOfGuests:
       return _buildBaseTextField(

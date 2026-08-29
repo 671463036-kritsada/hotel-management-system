@@ -73,16 +73,4 @@ class HomeScreenProvider extends ChangeNotifier {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
-  String getName(int? id) {
-    if (id == null) {
-      return 'null';
-    }
-    if (id == 1) {
-      return 'ก';
-    } else if (id > 1) {
-      return 'ข';
-    } else {
-      return 'ค';
-    }
-  }
 }

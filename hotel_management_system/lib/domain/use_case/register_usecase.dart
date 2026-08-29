@@ -13,6 +13,7 @@ class RegisterUsecase {
         email: entities.email,
         address: entities.address,
         phoneNumber: entities.phoneNumber,
-        password: entities.password);
+        password: entities.password,
+        bankName : entities.bankName);
   }
 }

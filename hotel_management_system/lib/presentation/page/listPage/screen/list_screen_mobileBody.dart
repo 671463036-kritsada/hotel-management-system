@@ -52,7 +52,6 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                               child: CircularProgressIndicator());
                         }
 
-                        // กรองรายการตาม status ที่ได้รับมาจาก arguments
                         final filteredList = provider.filteredBookingList(
                           checkInStatus: widget.checkInStatus,
                           checkOutStatus: widget.ckeckOutStatus,
@@ -95,6 +94,29 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                     statusCheckout: booking.checkOutStatus,
                                     statusConCheck: booking.statusConCheck,
                                     roomKey: booking.roomKey,
+                                    onCheckOut: () async {
+                                      final success = await context
+                                          .read<ListScreenProvider>()
+                                          .checkOutBooking(booking.bookingId);
+                                      if (!success) {
+                                        throw Exception(
+                                            "เช็คเอาท์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+                                      }
+                                    },
+                                    onSubmitReview: (rating, comment) async {
+                                      // เพิ่ม
+                                      final success = await context
+                                          .read<ListScreenProvider>()
+                                          .submitReview(
+                                            bookingId: booking.bookingId,
+                                            rating: rating,
+                                            comment: comment,
+                                          );
+                                      if (!success) {
+                                        throw Exception(
+                                            "ส่งรีวิวไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+                                      }
+                                    },
                                     onTap: () {
                                       showModalBottomSheet(
                                         context: context,

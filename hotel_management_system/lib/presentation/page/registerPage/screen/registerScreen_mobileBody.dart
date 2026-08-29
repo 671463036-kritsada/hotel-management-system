@@ -143,6 +143,11 @@ class RegisterScreenMobileBody extends StatelessWidget {
                               // input email
                               createInputField(InputFieldType.email,
                                   controller: provider.emailController),
+
+
+                              createInputField(InputFieldType.bankName,
+                                  controller: provider.bankNameController),
+
                               // input phone number
                               createInputField(InputFieldType.phoneNumber,
                                   controller: provider.phoneNumberController),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
+import '../../../../util/function/image_url.dart';
 import '../../../../util/widget/core/typeRoom_enum.dart';
 
 class RoomDetail {
@@ -26,7 +27,6 @@ class RoomDetailScreenProvider extends ChangeNotifier {
 
   RoomDetailScreenProvider(this.homeUsecase);
 
-
   // --- State ---
   RoomDetail? _roomDetail;
   bool _isLoading = false;
@@ -41,10 +41,7 @@ class RoomDetailScreenProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // โหลดข้อมูลก่อน
       roomData = await homeUsecase.getRooms();
-
-      // แล้วค่อย filter
       final room = roomData.firstWhere(
         (item) => item.roomId == roomId && item.roomType == roomType.name,
       );
@@ -52,9 +49,10 @@ class RoomDetailScreenProvider extends ChangeNotifier {
       _roomDetail = RoomDetail(
         roomId: room.roomId,
         roomType: roomType,
-        imageUrls: room.imageUrls,
+        imageUrls: room.imageUrls, // ใช้ตรง ๆ เลย ไม่ต้องแปลงซ้ำ
         description: room.description,
-        pricePerNight: room.pricePerNight.toDouble(),
+        pricePerNight: room
+            .pricePerNight, // เป็น double อยู่แล้วจาก entity ไม่ต้อง .toDouble() ซ้ำ
       );
       notifyListeners();
     } catch (e) {
@@ -66,5 +64,3 @@ class RoomDetailScreenProvider extends ChangeNotifier {
     }
   }
 }
-
-

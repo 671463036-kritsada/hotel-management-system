@@ -17,6 +17,7 @@ class RegisterScreenProvider extends ChangeNotifier {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController bankNameController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -45,7 +46,8 @@ class RegisterScreenProvider extends ChangeNotifier {
         emailController.text.isEmpty ||
         phoneNumberController.text.isEmpty ||
         passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty) {
+        confirmPasswordController.text.isEmpty ||
+        bankNameController.text.isEmpty) {
       _errorMessage = 'กรุณากรอกข้อมูลให้ครบ';
       return false;
     }
@@ -70,7 +72,8 @@ class RegisterScreenProvider extends ChangeNotifier {
           email: emailController.text.trim(),
           address: addressController.text.trim(),
           phoneNumber: phoneNumberController.text.trim(),
-          password: passwordController.text.trim()));
+          password: passwordController.text.trim(),
+          bankName: bankNameController.text.trim()));
       _status = RegisterStatus.success;
       notifyListeners();
     } catch (e) {
@@ -109,6 +112,7 @@ class RegisterScreenProvider extends ChangeNotifier {
     passwordController.dispose();
     confirmPasswordController.dispose();
     addressController.dispose();
+    bankNameController.dispose();
     super.dispose();
   }
 }

@@ -15,6 +15,8 @@ class Boxlistcompanent extends StatelessWidget {
   final String? roomKey;
 
   final Function()? onTap;
+  final Future<void> Function()? onCheckOut;
+  final Future<void> Function(int rating, String comment)? onSubmitReview; // เพิ่ม
 
   Boxlistcompanent(
       {super.key,
@@ -28,7 +30,9 @@ class Boxlistcompanent extends StatelessWidget {
       required this.statusChekin,
       this.statusCheckout,
       this.statusConCheck,
-      this.roomKey});
+      this.roomKey,
+      this.onCheckOut,
+      this.onSubmitReview}); // เพิ่ม
 
   @override
   Widget build(BuildContext context) {
@@ -134,8 +138,7 @@ class Boxlistcompanent extends StatelessWidget {
                               context, "/room_condition_check",
                               arguments: RoomConditionCheckArguments(
                                 roomId: roomNumber,
-                                bookingId:
-                                    keyBooking, // ใช้ keyBooking ที่มีอยู่แล้วเป็น bookingId
+                                bookingId: keyBooking,
                               )),
                           icon: const Icon(Icons.checklist_outlined, size: 18),
                           label: const Text("ตรวจสภาพห้อง"),
@@ -150,51 +153,76 @@ class Boxlistcompanent extends StatelessWidget {
                       ),
                     if (statusConCheck == true) const SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (statusCheckout == true) return;
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)),
-                                title: const Text('ยืนยันการเช็คเอาท์'),
-                                content: const Text(
-                                    'คุณแน่ใจว่าต้องการเช็คเอาท์หรือไม่?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: const Text('ยกเลิก'),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Constants.secondaryColor),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      _showFeedbackDialog(context);
-                                    },
-                                    child: const Text('ยืนยัน'),
+                      child: statusCheckout == true
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.check_circle_outline,
+                                      size: 18, color: Colors.grey.shade600),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "เช็คเอาท์แล้ว",
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ],
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.logout, size: 18),
-                        label: const Text("เช็คเอาท์"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade400,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          elevation: 0,
-                        ),
-                      ),
+                              ),
+                            )
+                          : ElevatedButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16)),
+                                      title: const Text('ยืนยันการเช็คเอาท์'),
+                                      content: const Text(
+                                          'คุณแน่ใจว่าต้องการเช็คเอาท์หรือไม่?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text('ยกเลิก'),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Constants.secondaryColor),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop();
+                                            await _handleCheckOut(context);
+                                          },
+                                          child: const Text('ยืนยัน'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.logout, size: 18),
+                              label: const Text("เช็คเอาท์"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red.shade400,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                elevation: 0,
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -234,7 +262,6 @@ class Boxlistcompanent extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          // ใช้ StatefulBuilder เพื่อให้กดเลือกดาวแล้ว UI เปลี่ยนทันที
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -246,7 +273,6 @@ class Boxlistcompanent extends StatelessWidget {
                 children: [
                   const Text('ความพึงพอใจต่อการเข้าพักของคุณ'),
                   const SizedBox(height: 15),
-                  // แถวของดาว (Rating Stars)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(5, (index) {
@@ -282,7 +308,7 @@ class Boxlistcompanent extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => {
-                    Navigator.of(context).pop(), // ปิด Dialog
+                    Navigator.of(context).pop(),
                     _showSuccessDialog(context)
                   },
                   child: const Text('ข้าม'),
@@ -292,10 +318,10 @@ class Boxlistcompanent extends StatelessWidget {
                       backgroundColor: Constants.secondaryColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10))),
-                  onPressed: () {
-                    // ตรงนี้คุณสามารถนำ selectedRating และ commentController.text ไปบันทึกลง Database ได้
-                    Navigator.of(context).pop(); // ปิดหน้า Feedback
-                    _showSuccessDialog(context); // 3. แสดงหน้าสำเร็จ
+                  onPressed: () async {
+                    Navigator.of(context).pop(); // ปิดหน้า Feedback ก่อน
+                    await _handleSubmitReview(context, selectedRating.toInt(),
+                        commentController.text); // แก้: เรียกส่งรีวิวจริง
                   },
                   child: const Text('ส่งความเห็น'),
                 ),
@@ -307,7 +333,6 @@ class Boxlistcompanent extends StatelessWidget {
     );
   }
 
-// ฟังก์ชันสุดท้ายแจ้งเตือนสำเร็จ
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -327,10 +352,6 @@ class Boxlistcompanent extends StatelessWidget {
                   context,
                   '/list_page',
                   (route) => false,
-                  // arguments: ListScreenArguments(
-                  //   checkInStatus: true,
-                  //   ckeckOutStatus: true,
-                  // ),
                 );
               },
               child: const Text('ตกลง'),
@@ -338,6 +359,69 @@ class Boxlistcompanent extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _handleCheckOut(BuildContext context) async {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+
+    showDialog(
+      context: rootContext,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      if (onCheckOut != null) {
+        await onCheckOut!();
+      }
+      Navigator.of(rootContext).pop(); // ปิด loading dialog
+      _showFeedbackDialog(rootContext);
+    } catch (e) {
+      Navigator.of(rootContext).pop(); // ปิด loading dialog
+      _showErrorDialog(rootContext, e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  // เพิ่มฟังก์ชันใหม่: ส่งรีวิวจริงผ่าน onSubmitReview
+  Future<void> _handleSubmitReview(
+      BuildContext context, int rating, String comment) async {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+
+    showDialog(
+      context: rootContext,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      if (onSubmitReview != null) {
+        await onSubmitReview!(rating, comment);
+      }
+      Navigator.of(rootContext).pop(); // ปิด loading
+      _showSuccessDialog(rootContext);
+    } catch (e) {
+      Navigator.of(rootContext).pop(); // ปิด loading
+      _showErrorDialog(rootContext, e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('เกิดข้อผิดพลาด'),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: Colors.red.shade400),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('ตกลง'),
+          ),
+        ],
+      ),
     );
   }
 }

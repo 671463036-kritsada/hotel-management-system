@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'list_screen_desktopBody.dart';
 import 'list_screen_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';
-import '../../../../util/model/model.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
