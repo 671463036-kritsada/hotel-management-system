@@ -1,13 +1,3 @@
-// To parse this JSON data, do
-//
-//     final listModel = listModelFromJson(jsonString);
-
-import 'dart:convert';
-
-ListModel listModelFromJson(String str) => ListModel.fromJson(json.decode(str));
-
-String listModelToJson(ListModel data) => json.encode(data.toJson());
-
 class ListModel {
   String? id;
   String? userId;
@@ -18,6 +8,7 @@ class ListModel {
   int? roomsCount;
   int? personCount;
   String? amount;
+  String? remainingAmount;
   String? phone;
   String? email;
   dynamic bankAccount;
@@ -28,6 +19,7 @@ class ListModel {
   String? checkInStatus;
   String? checkOutStatus;
   String? inspectionStatus;
+  String? checkinStatus; // เพิ่ม: มาจาก c.status AS checkin_status ที่ backend JOIN มา
   dynamic roomKey;
   DateTime? createdAt;
   dynamic updatedAt;
@@ -42,6 +34,7 @@ class ListModel {
     this.roomsCount,
     this.personCount,
     this.amount,
+    this.remainingAmount,
     this.phone,
     this.email,
     this.bankAccount,
@@ -52,6 +45,7 @@ class ListModel {
     this.checkInStatus,
     this.checkOutStatus,
     this.inspectionStatus,
+    this.checkinStatus, // เพิ่ม
     this.roomKey,
     this.createdAt,
     this.updatedAt,
@@ -64,13 +58,14 @@ class ListModel {
         roomId: json["room_id"],
         checkIn: json["check_in"] == null
             ? null
-            : DateTime.parse(json["check_in"]).toLocal(), // แปลงเป็น local
+            : DateTime.parse(json["check_in"]).toLocal(),
         checkOut: json["check_out"] == null
             ? null
-            : DateTime.parse(json["check_out"]).toLocal(), // แปลงเป็น local
+            : DateTime.parse(json["check_out"]).toLocal(),
         roomsCount: json["rooms_count"],
         personCount: json["person_count"],
         amount: json["amount"],
+        remainingAmount: json["remaining_amount"],
         phone: json["phone"],
         email: json["email"],
         bankAccount: json["bank_account"],
@@ -81,11 +76,11 @@ class ListModel {
         checkInStatus: json["check_in_status"],
         checkOutStatus: json["check_out_status"],
         inspectionStatus: json["inspection_status"],
+        checkinStatus: json["checkin_status"], // เพิ่ม: ตรงกับ alias จาก backend
         roomKey: json["room_key"],
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"])
-                .toLocal(), // เผื่อใช้แสดงผลในอนาคต
+            : DateTime.parse(json["created_at"]).toLocal(),
         updatedAt: json["updated_at"],
       );
 
@@ -99,6 +94,7 @@ class ListModel {
         "rooms_count": roomsCount,
         "person_count": personCount,
         "amount": amount,
+        "remaining_amount": remainingAmount,
         "phone": phone,
         "email": email,
         "bank_account": bankAccount,
@@ -109,6 +105,7 @@ class ListModel {
         "check_in_status": checkInStatus,
         "check_out_status": checkOutStatus,
         "inspection_status": inspectionStatus,
+        "checkin_status": checkinStatus, // เพิ่ม
         "room_key": roomKey,
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt,

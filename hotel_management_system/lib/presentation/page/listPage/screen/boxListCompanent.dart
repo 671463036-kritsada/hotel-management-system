@@ -16,7 +16,8 @@ class Boxlistcompanent extends StatelessWidget {
 
   final Function()? onTap;
   final Future<void> Function()? onCheckOut;
-  final Future<void> Function(int rating, String comment)? onSubmitReview; // เพิ่ม
+  final Future<void> Function(int rating, String comment)?
+      onSubmitReview; // เพิ่ม
 
   Boxlistcompanent(
       {super.key,
@@ -107,10 +108,6 @@ class Boxlistcompanent extends StatelessWidget {
                       "฿${payamout.toStringAsFixed(2)}"),
                   _buildInfoRow(Icons.confirmation_number_outlined,
                       "รหัสการจอง", keyBooking),
-                  if (statusChekin == true) ...[
-                    const SizedBox(height: 8),
-                    _buildInfoRow(Icons.key_outlined, "รหัสเข้าห้อง", "839201"),
-                  ],
                   if (textStatus.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     _buildInfoRow(Icons.info_outline, "สถานะ", textStatus,

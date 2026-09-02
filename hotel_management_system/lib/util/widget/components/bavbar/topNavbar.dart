@@ -11,6 +11,8 @@ class Topnavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userName = context.watch<UserProvider>().user?.name;
+    final isLogin = context.read<UserProvider>().isLogin;
+
     final displayName = (userName == null || userName.isEmpty)
         ? "ท่านยังไม่ได้เข้าสู่ระบบ"
         : userName;
@@ -73,6 +75,29 @@ class Topnavbar extends StatelessWidget {
               ),
             ],
           ),
+          if (isLogin)
+            GestureDetector(
+              onTap: () async {
+                await context.read<UserProvider>().logout();
+                if (!context.mounted) return;
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
+              },
+              child: Container(
+                  width: screenWidth * widthFactor,
+                  alignment: Alignment.center,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(Constants.borderRadius)),
+                    color: Constants.secondaryColor,
+                  ),
+                  child: const Text(
+                    "logout",
+                    style: TextStyle(
+                        color: Colors.white, fontSize: Constants.fontSizeLabel),
+                  )),
+            ),
           GestureDetector(
             onTap: () {
               Navigator.pop(context);

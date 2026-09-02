@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/listPage/provider/list_screen_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -28,6 +29,14 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isLogin = context.read<UserProvider>().isLogin;
+
+      if (!isLogin) {
+        // ยังไม่ login → เด้งไปหน้า login แทนที่จะยิง API แล้ว crash
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
+
       context.read<ListScreenProvider>().getBookingList();
     });
   }
@@ -145,6 +154,9 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                                 personCount:
                                                     booking.personCount,
                                                 slipUrl: booking.slipUrl,
+                                                remainingAmount:
+                                                    booking.remainingAmount,
+                                                roomKey: booking.roomKey,
                                               ),
                                             ),
                                           );

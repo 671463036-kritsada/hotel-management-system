@@ -122,6 +122,8 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                                 personCount:
                                                     booking.personCount,
                                                 slipUrl: booking.slipUrl,
+                                                remainingAmount: booking
+                                                    .remainingAmount, // เพิ่ม
                                               ),
                                             ),
                                           );

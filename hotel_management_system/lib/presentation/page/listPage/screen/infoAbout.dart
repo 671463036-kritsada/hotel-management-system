@@ -18,6 +18,8 @@ class Infoabout extends StatelessWidget {
   final int? roomsCount;
   final int? personCount;
   final String? slipUrl;
+  final double? remainingAmount; // เพิ่ม
+  final String? roomKey;
 
   Infoabout({
     super.key,
@@ -33,6 +35,8 @@ class Infoabout extends StatelessWidget {
     this.roomsCount,
     this.personCount,
     this.slipUrl,
+    this.remainingAmount,
+    this.roomKey, // เพิ่ม
   });
 
   String _formatDateRange(DateTime? start, DateTime? end) {
@@ -63,8 +67,10 @@ class Infoabout extends StatelessWidget {
 
   // ดึง root URL จาก DioClient (ตัด "/api/" ท้าย baseUrl ออก)
   String get _serverRootUrl {
-    final apiBaseUrl = DioClient.dio.options.baseUrl; // "http://localhost:2000/api/"
-    return apiBaseUrl.replaceFirst(RegExp(r'/api/?$'), ''); // -> "http://localhost:2000"
+    final apiBaseUrl =
+        DioClient.dio.options.baseUrl; // "http://localhost:2000/api/"
+    return apiBaseUrl.replaceFirst(
+        RegExp(r'/api/?$'), ''); // -> "http://localhost:2000"
   }
 
   Widget _buildSlipImage() {
@@ -130,11 +136,9 @@ class Infoabout extends StatelessWidget {
               width: double.infinity,
               child: _buildSlipImage(),
             ),
-
             if (checkInStatus == true)
-              Text("รหัสเข้าห้อง: 839201",
+              Text("รหัสเข้าห้อง: ${roomKey}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-
             SizedBox(
               height: 20,
             ),
@@ -151,7 +155,13 @@ class Infoabout extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CheckInScreen(bookingId: bookingId),
+                      builder: (context) => CheckInScreen(
+                        bookingId: bookingId,
+                        totalPrice: remainingAmount ??
+                            0, // เพิ่ม: ส่ง remaining_amount ตรงๆ
+                        depositAmount:
+                            0, // เพิ่ม: ไม่ต้องหักซ้ำเพราะ remaining_amount หักมัดจำมาแล้ว
+                      ),
                     ),
                   );
                 },

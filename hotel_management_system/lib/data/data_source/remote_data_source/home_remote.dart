@@ -1,16 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:hotel_management_system/data/model/responseModelRemote/response_model.dart';
-import 'package:hotel_management_system/data/model/home_model.dart'; // แก้ path ให้ตรงกับโปรเจกต์จริง
 
 abstract class HomeRemoteDataSource {
-  Future<List<HomeModel>> getRooms();
-  Future<List<HomeModel>> getAvailableRooms({
+  Future<List<dynamic>> getRooms(); // แก้: คืน raw list
+  Future<List<dynamic>> getAvailableRooms({
     required String checkIn,
     required String checkOut,
     String? roomType,
   });
 
-  Future<HomeModel> getRoomById(String roomID);
+  Future<Map<String, dynamic>> getRoomById(String roomID); // แก้: คืน raw map
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -19,7 +18,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   HomeRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<List<HomeModel>> getRooms() async {
+  Future<List<dynamic>> getRooms() async { // แก้
     try {
       final response = await dio.get(_endpoint);
       final ResponseModel responseModel =
@@ -27,11 +26,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (responseModel.statusCode == 200) {
         final data = responseModel.data;
         if (data is List) {
-          return data
-              .whereType<Map>()
-              .map(
-                  (item) => HomeModel.fromJson(Map<String, dynamic>.from(item)))
-              .toList();
+          return data; // แก้: คืน raw list ตรงๆ ไม่แปลงเป็น HomeModel แล้ว
         }
         throw Exception('Invalid room data format');
       } else {
@@ -58,7 +53,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<List<HomeModel>> getAvailableRooms({
+  Future<List<dynamic>> getAvailableRooms({ // แก้
     required String checkIn,
     required String checkOut,
     String? roomType,
@@ -77,11 +72,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (responseModel.statusCode == 200) {
         final data = responseModel.data;
         if (data is List) {
-          return data
-              .whereType<Map>()
-              .map(
-                  (item) => HomeModel.fromJson(Map<String, dynamic>.from(item)))
-              .toList();
+          return data; // แก้: คืน raw list ตรงๆ
         }
         throw Exception('Invalid room data format');
       } else {
@@ -109,7 +100,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<HomeModel> getRoomById(String roomId) async {
+  Future<Map<String, dynamic>> getRoomById(String roomId) async { // แก้
     try {
       final response = await dio.get('$_endpoint/$roomId');
       final ResponseModel responseModel =
@@ -117,7 +108,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (responseModel.statusCode == 200) {
         final data = responseModel.data;
         if (data is Map) {
-          return HomeModel.fromJson(Map<String, dynamic>.from(data));
+          return Map<String, dynamic>.from(data); // แก้: คืน raw map ตรงๆ
         }
         throw Exception('Invalid room data format');
       } else {

@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:hotel_management_system/data/data_source/remote_data_source/promotion_remote.dart';
-import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart';
+import 'package:hotel_management_system/data/model/promotion_model.dart';
 
 abstract class PromotionRepositorise {
-  Future<List<PromotionEntitise>> getActivePromotions();
-  Future<PromotionEntitise> getPromotionById(String id);
+  Future<List<PromotionModel>> getActivePromotions(); 
+  Future<PromotionModel> getPromotionById(String id); 
   Future<int> claimPromotion(String promotionId);
-  Future<List<UserCouponEntitise>> getMyCoupons({String status});
+  Future<List<UserCouponModel>> getMyCoupons({String status}); 
 }
 
 class PromotionRepositoriseImpl implements PromotionRepositorise {
@@ -14,10 +14,9 @@ class PromotionRepositoriseImpl implements PromotionRepositorise {
   PromotionRepositoriseImpl(this.remoteDataSource);
 
   @override
-  Future<List<PromotionEntitise>> getActivePromotions() async {
+  Future<List<PromotionModel>> getActivePromotions() async {
     try {
-      final models = await remoteDataSource.getActivePromotions();
-      return models.map((m) => m.toEntity()).toList();
+      return await remoteDataSource.getActivePromotions();
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่ออินเตอร์เน็ต");
     } catch (e) {
@@ -26,10 +25,9 @@ class PromotionRepositoriseImpl implements PromotionRepositorise {
   }
 
   @override
-  Future<PromotionEntitise> getPromotionById(String id) async {
+  Future<PromotionModel> getPromotionById(String id) async {
     try {
-      final model = await remoteDataSource.getPromotionById(id);
-      return model.toEntity();
+      return await remoteDataSource.getPromotionById(id);
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่ออินเตอร์เน็ต");
     } catch (e) {
@@ -44,15 +42,14 @@ class PromotionRepositoriseImpl implements PromotionRepositorise {
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่ออินเตอร์เน็ต");
     } catch (e) {
-      rethrow; // ส่ง message จริงจาก backend (เช่น "คุณได้รับคูปองนี้ไปแล้ว") ต่อไปตรงๆ
+      rethrow;
     }
   }
 
   @override
-  Future<List<UserCouponEntitise>> getMyCoupons({String status = "available"}) async {
+  Future<List<UserCouponModel>> getMyCoupons({String status = "available"}) async {
     try {
-      final models = await remoteDataSource.getMyCoupons(status: status);
-      return models.map((m) => m.toEntity()).toList();
+      return await remoteDataSource.getMyCoupons(status: status);
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่ออินเตอร์เน็ต");
     } catch (e) {

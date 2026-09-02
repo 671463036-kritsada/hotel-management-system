@@ -74,9 +74,9 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
         "Check in แล้ว",
         "Check in สำเร็จแล้ว ตรวจสภาพห้องก่อนเข้าพัก",
         "/list_page",
-        "รหัสเข้าห้อง[ 839201 ]",
-        "ใช้ได้ตั้งแต่: 15 ก.พ. 14:00",
-        "หมดอายุ: 17 ก.พ. 12:00",
+        "",
+        "",
+        "",
         // arguments: ListScreenArguments(
         //   checkInStatus: true,
         //   ckeckOutStatus: false,
@@ -108,12 +108,12 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     }
   }
 
-  /// เพิ่มใหม่: format ตัวเลขเป็นสกุลเงินบาท
+  ///format ตัวเลขเป็นสกุลเงินบาท
   String _formatBaht(double value) {
     return "${value.toStringAsFixed(2)} บาท";
   }
 
-  /// เพิ่มใหม่: widget แถวสรุปราคาแต่ละบรรทัด
+  ///widget แถวสรุปราคาแต่ละบรรทัด
   Widget _priceRow(String label, double amount, {bool isTotal = false}) {
     final style = TextStyle(
       fontSize: isTotal ? Constants.fontSizeBody : Constants.fontSizeBody - 2,
@@ -125,9 +125,15 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment:
+            CrossAxisAlignment.start, // เพิ่ม: กันข้อความสองบรรทัดเยื้องกัน
         children: [
-          Text(label, style: style),
+          Expanded(
+            // เพิ่ม: ให้ label บีบตัวและ wrap แทนการดันจำนวนเงินออกจอ
+            child: Text(label, style: style),
+          ),
+          const SizedBox(
+              width: 8), // เพิ่ม: กันข้อความชนกันตอน label ยาวจนเกือบเต็มบรรทัด
           Text(displayAmount, style: style),
         ],
       ),
@@ -234,7 +240,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                 ),
                               ),
                             const SizedBox(height: 20),
-                            // ================= เพิ่มใหม่: สรุปค่าใช้จ่าย =================
+                            // สรุปค่าใช้จ่าย =================
                             Text('สรุปค่าใช้จ่าย',
                                 style: TextStyle(
                                     fontSize: Constants.fontSizeBody,

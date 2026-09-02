@@ -5,7 +5,6 @@ import 'package:hotel_management_system/domain/entitise/list_entitise.dart';
 class ListUsecase {
   final ListRepositoriseImpl repository;
   ListUsecase(this.repository);
-
   Future<List<BookingListEntity>> getListData() async {
     try {
       final listDataModel = await repository.getListData();
@@ -19,8 +18,9 @@ class ListUsecase {
                 checkOut: item.checkOut,
                 roomsCount: item.roomsCount ?? 0,
                 personCount: item.personCount ?? 0,
-                //amount เป็น String ใน Model ("2100.00") ต้อง parse เป็น double
                 amount: double.tryParse(item.amount ?? '') ?? 0.0,
+                remainingAmount:
+                    double.tryParse(item.remainingAmount ?? '') ?? 0.0,
                 phone: item.phone ?? "",
                 email: item.email ?? "",
                 bankAccount: item.bankAccount?.toString(),
@@ -31,6 +31,8 @@ class ListUsecase {
                 checkInStatus: item.checkInStatus ?? "",
                 checkOutStatus: item.checkOutStatus ?? "",
                 inspectionStatus: item.inspectionStatus ?? "",
+                checkinStatus:
+                    item.checkinStatus, // เพิ่ม: ปล่อยเป็น null ได้ตามธรรมชาติ
                 roomKey: item.roomKey?.toString(),
                 createdAt: item.createdAt,
               ))

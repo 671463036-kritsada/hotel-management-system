@@ -6,13 +6,29 @@ import '../../../responsiveLayout/responsive_layout.dart';
 
 class CheckInScreen extends StatelessWidget {
   final String? bookingId;
-  const CheckInScreen({super.key, this.bookingId});
+  final double totalPrice;
+  final double depositAmount;
+
+  const CheckInScreen({
+    super.key,
+    this.bookingId,
+    this.totalPrice = 0,
+    this.depositAmount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      mobileBody: CheckInScreenMobileBody(bookingID: bookingId,),
-      desktopBody: CheckInScreenDesktopBody(bookingID: bookingId,),
+      mobileBody: CheckInScreenMobileBody(
+        bookingID: bookingId,
+        totalPrice: totalPrice,
+        depositAmount: depositAmount,
+      ),
+      desktopBody: CheckInScreenDesktopBody(
+        bookingID: bookingId,
+        totalPrice: totalPrice,
+        depositAmount: depositAmount,
+      ),
     );
   }
 }
