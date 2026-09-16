@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/function/image_url.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -60,42 +61,93 @@ class _RoomConditionCheckScreenMobileBodyState
   }
 
   Widget _buildItemImage(FurnitureItem item) {
-    if (item.image is String && (item.image as String).isNotEmpty) {
-      return Image.asset(item.image,
-          width: 60,
-          height: 60,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Icon(Icons.broken_image));
-    }
-    // image เป็น null หรือรายการที่เพิ่มเอง -> แสดงไอคอนเตือนแทน
-    return Container(
+    final imageUrl = ImageUrlHelper.toFullImageUrl(item.inspectionImageUrl);
+    if (imageUrl != null) {
+      return Image.network(
+        imageUrl,
         width: 60,
         height: 60,
-        color: Colors.orange.shade100,
-        child: const Icon(Icons.warning_amber_rounded, color: Colors.orange));
+        fit: BoxFit.cover,
+        errorBuilder: (_, error, stackTrace) {
+          debugPrint("โหลดรูปไม่สำเร็จ");
+          debugPrint("URL: $imageUrl");
+          debugPrint("ERROR: $error");
+
+          return const Icon(
+            Icons.broken_image,
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
+
+          return const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    return Container(
+      width: 60,
+      height: 60,
+      color: Colors.orange.shade100,
+      child: const Icon(
+        Icons.warning_amber_rounded,
+        color: Colors.orange,
+      ),
+    );
   }
 
   Widget _buildStatusPicker(int index, FurnitureItem item) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: ["ปกติ", "ชำรุด"].map((s) {
-        bool active = item.status == s;
+        final bool active = item.status == s;
+        final bool isDamaged = s == "ชำรุด";
+
         return GestureDetector(
-          onTap: () => context
-              .read<RoomConditionCheckScreenProvider>()
-              .updateStatus(index, s),
-          child: Container(
-            margin: const EdgeInsets.only(left: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          onTap: () {
+            context
+                .read<RoomConditionCheckScreenProvider>()
+                .updateStatus(index, s);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 9,
+            ),
             decoration: BoxDecoration(
+              color: active
+                  ? (isDamaged ? Colors.red.shade50 : Colors.green.shade50)
+                  : Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
                 color: active
-                    ? (s == "ปกติ" ? Colors.green : Colors.red)
-                    : Colors.grey[100],
-                borderRadius: BorderRadius.circular(25)),
-            child: Text(s,
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: active ? Colors.white : Colors.grey[600])),
+                    ? (isDamaged ? Colors.red : Colors.green)
+                    : Colors.grey.shade300,
+                width: active ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              s,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: active
+                    ? (isDamaged ? Colors.red : Colors.green.shade700)
+                    : Colors.grey.shade600,
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -104,32 +156,88 @@ class _RoomConditionCheckScreenMobileBodyState
 
   Widget _buildDamageDetailBox(int index, FurnitureItem item) {
     final provider = context.read<RoomConditionCheckScreenProvider>();
+
     return Container(
-      margin: const EdgeInsets.only(top: 15),
-      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-          color: Colors.red.shade50.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.red.shade300, width: 1.5)),
+        color: Colors.red.shade50.withOpacity(0.45),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.red.shade200,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("รายละเอียดความเสียหาย",
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          TextField(
-            onChanged: (val) => provider.updateNote(index, val),
-            decoration: InputDecoration(
-                hintText: "กรอกหมายเหตุที่นี่...",
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+          Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.red.shade600,
+                size: 19,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                "รายละเอียดความเสียหาย",
+                style: TextStyle(
+                  color: Colors.red.shade700,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
+
+          const SizedBox(height: 10),
+
+          // รายละเอียด
+          TextFormField(
+            initialValue: item.note,
+            onChanged: (value) {
+              provider.updateNote(
+                index,
+                value,
+              );
+            },
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: "เช่น เตียงมีรอยแตก หรือชำรุดบริเวณขาเตียง",
+              hintStyle: TextStyle(
+                color: Colors.grey.shade400,
+                fontSize: 13,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Colors.red.shade400,
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+            ),
+          ),
+
           const SizedBox(height: 12),
+
+          // รูปความเสียหาย
           GestureDetector(
             onTap: () => provider.pickDamageImage(index),
             child: item.damageImage == null
@@ -137,36 +245,69 @@ class _RoomConditionCheckScreenMobileBodyState
                     height: 120,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade400)),
-                    child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.camera_enhance,
-                              size: 30, color: Colors.grey),
-                          Text("กดเพื่อถ่ายรูปความเสียหาย",
-                              style: TextStyle(color: Colors.grey))
-                        ]),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.camera_alt_outlined,
+                          size: 30,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          "ถ่ายรูปความเสียหาย",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          "แตะเพื่อเปิดกล้อง",
+                          style: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Stack(children: [
-                      Image.file(item.damageImage!,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Stack(
+                      children: [
+                        Image.file(
+                          item.damageImage!,
                           height: 180,
                           width: double.infinity,
-                          fit: BoxFit.cover),
-                      Positioned(
+                          fit: BoxFit.cover,
+                        ),
+                        Positioned(
                           right: 8,
                           top: 8,
                           child: CircleAvatar(
-                              backgroundColor: Colors.black54,
-                              child: IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.white),
-                                  onPressed: () =>
-                                      provider.pickDamageImage(index)))),
-                    ]),
+                            backgroundColor: Colors.black54,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              onPressed: () {
+                                provider.pickDamageImage(index);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
           ),
         ],
@@ -175,31 +316,93 @@ class _RoomConditionCheckScreenMobileBodyState
   }
 
   Widget _buildFurnitureRow(int index, FurnitureItem item) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Column(
+    final bool isDamaged = item.status == "ชำรุด";
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDamaged ? Colors.red.shade200 : Colors.grey.shade300,
+          width: isDamaged ? 1.2 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // รูป + ชื่อ
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: _buildItemImage(item)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: Text(item.title,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600))),
-                  _buildStatusPicker(index, item),
-                ],
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: _buildItemImage(item),
               ),
-              if (item.status == "ชำรุด") _buildDamageDetailBox(index, item),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isDamaged
+                          ? "กรุณาระบุรายละเอียดความเสียหาย"
+                          : "ตรวจสอบสภาพและเลือกสถานะ",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDamaged
+                            ? Colors.red.shade400
+                            : Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        const Divider(height: 1, thickness: 1),
-      ],
+
+          const SizedBox(height: 14),
+
+          // สถานะ
+          Row(
+            children: [
+              Text(
+                "สถานะ",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatusPicker(index, item),
+              ),
+            ],
+          ),
+
+          // ถ้าชำรุด → แสดงรายละเอียด + รูป
+          if (isDamaged) _buildDamageDetailBox(index, item),
+        ],
+      ),
     );
   }
 
@@ -433,8 +636,7 @@ class _RoomConditionCheckScreenMobileBodyState
                           ElevatedButton(
                             onPressed: () => context
                                 .read<RoomConditionCheckScreenProvider>()
-                                .init(widget.roomId,
-                                    widget.bookingId),
+                                .init(widget.roomId, widget.bookingId),
                             child: const Text("ลองใหม่อีกครั้ง"),
                           ),
                         ],

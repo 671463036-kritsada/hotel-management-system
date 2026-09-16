@@ -13,7 +13,7 @@ import '../../../../util/model/model.dart';
 class LoginScreenMobileBody extends StatelessWidget {
   const LoginScreenMobileBody({super.key});
 
-   void _showSuccessDialog(BuildContext context) {
+  void _showSuccessDialog(BuildContext context) {
     // อ่าน arguments ที่ส่งมาตอนเปิดหน้านี้ (ถ้ามี)
     final args = ModalRoute.of(context)?.settings.arguments;
     final loginArgs = args is LoginPageArguments ? args : null;
@@ -23,7 +23,8 @@ class LoginScreenMobileBody extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -64,7 +65,8 @@ class LoginScreenMobileBody extends StatelessWidget {
                         );
                       } else {
                         // login แบบปกติ ไม่มี redirect → ไปหน้า promotion ตามเดิม
-                        Navigator.pushReplacementNamed(context, "/promotion_page");
+                        Navigator.pushReplacementNamed(
+                            context, "/promotion_page");
                       }
                     },
                     child: const Text('ตกลง',
@@ -157,28 +159,28 @@ class LoginScreenMobileBody extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 20),
-                Text('หรือเข้าสู่ระบบด้วย',
-                    style: TextStyle(
-                        fontSize: Constants.fontSizeLabel,
-                        color: Colors.grey[600]),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ButtonAuth(
-                        onTap: () => context
-                            .read<LoginScreenProvider>()
-                            .loginWithGoogle(),
-                        ImagePath: "assets/images/authLogo/Google_Logo.png"),
-                    const SizedBox(width: 20),
-                    ButtonAuth(
-                        onTap: () => context
-                            .read<LoginScreenProvider>()
-                            .loginWithFacebook(),
-                        ImagePath: "assets/images/authLogo/FacebookLogo.png"),
-                  ],
-                ),
+                // Text('หรือเข้าสู่ระบบด้วย',
+                //     style: TextStyle(
+                //         fontSize: Constants.fontSizeLabel,
+                //         color: Colors.grey[600]),
+                //     textAlign: TextAlign.center),
+                // const SizedBox(height: 20),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     ButtonAuth(
+                //         onTap: () => context
+                //             .read<LoginScreenProvider>()
+                //             .loginWithGoogle(),
+                //         ImagePath: "assets/images/authLogo/Google_Logo.png"),
+                //     const SizedBox(width: 20),
+                //     ButtonAuth(
+                //         onTap: () => context
+                //             .read<LoginScreenProvider>()
+                //             .loginWithFacebook(),
+                //         ImagePath: "assets/images/authLogo/FacebookLogo.png"),
+                //   ],
+                // ),
               ],
             ),
           ),

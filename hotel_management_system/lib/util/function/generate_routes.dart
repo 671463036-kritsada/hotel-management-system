@@ -40,20 +40,26 @@ import '../../data/data_source/remote_data_source/booking_form_remote.dart';
 import '../../data/data_source/remote_data_source/check_in_remote.dart';
 import '../../data/data_source/remote_data_source/history_remote.dart';
 import '../../data/data_source/remote_data_source/login_remote.dart';
+import '../../data/data_source/remote_data_source/user_profile_remote.dart';
 import '../../data/repositorise/booking_form_repositorise.dart';
 import '../../data/repositorise/check_in_repositorise.dart';
 import '../../data/repositorise/history_repository.dart';
 import '../../data/repositorise/login_repositorise.dart';
+import '../../data/repositorise/user_profile_respositorise.dart';
 import '../../domain/use_case/booking_form_usecase.dart';
 import '../../domain/use_case/check_in_usecase.dart';
 import '../../domain/use_case/houseKeeper_usecase.dart';
 import '../../domain/use_case/login_usecase.dart';
 import '../../domain/use_case/register_usecase.dart';
+import '../../domain/use_case/user_profile_usecase.dart';
+
 import '../../presentation/page/historyPage/screen/history_screen.dart';
 import '../../presentation/page/homePage/screen/home_screen.dart';
 import '../../presentation/page/roomDetailPage/screen/room_detail_screen.dart';
 
 // import dio client เข้ามาเพื่อ แนบ token ไปทุก req
+import '../../presentation/page/userProfileScreen/provider/user_profile_provider.dart';
+import '../../presentation/page/userProfileScreen/screen/user_profile_screen.dart';
 import '../widget/core/network/dio_client.dart';
 
 RouteFactory onGenerateRoute = (settings) {
@@ -175,6 +181,19 @@ RouteFactory onGenerateRoute = (settings) {
                     PromotionRepositoriseImpl(
                         PromotionRemoteDataSourceImpl(DioClient.dio)))),
                 child: PromotionDetailScreen(),
+              ),
+          settings: settings);
+    case "/profile":
+      return MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider(
+                create: (_) => ProfileScreenProvider(
+                  UserProfileUseCase(
+                    repository: UserProfileRepositoryImpl(
+                      remoteDataSource: UserProfileRemoteDataSourceImpl(),
+                    ),
+                  ),
+                ),
+                child: const ProfileScreen(),
               ),
           settings: settings);
     default:

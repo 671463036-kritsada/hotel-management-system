@@ -24,7 +24,8 @@ class Boxshowdatahistory extends StatelessWidget {
     this.ratingWidget,
   });
 
-  @override
+  // ✅ แก้บั๊ก: เดิมมี @override ซ้ำกัน 2 บรรทัดติดกัน เป็น syntax error
+  // ทำให้ไฟล์นี้คอมไพล์ไม่ผ่านทั้งไฟล์ เหลือไว้อันเดียวพอ
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../util/widget/components/button/button.dart';
-import '../../../../util/widget/components/button/heart_button.dart';
+// import '../../../../util/widget/components/button/heart_button.dart';
 import '../../../../util/widget/core/constants.dart';
 
 class BoxshowPromotionCard extends StatelessWidget {
@@ -78,12 +78,12 @@ class BoxshowPromotionCard extends StatelessWidget {
                     )
                   else
                     const SizedBox.shrink(),
-                  HeartButton(
-                    initialValue: isFavorite,
-                    size: 24,
-                    inactiveColor: Colors.white,
-                    // onChanged: onFavoriteChanged,
-                  ),
+                  // HeartButton(
+                  //   initialValue: isFavorite,
+                  //   size: 24,
+                  //   inactiveColor: Colors.white,
+                  //   // onChanged: onFavoriteChanged,
+                  // ),
                 ],
               ),
             ),

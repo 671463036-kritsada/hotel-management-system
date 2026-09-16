@@ -19,8 +19,7 @@ class PromotionScreenMobilebody extends StatefulWidget {
       _PromotionScreenMobilebodyState();
 }
 
-class _PromotionScreenMobilebodyState
-    extends State<PromotionScreenMobilebody> {
+class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
   static const String _fallbackImageUrl =
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c";
 
@@ -80,8 +79,8 @@ class _PromotionScreenMobilebodyState
           style: OutlinedButton.styleFrom(
             foregroundColor: Constants.primaryColor,
             side: BorderSide(color: Constants.primaryColor),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
         ),
         if (hasDateFilter) ...[
@@ -153,7 +152,6 @@ class _PromotionScreenMobilebodyState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -165,30 +163,30 @@ class _PromotionScreenMobilebodyState
               SizedBox(
                 height: 80,
               ),
-              Container(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "ข่าวสารและประชาสัมพันธ์",
-                          style: TextStyle(
-                              fontSize: Constants.fontSizeHeader,
-                              fontWeight: Constants.fontWeightBold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 12,
-                    ),
-                    _buildBanner(),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 12,
-              ),
+              // Container(
+              //   width: double.infinity,
+              //   child: Column(
+              //     children: [
+              //       Row(
+              //         children: [
+              //           Text(
+              //             "ข่าวสารและประชาสัมพันธ์",
+              //             style: TextStyle(
+              //                 fontSize: Constants.fontSizeHeader,
+              //                 fontWeight: Constants.fontWeightBold),
+              //           ),
+              //         ],
+              //       ),
+              //       SizedBox(
+              //         height: 12,
+              //       ),
+              //       _buildBanner(),
+              //     ],
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 12,
+              // ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(

@@ -10,13 +10,7 @@ class Topnavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userName = context.watch<UserProvider>().user?.name;
     final isLogin = context.read<UserProvider>().isLogin;
-
-    final displayName = (userName == null || userName.isEmpty)
-        ? "ท่านยังไม่ได้เข้าสู่ระบบ"
-        : userName;
-
     double screenWidth = MediaQuery.of(context).size.width;
     return Container(
       padding: const EdgeInsets.all(Constants.padding),
@@ -39,83 +33,54 @@ class Topnavbar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Constants.white.withOpacity(0.3),
-                ),
-                alignment: Alignment.center,
-                child:
-                    const Icon(Icons.person, color: Constants.white, size: 40),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "ยินดีต้อนรับ",
-                    style: TextStyle(
-                      color: Constants.white,
-                      fontSize: Constants.fontSizeTitle,
-                      fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                    width: screenWidth * widthFactor,
+                    alignment: Alignment.center,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(Constants.borderRadius)),
+                      color: Constants.secondaryColor,
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    displayName,
-                    style: TextStyle(
-                      color: Constants.white,
-                      fontSize: Constants.fontSizeBody,
-                    ),
-                  ),
-                ],
+                    child: const Text(
+                      "กลับ",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: Constants.fontSizeLabel),
+                    )),
               ),
+           
             ],
           ),
-          if (isLogin)
-            GestureDetector(
-              onTap: () async {
-                await context.read<UserProvider>().logout();
-                if (!context.mounted) return;
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false);
-              },
-              child: Container(
-                  width: screenWidth * widthFactor,
-                  alignment: Alignment.center,
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(Constants.borderRadius)),
-                    color: Constants.secondaryColor,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (isLogin) {
+                    Navigator.pushNamed(context, '/profile');
+                  } else {
+                    Navigator.pushNamed(context, '/login');
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Constants.white.withOpacity(0.3),
                   ),
-                  child: const Text(
-                    "logout",
-                    style: TextStyle(
-                        color: Colors.white, fontSize: Constants.fontSizeLabel),
-                  )),
-            ),
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-                width: screenWidth * widthFactor,
-                alignment: Alignment.center,
-                height: 50,
-                decoration: const BoxDecoration(
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(Constants.borderRadius)),
-                  color: Constants.secondaryColor,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.person,
+                      color: Constants.white, size: 40),
                 ),
-                child: const Text(
-                  "กลับ",
-                  style: TextStyle(
-                      color: Colors.white, fontSize: Constants.fontSizeLabel),
-                )),
+              ),
+              const SizedBox(width: 10),
+            ],
           ),
         ],
       ),
