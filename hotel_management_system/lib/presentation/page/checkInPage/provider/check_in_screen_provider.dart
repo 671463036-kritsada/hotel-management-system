@@ -13,7 +13,9 @@ import 'package:signature/signature.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 enum CheckInStatus { initial, loading, success, error }
+
 enum SaveQRStatus { initial, success, error }
+
 enum CouponLoadStatus { initial, loading, loaded, error } // เพิ่ม
 
 // ลบคลาส CouponModel ทั้งหมดทิ้ง
@@ -81,32 +83,39 @@ class CheckInScreenProvider extends ChangeNotifier {
   }
 
   /// เรียกตอนเปิดหน้า check-in เพื่อโหลดคูปองจริงของ user คนนี้
-  Future<void> loadCoupons() async {
-    _couponLoadStatus = CouponLoadStatus.loading;
-    notifyListeners();
-    try {
-      _coupons = await promotionUsecase.getMyCoupons();
-      _couponLoadStatus = CouponLoadStatus.loaded;
-      notifyListeners();
-    } catch (e) {
-      _couponLoadError = 'ไม่สามารถโหลดคูปองได้';
-      _couponLoadStatus = CouponLoadStatus.error;
-      notifyListeners();
+ Future<void> loadCoupons() async {
+  _couponLoadStatus = CouponLoadStatus.loading;
+  notifyListeners();
+  try {
+    _coupons = await promotionUsecase.getMyCoupons();
+
+    // ✅ ถ้าคูปองที่เคยเลือกไว้กลายเป็นใช้ไม่ได้ (หมดอายุ/ใช้แล้ว) เคลียร์ทิ้ง
+    if (_selectedCoupon != null &&
+        !_selectedCoupon!.isUsable(_baseAmountForDiscount)) {
+      _selectedCoupon = null;
     }
+
+    _couponLoadStatus = CouponLoadStatus.loaded;
+    notifyListeners();
+  } catch (e) {
+    _couponLoadError = 'ไม่สามารถโหลดคูปองได้';
+    _couponLoadStatus = CouponLoadStatus.error;
+    notifyListeners();
   }
+}
 
   /// เลือกคูปอง — ส่ง null เพื่อ "ไม่ใช้คูปอง"
-  void selectCoupon(int? userPromotionId) {
-    if (userPromotionId == null) {
-      _selectedCoupon = null;
-    } else {
-      _selectedCoupon = _coupons.firstWhere(
-        (c) => c.userPromotionId == userPromotionId,
-        orElse: () => _coupons.first,
-      );
-    }
-    notifyListeners();
-  }
+  // void selectCoupon(int? userPromotionId) {
+  //   if (userPromotionId == null) {
+  //     _selectedCoupon = null;
+  //   } else {
+  //     _selectedCoupon = _coupons.firstWhere(
+  //       (c) => c.userPromotionId == userPromotionId,
+  //       orElse: () => _coupons.first,
+  //     );
+  //   }
+  //   notifyListeners();
+  // }
   // --- End Coupon & Price State ---
 
   // --- Getter เดิม (ไม่แก้) ---
@@ -246,6 +255,33 @@ class CheckInScreenProvider extends ChangeNotifier {
   void resetStatus() {
     _status = CheckInStatus.initial;
     _errorMessage = '';
+    notifyListeners();
+  }
+
+  // เพิ่ม getter สำหรับให้ screen เรียกดูเหตุผลว่าคูปองแต่ละใบใช้ได้ไหม
+  String? couponUnavailableReason(UserCouponEntitise coupon) =>
+      coupon.unavailableReason(_baseAmountForDiscount);
+
+  /// เลือกคูปอง — ส่ง null เพื่อ "ไม่ใช้คูปอง"
+  void selectCoupon(int? userPromotionId) {
+    if (userPromotionId == null) {
+      _selectedCoupon = null;
+      notifyListeners();
+      return;
+    }
+
+    final coupon = _coupons.firstWhere(
+      (c) => c.userPromotionId == userPromotionId,
+      orElse: () => _coupons.first,
+    );
+
+    // ✅ กันเลือกคูปองที่ใช้ไม่ได้ (หมดอายุ/ใช้แล้ว/ยอดไม่ถึงขั้นต่ำ)
+    // แม้ UI จะ disable ปุ่มไว้แล้ว เผื่อมีทางอื่นเรียก selectCoupon เข้ามา
+    if (!coupon.isUsable(_baseAmountForDiscount)) {
+      return;
+    }
+
+    _selectedCoupon = coupon;
     notifyListeners();
   }
 

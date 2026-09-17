@@ -106,10 +106,10 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
           title: (item['title'] ?? 'รายการเฟอร์นิเจอร์').toString(),
           image: item['image'],
           isCustom: item['isCustom'] == true,
-          // ✅ prefill สถานะ/โน้ตจากผลตรวจครั้งก่อน แทนเริ่มที่ "ปกติ" เสมอ
+          // prefill สถานะ/โน้ตจากผลตรวจครั้งก่อน แทนเริ่มที่ "ปกติ" เสมอ
           status: (item['lastStatus'] as String?) ?? "ปกติ",
           note: (item['lastNote'] as String?) ?? "",
-          // ✅ รูปจากรอบก่อน (URL เต็ม) เก็บไว้ใช้ fallback ตอน submit ถ้า
+          // รูปจากรอบก่อน (URL เต็ม) เก็บไว้ใช้ fallback ตอน submit ถ้า
           // รอบนี้ยังไม่ได้ถ่ายรูปใหม่
           lastDamageImageUrl: item['lastDamageImage'] as String?,
         );

@@ -65,7 +65,32 @@ class UserCouponEntitise {
     this.endDate,
   });
 
+  // เช็คหมดอายุจาก endDate ตรงๆ แยกจาก status
+  // เผื่อกรณี status ที่โหลดมาตอนเปิดหน้ายังไม่ถูกอัปเดต (เช่น cache ค้าง)
+  // แต่ endDate ผ่านไปแล้วจริงๆ ณ ตอนที่ user กำลังจะกดใช้
+  bool get isExpiredByDate {
+    if (endDate == null) return false;
+    return DateTime.now().isAfter(endDate!);
+  }
+
+  // รวมทุกเงื่อนไขไว้จุดเดียว คืน null = ใช้ได้,
+  // ไม่ null = เหตุผลที่ใช้ไม่ได้ (เอาไปโชว์เป็น subtitle สีเทาได้เลย)
+  String? unavailableReason(double baseAmount) {
+    if (status == 'used') return 'ใช้ไปแล้ว';
+    if (status == 'expired' || isExpiredByDate) return 'หมดอายุแล้ว';
+    if (baseAmount < minBookingAmount) {
+      return 'ยอดจองขั้นต่ำ ${minBookingAmount.toStringAsFixed(0)} บาท';
+    }
+    return null;
+  }
+
+  bool isUsable(double baseAmount) => unavailableReason(baseAmount) == null;
+
   double calculateDiscount(double baseAmount) {
+    // เคารพยอดขั้นต่ำ ถ้ายอดไม่ถึง ไม่คำนวณส่วนลดให้เลย
+    // (บั๊กเดิม ไม่เช็คตรงนี้มาก่อน ทำให้ได้ส่วนลดทั้งที่ไม่ควรได้)
+    if (baseAmount < minBookingAmount) return 0;
+
     double discount;
     if (discountType == 'percentage') {
       discount = baseAmount * (discountValue / 100);

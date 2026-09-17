@@ -1,6 +1,7 @@
 // housekeeper_room_check_screen.dart
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/provider/HousekeeperRoomCheck_Screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/HousekeeperRoomCheckPage/screen/start_work_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/housekeeper_room_entity.dart';
@@ -100,18 +101,18 @@ class _HousekeeperRoomCheckScreenState
 
   Widget _buildRoomTile(HousekeeperRoomEntity room) {
     final statusColor = _getStatusColor(room.status);
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChangeNotifierProvider.value(
-              value: context.read<HousekeeperRoomCheckScreenProvider>(),
-              child: RoomDetailFormScreen(roomNo: room.roomNo),
-            ),
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider.value(
+            value: context.read<HousekeeperRoomCheckScreenProvider>(),
+            child: StartWorkScreen(roomNo: room.roomNo),
           ),
-        );
-      },
+        ),
+      );
+    },
       child: Container(
         decoration: BoxDecoration(
           color: statusColor.withOpacity(0.15),

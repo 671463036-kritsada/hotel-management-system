@@ -20,7 +20,7 @@ class RoomDetailFormScreen extends StatefulWidget {
 }
 
 class _RoomDetailFormScreenState extends State<RoomDetailFormScreen> {
-  String _cleaningStatus = "ยังไม่ได้ทำความสะอาด";
+  String _cleaningStatus = "กำลังทำความสะอาด";
   bool _isSaving = false;
 
   @override

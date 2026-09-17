@@ -226,14 +226,38 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                           provider.selectCoupon(null),
                                     ),
                                     ...provider.coupons.map((coupon) {
+                                      final reason = provider
+                                          .couponUnavailableReason(coupon);
+                                      final disabled = reason != null;
+
                                       return RadioListTile<int?>(
                                         value: coupon.userPromotionId,
                                         groupValue: provider
                                             .selectedCoupon?.userPromotionId,
-                                        title: Text(coupon.title),
-                                        subtitle: Text(coupon.code),
-                                        onChanged: (value) =>
-                                            provider.selectCoupon(value),
+                                        onChanged: disabled
+                                            ? null
+                                            : (value) =>
+                                                provider.selectCoupon(value),
+                                        title: Text(
+                                          coupon.title,
+                                          style: TextStyle(
+                                            color: disabled
+                                                ? Colors.grey
+                                                : Colors.black87,
+                                            decoration: disabled
+                                                ? TextDecoration.lineThrough
+                                                : null,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          disabled
+                                              ? "${coupon.code} • $reason"
+                                              : coupon.code,
+                                          style: TextStyle(
+                                              color: disabled
+                                                  ? Colors.grey
+                                                  : null),
+                                        ),
                                       );
                                     }),
                                   ],

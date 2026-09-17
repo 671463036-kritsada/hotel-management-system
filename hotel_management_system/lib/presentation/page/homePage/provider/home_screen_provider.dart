@@ -39,7 +39,7 @@ class HomeScreenProvider extends ChangeNotifier {
     filterAvailableRooms();
   }
 
-  /// ล้างวันที่ที่เลือก -> ไม่มีวันที่แล้ว = ไม่มีข้อมูลห้องให้แสดง (เพราะกรองอย่างเดียว ไม่มี "ห้องทั้งหมด")
+  /// ล้างวันที่ที่เลือก - ไม่มีวันที่แล้ว = ไม่มีข้อมูลห้องให้แสดง (เพราะกรองอย่างเดียว ไม่มี "ห้องทั้งหมด")
   void clearDateFilter() {
     checkInDate = null;
     checkOutDate = null;
@@ -48,6 +48,7 @@ class HomeScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  
   Future<void> filterAvailableRooms() async {
     if (!hasDateFilter) return;
 
