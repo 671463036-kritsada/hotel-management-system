@@ -12,6 +12,7 @@ import 'package:hotel_management_system/data/repositorise/list_repositorise.dart
 import 'package:hotel_management_system/data/repositorise/promotion_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/register_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/extra_bed_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/history_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/list_usecase.dart';
@@ -32,17 +33,20 @@ import 'package:hotel_management_system/presentation/page/promotionPage/screen/p
 import 'package:hotel_management_system/presentation/page/registerPage/provider/register_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/registerPage/screen/register_screen.dart';
 import 'package:hotel_management_system/presentation/page/roomDetailPage/provider/room_detail_screen_provider.dart';
+import 'package:hotel_management_system/presentation/page/CartPage/screen/cart_screen.dart';
 
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/data_source/remote_data_source/booking_form_remote.dart';
 import '../../data/data_source/remote_data_source/check_in_remote.dart';
+import '../../data/data_source/remote_data_source/extra_bed_remote.dart';
 import '../../data/data_source/remote_data_source/history_remote.dart';
 import '../../data/data_source/remote_data_source/login_remote.dart';
 import '../../data/data_source/remote_data_source/user_profile_remote.dart';
 import '../../data/repositorise/booking_form_repositorise.dart';
 import '../../data/repositorise/check_in_repositorise.dart';
+import '../../data/repositorise/extra_bed_repositorise.dart';
 import '../../data/repositorise/history_repository.dart';
 import '../../data/repositorise/login_repositorise.dart';
 import '../../data/repositorise/user_profile_respositorise.dart';
@@ -102,9 +106,19 @@ RouteFactory onGenerateRoute = (settings) {
     case '/room_detail':
       return MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
-          create: (_) => RoomDetailScreenProvider(HomeUsecase(
-              HomeRepositoryImpl(HomeRemoteDataSourceImpl(DioClient.dio)))),
-          child: RoomDetailScreen(),
+          create: (_) => RoomDetailScreenProvider(
+            HomeUsecase(
+              HomeRepositoryImpl(
+                HomeRemoteDataSourceImpl(DioClient.dio),
+              ),
+            ),
+            ExtraBedUsecase(
+              ExtraBedRepositoryImpl(
+                ExtraBedRemoteDataSourceImpl(DioClient.dio),
+              ),
+            ),
+          ),
+          child: const RoomDetailScreen(),
         ),
         settings: settings,
       );
@@ -117,8 +131,11 @@ RouteFactory onGenerateRoute = (settings) {
                         HomeRemoteDataSourceImpl(DioClient.dio)))),
                 child: const BookingFormScreen(),
               ),
-          // ส่ง agument ถ้ามีหลาย aguments เราจะทำ Map แล้วส่งมา เอา Map ไปทำเป็น model ก็ได้
+          // รายการห้องพักอ่านจาก CartProvider (global) ไม่ต้องส่ง arguments
           settings: settings);
+    case "/cart":
+      return MaterialPageRoute(
+          builder: (context) => const CartScreen(), settings: settings);
     case "/room_condition_check":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(

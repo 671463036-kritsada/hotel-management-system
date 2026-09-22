@@ -22,8 +22,10 @@ class BookingFormRepositoriseImpl implements BookingFormRepositorise {
   @override
   Future<double> getRoomPricePerNight(String roomId) async {
     try {
-      final rawRoom = await homeRemoteDataSource.getRoomById(roomId); // ได้ raw Map แล้ว
-      final room = HomeModel.fromJson(rawRoom); // เพิ่ม: แปลงเป็น Model เองตรงนี้
+      final rawRoom =
+          await homeRemoteDataSource.getRoomById(roomId); // ได้ raw Map แล้ว
+      final room =
+          HomeModel.fromJson(rawRoom); // เพิ่ม: แปลงเป็น Model เองตรงนี้
       final price = double.tryParse(room.pricePerNight ?? '') ?? 0;
       if (price <= 0) {
         throw Exception("ราคาห้องพักไม่ถูกต้อง");
@@ -41,26 +43,23 @@ class BookingFormRepositoriseImpl implements BookingFormRepositorise {
   @override
   Future<bool> bookingForm(BookingFormModel bookingData) async {
     try {
-      final roomId = bookingData.roomId;
-      final checkIn = bookingData.checkInDate;
-      final checkOut = bookingData.checkOutDate;
-      final roomsCount = bookingData.roomsCount ?? 1;
-
-      if (roomId == null || roomId.isEmpty) {
-        throw Exception("ไม่พบรหัสห้องพัก");
-      }
-      if (checkIn == null || checkOut == null) {
-        throw Exception("กรุณาเลือกวันที่เช็คอิน-เช็คเอาท์");
+      if (bookingData.items.isEmpty) {
+        throw Exception("ไม่พบห้องพักในตะกร้า");
       }
 
-      final pricePerNight = await getRoomPricePerNight(roomId);
-
-      final nights = checkOut.difference(checkIn).inDays;
-      if (nights <= 0) {
-        throw Exception("วันที่เช็คอิน-เช็คเอาท์ไม่ถูกต้อง");
+      for (final item in bookingData.items) {
+        if (item.roomId == null || item.roomId!.isEmpty) {
+          throw Exception("ไม่พบรหัสห้องพัก");
+        }
+        if (item.checkInDate == null || item.checkOutDate == null) {
+          throw Exception("กรุณาเลือกวันที่เช็คอิน-เช็คเอาท์");
+        }
       }
 
-      final totalPrice = pricePerNight * nights * roomsCount;
+      final totalPrice = bookingData.items.fold<double>(
+          0,
+          (sum, item) =>
+              sum + (item.roomPrice ?? 0) + (item.extraBedPrice ?? 0));
       final depositAmount = totalPrice * Constants.depositPercent;
       final remainingAmount = totalPrice - depositAmount;
 

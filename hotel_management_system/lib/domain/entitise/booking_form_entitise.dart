@@ -1,30 +1,28 @@
-class BookingFormEntitise {
-  String roomId;
-  String fullName;
-  DateTime checkInDate;
-  DateTime checkOutDate;
-  String email;
-  String bankAccount;
-  String phoneNumber;
-  int numberOfGuests;
-  int roomsCount;
-  double totalPrice;
-  String paymentSlip;
-  String address;
+import '../../util/widget/core/constants.dart';
+import 'cart_item_entitise.dart';
 
+/// ข้อมูลการจอง 1 order ที่อาจมีหลายห้อง (จากตะกร้า) แต่ข้อมูลผู้จอง/ชำระเงินใช้ร่วมกัน
+class BookingFormEntitise {
+  String fullName;
+  String email;
+  String phoneNumber;
+  String address;
+  String paymentSlip;
+  List<CartItemEntitise> items;
 
   BookingFormEntitise({
-    required this.roomId,
     required this.fullName,
-    required this.checkInDate,
-    required this.checkOutDate,
     required this.email,
-    required this.bankAccount,
     required this.phoneNumber,
-    required this.numberOfGuests,
-    required this.roomsCount,
-    required this.totalPrice,
-    required this.paymentSlip,
     required this.address,
+    required this.paymentSlip,
+    required this.items,
   });
+
+  double get totalPrice =>
+      items.fold(0.0, (sum, item) => sum + item.totalPrice);
+
+  double get depositAmount => totalPrice * Constants.depositPercent;
+
+  double get remainingAmount => totalPrice - depositAmount;
 }

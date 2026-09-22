@@ -4,17 +4,14 @@ import '../../../responsiveLayout/responsive_layout.dart';
 import 'booking_form_screen_route.dart';
 
 class BookingFormScreen extends StatelessWidget {
-
   const BookingFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ต้องเขียนเช็ค null หรือ type ที่ต้องการหรือป่าว
-    final String roomId = ModalRoute.of(context)!.settings.arguments as String ; 
-
-    return ResponsiveLayout(
-      mobileBody: BookingFormScreenMobileBody(roomId: roomId),
-      desktopBody: BookingFormScreenDesktopBody(roomId: roomId),
+    // ห้องพักที่จะจองอ่านจาก CartProvider (global) แล้ว ไม่ต้องรับ arguments
+    return const ResponsiveLayout(
+      mobileBody: BookingFormScreenMobileBody(),
+      desktopBody: BookingFormScreenDesktopBody(),
     );
   }
 }

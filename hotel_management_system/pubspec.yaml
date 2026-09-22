@@ -17,6 +17,7 @@ dependencies:
   permission_handler: ^11.3.1
   provider: ^6.1.5+1
   dio: ^5.11.0
+  qr_flutter: ^4.1.0
   flutter_secure_storage: ^10.3.1
   envied: ^1.2.1
   envied_generator: ^1.1.1

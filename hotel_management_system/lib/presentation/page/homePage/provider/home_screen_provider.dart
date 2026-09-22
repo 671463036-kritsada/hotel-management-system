@@ -25,7 +25,7 @@ class HomeScreenProvider extends ChangeNotifier {
     len = type == RoomType.rooms ? 10 : 15;
     notifyListeners();
 
-    // กรองใหม่เฉพาะตอนมีวันที่แล้วเท่านั้น เพราะไม่มี "ดึงห้องทั้งหมด" ให้ fallback อีกต่อไป
+    // กรองใหม่เฉพาะตอนมีวันที่แล้วเท่านั้น เพราะไม่มี "ดึงห้องทั้งหมด" ให้ fallback 
     if (hasDateFilter) {
       filterAvailableRooms();
     }
@@ -48,7 +48,7 @@ class HomeScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  
+
   Future<void> filterAvailableRooms() async {
     if (!hasDateFilter) return;
 

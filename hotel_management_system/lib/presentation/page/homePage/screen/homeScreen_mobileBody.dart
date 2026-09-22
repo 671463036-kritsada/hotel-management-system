@@ -6,7 +6,7 @@ import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
-import '../../../../util/widget/core/form_enum.dart';
+// import '../../../../util/widget/core/form_enum.dart';
 import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
@@ -45,8 +45,7 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            isSelected ? Constants.primaryColor : Colors.grey[200],
+        backgroundColor: isSelected ? Constants.primaryColor : Colors.grey[200],
         foregroundColor: isSelected ? Colors.white : Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
@@ -93,8 +92,8 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
           style: OutlinedButton.styleFrom(
             foregroundColor: Constants.primaryColor,
             side: BorderSide(color: Constants.primaryColor),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
         ),
         if (hasDateFilter) ...[
@@ -134,7 +133,7 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    // double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Constants.bgcolor,
@@ -155,31 +154,30 @@ class _HomeScreenMobileBodyState extends State<HomeScreenMobileBody> {
                   children: [
                     SizedBox(height: 100),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(child: _buildDateFilterChip(context)),
-                        Row(
-                          children: [
-                            SizedBox(
-                                width: screenWidth * 0.3,
-                                child:
-                                    createInputField(InputFieldType.search)),
-                            GestureDetector(
-                              onTap: () {
-                                print("ค้นหา");
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Constants.secondaryColor,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.search,
-                                    color: Constants.white, size: 35),
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     SizedBox(
+                        //         width: screenWidth * 0.3,
+                        //         child: createInputField(InputFieldType.search)),
+                        //     GestureDetector(
+                        //       onTap: () {
+                        //         print("ค้นหา");
+                        //       },
+                        //       child: Container(
+                        //         padding: const EdgeInsets.all(8),
+                        //         decoration: const BoxDecoration(
+                        //           color: Constants.secondaryColor,
+                        //           shape: BoxShape.circle,
+                        //         ),
+                        //         child: const Icon(Icons.search,
+                        //             color: Constants.white, size: 35),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                     Row(

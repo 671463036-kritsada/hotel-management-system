@@ -4,8 +4,10 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/book
 import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
@@ -13,11 +15,10 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/booking_form_provider_route.dart';
 import '../../../../util/widget/core/network/dio_client.dart';
+import '../../../../util/function/promptpay_qr.dart';
 
 class BookingFormScreenMobileBody extends StatefulWidget {
-  final String roomId;
-
-  const BookingFormScreenMobileBody({super.key, required this.roomId});
+  const BookingFormScreenMobileBody({super.key});
 
   @override
   State<BookingFormScreenMobileBody> createState() =>
@@ -39,13 +40,6 @@ class _BookingFormScreenMobileBodyState
     _provider = BookingFormScreenProvider(bookingUsecase);
     _provider.addListener(_onProviderChanged);
 
-    // เพิ่มใหม่: โหลดราคาห้องจาก DB มาแสดง preview ทันทีที่เปิดหน้า
-    _provider.loadRoomPrice(widget.roomId);
-
-    // เพิ่มใหม่: คำนวณราคาใหม่ทุกครั้งที่ผู้ใช้แก้วันที่เช็คอิน/เช็คเอาท์
-    _provider.checkInController.addListener(_provider.recalculatePrice);
-    _provider.checkOutController.addListener(_provider.recalculatePrice);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = context.read<UserProvider>().user;
       _provider.prefillUserInfo(user);
@@ -54,8 +48,6 @@ class _BookingFormScreenMobileBodyState
 
   @override
   void dispose() {
-    _provider.checkInController.removeListener(_provider.recalculatePrice);
-    _provider.checkOutController.removeListener(_provider.recalculatePrice);
     _provider.removeListener(_onProviderChanged);
     _provider.dispose();
     super.dispose();
@@ -68,10 +60,11 @@ class _BookingFormScreenMobileBodyState
 
   void _handleBookingResult() {
     if (_provider.status == BookingFormStatus.success) {
+      context.read<CartProvider>().clear();
       showSuccessDialog(
         context,
-        "จองห้องนี้",
-        "เราได้รับข้อมูลการจองห้องพักเลขที่ ${widget.roomId} เรียบร้อยแล้ว",
+        "จองห้องพัก",
+        "เราได้รับข้อมูลการจองห้องพักของคุณเรียบร้อยแล้ว",
         "/list_page",
         "",
         "",
@@ -102,29 +95,13 @@ class _BookingFormScreenMobileBodyState
     }
   }
 
-  // เพิ่มใหม่: format ตัวเลขเป็นสกุลเงินบาท
   String _formatBaht(double value) => "${value.toStringAsFixed(2)} บาท";
 
-  // เพิ่มใหม่: การ์ดสรุปราคาเต็ม + ค่ามัดจำ 30%
-  Widget _buildPriceSummary(BookingFormScreenProvider provider) {
-    print(
-        "=== DEBUG: _buildPriceSummary called, pricePerNight = ${provider.pricePerNight}, isLoadingPrice = ${provider.isLoadingPrice} ===");
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
-    if (provider.isLoadingPrice) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (provider.priceError.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(provider.priceError,
-            style: const TextStyle(color: Colors.red)),
-      );
-    }
-
+  // สรุปห้องพักทุกรายการในตะกร้า + ราคาเต็ม + ค่ามัดจำ 30%
+  Widget _buildPriceSummary(CartProvider cart) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -135,24 +112,23 @@ class _BookingFormScreenMobileBodyState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("ราคาต่อคืน",
-                  style: TextStyle(fontSize: Constants.fontSizeBody)),
-              Text(_formatBaht(provider.pricePerNight),
-                  style: TextStyle(fontSize: Constants.fontSizeBody)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("จำนวนคืน",
-                  style: TextStyle(fontSize: Constants.fontSizeBody)),
-              Text("${provider.nights} คืน",
-                  style: TextStyle(fontSize: Constants.fontSizeBody)),
-            ],
+          ...cart.items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'ห้อง ${item.roomId} (${_formatDate(item.checkIn)} - ${_formatDate(item.checkOut)}, ${item.nights} คืน)',
+                      style: TextStyle(fontSize: Constants.fontSizeBody),
+                    ),
+                  ),
+                  Text(_formatBaht(item.totalPrice),
+                      style: TextStyle(fontSize: Constants.fontSizeBody)),
+                ],
+              ),
+            ),
           ),
           const Divider(height: 20),
           Row(
@@ -162,7 +138,7 @@ class _BookingFormScreenMobileBodyState
                   style: TextStyle(
                       fontSize: Constants.fontSizeBody,
                       fontWeight: FontWeight.bold)),
-              Text(_formatBaht(provider.totalPrice),
+              Text(_formatBaht(cart.totalPrice),
                   style: TextStyle(
                       fontSize: Constants.fontSizeBody,
                       fontWeight: FontWeight.bold)),
@@ -176,7 +152,7 @@ class _BookingFormScreenMobileBodyState
                   style: TextStyle(
                       fontSize: Constants.fontSizeBody,
                       color: Colors.red[600])),
-              Text(_formatBaht(provider.depositAmount),
+              Text(_formatBaht(cart.depositAmount),
                   style: TextStyle(
                       fontSize: Constants.fontSizeBody,
                       fontWeight: FontWeight.bold,
@@ -194,15 +170,16 @@ class _BookingFormScreenMobileBodyState
       value: _provider,
       builder: (context, _) => Scaffold(
         backgroundColor: Constants.white,
-        floatingActionButton: Consumer<BookingFormScreenProvider>(
-          builder: (context, provider, _) {
+        floatingActionButton:
+            Consumer2<BookingFormScreenProvider, CartProvider>(
+          builder: (context, provider, cart, _) {
             return FloatingActionButton.extended(
-              onPressed: provider.isLoading
+              onPressed: provider.isLoading || cart.isEmpty
                   ? null
-                  : () => provider.submitBooking(roomId: widget.roomId),
+                  : () => provider.submitBooking(items: cart.items),
               label: provider.isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("จองห้องนี้"),
+                  : const Text("จองห้องพัก"),
             );
           },
         ),
@@ -212,8 +189,8 @@ class _BookingFormScreenMobileBodyState
             height: double.infinity,
             child: Stack(
               children: [
-                Consumer<BookingFormScreenProvider>(
-                  builder: (context, provider, _) {
+                Consumer2<BookingFormScreenProvider, CartProvider>(
+                  builder: (context, provider, cart, _) {
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -222,7 +199,7 @@ class _BookingFormScreenMobileBodyState
                           const SizedBox(height: 120),
                           Center(
                             child: Text(
-                              'จองห้องพักหมายเลข ${widget.roomId}',
+                              'จองห้องพัก (${cart.itemCount} ห้อง)',
                               style: TextStyle(
                                   fontSize: Constants.fontSizeHeader,
                                   fontWeight: Constants.fontWeightBold),
@@ -237,38 +214,11 @@ class _BookingFormScreenMobileBodyState
                               controller: provider.fullNameController),
                           createInputField(InputFieldType.email,
                               controller: provider.emailController),
-                          createInputField(InputFieldType.bank,
-                              controller: provider.bankController),
                           createInputField(InputFieldType.phoneNumber,
                               controller: provider.phoneController),
-                          createInputField(InputFieldType.numberOfGuests,
-                              controller: provider.numberOfGuestsController),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: createInputField(
-                                  InputFieldType.datePicker,
-                                  context: context,
-                                  controller: provider.checkInController,
-                                  textLabel: "วันที่เช็คอิน",
-                                ),
-                              ),
-                              Expanded(
-                                child: createInputField(
-                                  InputFieldType.datePicker,
-                                  context: context,
-                                  controller: provider.checkOutController,
-                                  textLabel: "วันที่เช็คเอาท์",
-                                ),
-                              ),
-                            ],
-                          ),
-
                           const SizedBox(height: 20),
-                          // เพิ่มใหม่: แสดงราคาเต็ม + ค่ามัดจำ 30% ก่อนถึงส่วนจ่ายเงิน
-                          _buildPriceSummary(provider),
+                          _buildPriceSummary(cart),
                           const SizedBox(height: 20),
-
                           Text("จ่ายค่ามัดจำผ่าน QR code",
                               style:
                                   TextStyle(fontSize: Constants.fontSizeBody)),
@@ -281,12 +231,18 @@ class _BookingFormScreenMobileBodyState
                                 borderRadius: BorderRadius.circular(
                                     Constants.borderRadius),
                               ),
-                              child: Image.asset("assets/images/QRcodePay.png"),
+                              child: QrImageView(
+                                data: PromptPayQr.createPayload(
+                                    cart.depositAmount),
+                                size: 240,
+                                backgroundColor: Colors.white,
+                              ),
                             ),
                           ),
                           Center(
                             child: GestureDetector(
-                              onTap: () => provider.saveQRCode(),
+                              onTap: () =>
+                                  provider.saveQRCode(cart.depositAmount),
                               child: Container(
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 10),

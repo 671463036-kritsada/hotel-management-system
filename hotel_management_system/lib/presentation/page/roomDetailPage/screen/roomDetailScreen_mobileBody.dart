@@ -1,15 +1,29 @@
 // room_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
+import '../../../../util/model/model.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../util/model/model.dart';
+import '../../../../domain/entitise/extra_bed_entitise.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/room_detail_screen_provider.dart';
+
+// ---------- helpers ----------
+String _formatDate(DateTime d) =>
+    '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+
+/// 1234.5 -> ฿1,234.50
+String _baht(double v) {
+  final parts = v.toStringAsFixed(2).split('.');
+  final intPart =
+      parts[0].replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+  return '฿$intPart.${parts[1]}';
+}
 
 class RoomDetailScreenMobileBody extends StatefulWidget {
   final String roomId;
@@ -23,6 +37,63 @@ class RoomDetailScreenMobileBody extends StatefulWidget {
 }
 
 class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
+  Future<void> _pickDateRange(RoomDetailScreenProvider provider) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+      initialDateRange: provider.dateRange,
+      helpText: 'เลือกวันเช็คอิน - เช็คเอาท์',
+      saveText: 'ตกลง',
+    );
+
+    if (picked != null) provider.setDateRange(picked);
+  }
+
+  Future<void> _onAddToCartTap(RoomDetailScreenProvider provider) async {
+    final selection = provider.buildSelection();
+
+    if (selection == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณาเลือกวันเช็คอิน - เช็คเอาท์')),
+      );
+      return;
+    }
+
+    if (!context.read<UserProvider>().isLogin) {
+      Navigator.pushNamed(
+        context,
+        '/login',
+        arguments: LoginPageArguments(redirectRoute: '/cart'),
+      );
+      return;
+    }
+
+    try {
+      await context.read<CartProvider>().addItem(selection);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ไม่สามารถเพิ่มลงตะกร้าได้')),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('เพิ่มลงตะกร้าแล้ว'),
+        action: SnackBarAction(
+          label: 'ดูตะกร้า',
+          onPressed: () => Navigator.pushNamed(context, "/cart"),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,9 +147,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              width: 8,
-                            ),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -107,55 +176,142 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          '฿${room.pricePerNight.toDouble()} / คืน',
+                          '${_baht(room.pricePerNight)} / คืน',
                           style: const TextStyle(
                               fontSize: 22,
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold),
                         ),
                         const Divider(height: 40),
-                        const Text(
-                          'รายละเอียดที่พัก',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
+                        const _SectionTitle('รายละเอียดที่พัก'),
                         const SizedBox(height: 10),
                         Text(
                           room.description,
                           style: const TextStyle(
                               fontSize: 16, color: Colors.grey, height: 1.5),
                         ),
+
+                        // ---------- วันที่เข้าพัก ----------
+                        const Divider(height: 40),
+                        const _SectionTitle('วันที่เข้าพัก'),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _DateBox(
+                                label: 'เช็คอิน',
+                                date: provider.checkIn,
+                                onTap: () => _pickDateRange(provider),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _DateBox(
+                                label: 'เช็คเอาท์',
+                                date: provider.checkOut,
+                                onTap: () => _pickDateRange(provider),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (provider.nights > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'พัก ${provider.nights} คืน',
+                              style: const TextStyle(
+                                  color: Constants.secondaryColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+
+                        // ---------- จำนวนผู้เข้าพัก ----------
+                        const Divider(height: 40),
+                        const _SectionTitle('จำนวนผู้เข้าพัก'),
+                        const SizedBox(height: 4),
+                        _CounterRow(
+                          title: 'ผู้ใหญ่',
+                          value: provider.adultCount,
+                          min: 1,
+                          max: RoomDetailScreenProvider.maxAdults,
+                          onDecrement: provider.decrementAdult,
+                          onIncrement: provider.incrementAdult,
+                        ),
+                        _CounterRow(
+                          title: 'เด็ก',
+                          value: provider.childCount,
+                          min: 0,
+                          max: RoomDetailScreenProvider.maxChildren,
+                          onDecrement: provider.decrementChild,
+                          onIncrement: provider.incrementChild,
+                        ),
+
+                        // ---------- เตียงเสริม (แสดงเมื่อมีเด็ก) ----------
+                        if (provider.childCount > 0 &&
+                            provider.extraBedTypes.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: const Text(
+                              'ต้องการเตียงเสริมสำหรับเด็ก',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            value: provider.wantExtraBed,
+                            activeColor: Constants.secondaryColor,
+                            onChanged: provider.toggleExtraBed,
+                          ),
+                          if (provider.wantExtraBed) ...[
+                            const SizedBox(height: 4),
+                            ...provider.extraBedTypes.map(
+                              (type) => _ExtraBedOption(
+                                type: type,
+                                selected: provider.selectedExtraBedType?.id ==
+                                    type.id,
+                                onTap: () => provider.selectExtraBedType(type),
+                              ),
+                            ),
+                            _CounterRow(
+                              title: 'จำนวนเตียงเสริม',
+                              subtitle:
+                                  'ไม่เกินจำนวนเด็ก (${provider.childCount})',
+                              value: provider.extraBedQuantity,
+                              min: 1,
+                              max: provider.childCount,
+                              onDecrement: provider.decrementExtraBed,
+                              onIncrement: provider.incrementExtraBed,
+                            ),
+                          ],
+                        ],
+
+                        // ---------- สรุปราคา ----------
+                        if (provider.nights > 0) ...[
+                          const Divider(height: 40),
+                          const _SectionTitle('สรุปราคา'),
+                          const SizedBox(height: 12),
+                          _PriceSummary(
+                              provider: provider,
+                              pricePerNight: room.pricePerNight),
+                        ],
+
                         const SizedBox(height: 30),
                         Center(
                           child: Button(
-                            text: 'จองห้องนี้',
-                            onTap: () {
-                              final isLogin =
-                                  context.read<UserProvider>().isLogin;
-
-                              if (!isLogin) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('กรุณาเข้าสู่ระบบก่อนทำการจอง')),
-                                );
-                                Navigator.pushNamed(
-                                  context,
-                                  "/login",
-                                  arguments: LoginPageArguments(
-                                    redirectRoute: "/booking_form",
-                                    redirectArguments: room.roomId,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              Navigator.pushNamed(context, "/booking_form",
-                                  arguments: room.roomId);
-                            },
+                            text: 'เพิ่มลงตะกร้า',
+                            onTap: () => _onAddToCartTap(provider),
                             color: Constants.secondaryColor,
                           ),
                         ),
+                        if (!provider.canProceed)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Center(
+                              child: Text(
+                                'เลือกวันเช็คอิน - เช็คเอาท์ก่อนทำการจอง',
+                                style:
+                                    TextStyle(fontSize: 13, color: Colors.grey),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -165,6 +321,274 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
           },
         ),
       ),
+    );
+  }
+}
+
+// ---------- small widgets ----------
+
+class _SectionTitle extends StatelessWidget {
+  final String text;
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class _DateBox extends StatelessWidget {
+  final String label;
+  final DateTime? date;
+  final VoidCallback onTap;
+
+  const _DateBox({
+    required this.label,
+    required this.date,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today,
+                    size: 16, color: Constants.secondaryColor),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    date == null ? 'เลือกวันที่' : _formatDate(date!),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: date == null ? Colors.grey : Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CounterRow extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final int value;
+  final int min;
+  final int max;
+  final VoidCallback onDecrement;
+  final VoidCallback onIncrement;
+
+  const _CounterRow({
+    required this.title,
+    this.subtitle,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onDecrement,
+    required this.onIncrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+                if (subtitle != null)
+                  Text(subtitle!,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline),
+            color: Constants.secondaryColor,
+            onPressed: value > min ? onDecrement : null,
+          ),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '$value',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            color: Constants.secondaryColor,
+            onPressed: value < max ? onIncrement : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExtraBedOption extends StatelessWidget {
+  final ExtraBedTypeEntitise type;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ExtraBedOption({
+    required this.type,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected
+              ? Constants.secondaryColor.withOpacity(0.05)
+              : Colors.transparent,
+          border: Border.all(
+            color: selected ? Constants.secondaryColor : Colors.grey.shade300,
+            width: selected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: selected ? Constants.secondaryColor : Colors.grey,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(type.name,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  if (type.description.isNotEmpty)
+                    Text(type.description,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text('สำหรับเด็กอายุไม่เกิน ${type.maxChildAge} ปี',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text('${_baht(type.price)} / คืน',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Constants.primaryColor)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PriceSummary extends StatelessWidget {
+  final RoomDetailScreenProvider provider;
+  final double pricePerNight;
+
+  const _PriceSummary({required this.provider, required this.pricePerNight});
+
+  @override
+  Widget build(BuildContext context) {
+    final nights = provider.nights;
+    final bed = provider.selectedExtraBedType;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _PriceRow(
+            label: 'ห้องพัก ${_baht(pricePerNight)} × $nights คืน',
+            value: _baht(provider.roomPrice),
+          ),
+          if (provider.hasExtraBed && bed != null) ...[
+            const SizedBox(height: 8),
+            _PriceRow(
+              label:
+                  '${bed.name} ${_baht(bed.price)} × ${provider.extraBedQuantity} ชิ้น × $nights คืน',
+              value: _baht(provider.extraBedPrice),
+            ),
+          ],
+          const Divider(height: 24),
+          _PriceRow(
+            label: 'รวมทั้งหมด',
+            value: _baht(provider.totalPrice),
+            bold: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriceRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool bold;
+
+  const _PriceRow({
+    required this.label,
+    required this.value,
+    this.bold = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      fontSize: bold ? 18 : 14,
+      fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+      color: bold ? Constants.primaryColor : Colors.black87,
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: Text(label, style: style)),
+        const SizedBox(width: 8),
+        Text(value, style: style),
+      ],
     );
   }
 }

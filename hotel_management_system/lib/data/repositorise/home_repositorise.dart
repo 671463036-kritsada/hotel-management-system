@@ -8,7 +8,8 @@ abstract class HomeRepository {
     required String checkOut,
     String? roomType,
   });
-  Future<HomeModel> getRoomById(String roomId); // เพิ่ม: ให้ interface ครบ (เผื่อยังไม่มี)
+  Future<HomeModel> getRoomById(
+      String roomId); // เพิ่ม: ให้ interface ครบ (เผื่อยังไม่มี)
 }
 
 class HomeRepositoryImpl implements HomeRepository {

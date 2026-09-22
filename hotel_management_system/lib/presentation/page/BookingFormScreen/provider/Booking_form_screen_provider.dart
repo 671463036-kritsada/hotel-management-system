@@ -3,12 +3,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotel_management_system/domain/entitise/booking_form_entitise.dart';
+import 'package:hotel_management_system/domain/entitise/cart_item_entitise.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../data/model/login_model.dart';
-import '../../../../util/widget/core/constants.dart';
+import '../../../../util/function/promptpay_qr.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
 
@@ -28,73 +30,17 @@ class BookingFormScreenProvider extends ChangeNotifier {
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController bankController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController numberOfGuestsController =
-      TextEditingController();
-  final TextEditingController checkInController = TextEditingController();
-  final TextEditingController checkOutController = TextEditingController();
-
-  // --- Price / Deposit State (เพิ่มใหม่) ---
-  double _pricePerNight = 0;
-  bool _isLoadingPrice = false;
-  String _priceError = '';
-
-  double get pricePerNight => _pricePerNight;
-  bool get isLoadingPrice => _isLoadingPrice;
-  String get priceError => _priceError;
 
   void prefillUserInfo(User? user) {
     if (user != null && fullNameController.text.isEmpty) {
       fullNameController.text = user.name ?? '';
 
-      if(emailController.text.isEmpty){
+      if (emailController.text.isEmpty) {
         emailController.text = user.email ?? '';
       }
     }
   }
-
-  /// เรียกตอนเปิดหน้า booking form เพื่อดึงราคาห้องจาก DB มาแสดง preview
-  /// (ราคาจริงที่ insert จะถูกคำนวณซ้ำที่ repository อีกครั้งตอน submit เสมอ)
-  Future<void> loadRoomPrice(String roomId) async {
-    _isLoadingPrice = true;
-    _priceError = '';
-    notifyListeners();
-    try {
-      _pricePerNight = await bookingFormUseCase.getRoomPricePerNight(roomId);
-      print("=== DEBUG: pricePerNight = $_pricePerNight ==="); // เพิ่มบรรทัดนี้
-    } catch (e) {
-      print("=== DEBUG: loadRoomPrice error = $e ==="); // เพิ่มบรรทัดนี้
-      _priceError = 'ไม่สามารถโหลดราคาห้องพักได้ กรุณาลองใหม่';
-      _pricePerNight = 0;
-    }
-    _isLoadingPrice = false;
-    notifyListeners();
-  }
-
-  /// จำนวนคืน คำนวณจากวันที่ในฟอร์ม
-  int get nights {
-    final checkIn = DateTime.tryParse(checkInController.text);
-    final checkOut = DateTime.tryParse(checkOutController.text);
-    if (checkIn == null || checkOut == null) return 0;
-    final diff = checkOut.difference(checkIn).inDays;
-    return diff > 0 ? diff : 0;
-  }
-
-  /// ราคาค่าเช่าซื้อทั้งหมด (preview) = ราคาต่อคืน x จำนวนคืน
-  double get totalPrice => _pricePerNight * nights;
-
-  /// ค่ามัดจำที่ต้องชำระตอนจอง (preview) = 30% ของราคารวม
-  double get depositAmount => totalPrice * Constants.depositPercent;
-
-  /// ยอดคงเหลือหลังหักมัดจำ (preview) — โชว์ให้ผู้ใช้เห็นเฉยๆ ยอดจริงคำนวณที่ backend อีกที
-  double get remainingAmount => totalPrice - depositAmount;
-
-  /// เรียกทุกครั้งที่ผู้ใช้แก้วันที่เช็คอิน/เช็คเอาท์ เพื่อ re-calculate ราคา preview
-  void recalculatePrice() {
-    notifyListeners();
-  }
-  // --- End Price / Deposit State ---
 
   // --- Getter ---
   BookingFormStatus get status => _status;
@@ -118,26 +64,25 @@ class BookingFormScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submitBooking({required String roomId}) async {
+  /// ส่งข้อมูลการจองของทุกห้องในตะกร้าเป็น order เดียว
+  Future<void> submitBooking({required List<CartItemEntitise> items}) async {
+    if (items.isEmpty) {
+      _errorMessage = 'ไม่พบห้องพักในตะกร้า';
+      _status = BookingFormStatus.error;
+      notifyListeners();
+      return;
+    }
+
     _status = BookingFormStatus.loading;
     notifyListeners();
     try {
       final bookingFormData = BookingFormEntitise(
-        roomId: roomId,
         fullName: fullNameController.text,
         email: emailController.text,
-        bankAccount: bankController.text,
         phoneNumber: phoneController.text,
-        numberOfGuests: int.tryParse(numberOfGuestsController.text) ?? 1,
-        roomsCount: 1,
-        totalPrice:
-            0, // ไม่ต้องส่งค่าจริง repository จะคำนวณเองจากราคาห้องใน DB
         address: "",
-        checkInDate:
-            DateTime.tryParse(checkInController.text) ?? DateTime.now(),
-        checkOutDate:
-            DateTime.tryParse(checkOutController.text) ?? DateTime.now(),
         paymentSlip: _paymentSlipImage?.path ?? "",
+        items: items,
       );
 
       final result = await bookingFormUseCase.bookingForm(bookingFormData);
@@ -155,10 +100,16 @@ class BookingFormScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> saveQRCode() async {
+  Future<void> saveQRCode(double amount) async {
     try {
-      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
-      Uint8List bytes = byteData.buffer.asUint8List();
+      final painter = QrPainter(
+        data: PromptPayQr.createPayload(amount),
+        version: QrVersions.auto,
+        gapless: true,
+      );
+      final byteData = await painter.toImageData(1024);
+      if (byteData == null) throw Exception('สร้าง QR code ไม่สำเร็จ');
+      final Uint8List bytes = byteData.buffer.asUint8List();
       final result = await ImageGallerySaver.saveImage(
         bytes,
         quality: 100,
@@ -192,11 +143,7 @@ class BookingFormScreenProvider extends ChangeNotifier {
   void dispose() {
     fullNameController.dispose();
     emailController.dispose();
-    bankController.dispose();
     phoneController.dispose();
-    numberOfGuestsController.dispose();
-    checkInController.dispose();
-    checkOutController.dispose();
     super.dispose();
   }
 }

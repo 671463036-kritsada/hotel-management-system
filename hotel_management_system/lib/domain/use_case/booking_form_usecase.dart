@@ -18,18 +18,24 @@ class BookingFormUsecase {
   Future<bool> bookingForm(BookingFormEntitise bookingData) async {
     try {
       final model = BookingFormModel(
-        roomId: bookingData.roomId,
         fullName: bookingData.fullName,
-        checkInDate: bookingData.checkInDate,
-        checkOutDate: bookingData.checkOutDate,
         email: bookingData.email,
-        bankAccount: bookingData.bankAccount,
         phoneNumber: bookingData.phoneNumber,
-        numberOfGuests: bookingData.numberOfGuests,
-        roomsCount: bookingData.roomsCount,
-        totalPrice: bookingData.totalPrice,
         address: bookingData.address,
         paymentSlip: bookingData.paymentSlip,
+        items: bookingData.items
+            .map((item) => CartOrderItemModel(
+                  roomId: item.roomId,
+                  checkInDate: item.checkIn,
+                  checkOutDate: item.checkOut,
+                  adultCount: item.adultCount,
+                  childCount: item.childCount,
+                  extraBedTypeId: item.extraBedType?.id,
+                  extraBedQuantity: item.extraBedQuantity,
+                  roomPrice: item.roomPrice,
+                  extraBedPrice: item.extraBedPrice,
+                ))
+            .toList(),
       );
       return await repository.bookingForm(model);
     } catch (e) {

@@ -18,7 +18,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   HomeRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<List<dynamic>> getRooms() async { // แก้
+  Future<List<dynamic>> getRooms() async {
+    // แก้
     try {
       final response = await dio.get(_endpoint);
       final ResponseModel responseModel =
@@ -53,7 +54,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<List<dynamic>> getAvailableRooms({ // แก้
+  Future<List<dynamic>> getAvailableRooms({
+    // แก้
     required String checkIn,
     required String checkOut,
     String? roomType,
@@ -100,7 +102,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getRoomById(String roomId) async { // แก้
+  Future<Map<String, dynamic>> getRoomById(String roomId) async {
+    // แก้
     try {
       final response = await dio.get('$_endpoint/$roomId');
       final ResponseModel responseModel =

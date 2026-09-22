@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
@@ -54,12 +55,58 @@ class Topnavbar extends StatelessWidget {
                           fontSize: Constants.fontSizeLabel),
                     )),
               ),
-           
             ],
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/cart'),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Constants.white.withOpacity(0.3),
+                  ),
+                  alignment: Alignment.center,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.shopping_cart,
+                          color: Constants.white, size: 40),
+                      Consumer<CartProvider>(
+                        builder: (context, cart, _) {
+                          if (cart.itemCount == 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return Positioned(
+                            top: -4,
+                            right: -4,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                  minWidth: 18, minHeight: 18),
+                              child: Text(
+                                '${cart.itemCount}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
               GestureDetector(
                 onTap: () {
                   if (isLogin) {

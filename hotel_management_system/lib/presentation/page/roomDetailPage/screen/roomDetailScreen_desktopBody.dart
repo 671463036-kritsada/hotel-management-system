@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/provider/cart_provider.dart';
+import '../../../../util/provider/user_provider.dart';
+import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -154,11 +157,49 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                                     SizedBox(
                                       width: double.infinity,
                                       child: Button(
-                                        text: 'จองห้องนี้',
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                              context, "/booking_form",
-                                              arguments: room.roomId);
+                                        text: 'เพิ่มลงตะกร้า',
+                                        onTap: () async {
+                                          final selection = context
+                                              .read<RoomDetailScreenProvider>()
+                                              .buildSelection();
+                                          if (selection == null) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'กรุณาเลือกวันเช็คอิน - เช็คเอาท์')),
+                                            );
+                                            return;
+                                          }
+
+                                          if (!context
+                                              .read<UserProvider>()
+                                              .isLogin) {
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/login',
+                                              arguments: LoginPageArguments(
+                                                  redirectRoute: '/cart'),
+                                            );
+                                            return;
+                                          }
+
+                                          try {
+                                            await context
+                                                .read<CartProvider>()
+                                                .addItem(selection);
+                                          } catch (error) {
+                                            if (!context.mounted) return;
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'ไม่สามารถเพิ่มลงตะกร้าได้')),
+                                            );
+                                            return;
+                                          }
+                                          if (!context.mounted) return;
+                                          Navigator.pushNamed(context, "/cart");
                                         },
                                         color: Constants.secondaryColor,
                                       ),
