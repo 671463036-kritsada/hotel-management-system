@@ -20,6 +20,7 @@ class PromotionUsecase {
       maxDiscountAmount: model.maxDiscountAmount,
       usageLimit: model.usageLimit,
       usedCount: model.usedCount ?? 0,
+      claimedCount: model.claimedCount ?? 0,
       startDate: model.startDate,
       endDate: model.endDate,
       isActive: model.isActive ?? false,

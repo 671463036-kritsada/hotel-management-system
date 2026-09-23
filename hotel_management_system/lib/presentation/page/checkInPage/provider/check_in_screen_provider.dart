@@ -11,6 +11,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signature/signature.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../util/function/promptpay_qr.dart';
+import '../../../../domain/entitise/user_profile_entity.dart';
 
 enum CheckInStatus { initial, loading, success, error }
 
@@ -82,27 +85,33 @@ class CheckInScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// เรียกตอนเปิดหน้า check-in เพื่อโหลดคูปองจริงของ user คนนี้
- Future<void> loadCoupons() async {
-  _couponLoadStatus = CouponLoadStatus.loading;
-  notifyListeners();
-  try {
-    _coupons = await promotionUsecase.getMyCoupons();
-
-    // ✅ ถ้าคูปองที่เคยเลือกไว้กลายเป็นใช้ไม่ได้ (หมดอายุ/ใช้แล้ว) เคลียร์ทิ้ง
-    if (_selectedCoupon != null &&
-        !_selectedCoupon!.isUsable(_baseAmountForDiscount)) {
-      _selectedCoupon = null;
-    }
-
-    _couponLoadStatus = CouponLoadStatus.loaded;
-    notifyListeners();
-  } catch (e) {
-    _couponLoadError = 'ไม่สามารถโหลดคูปองได้';
-    _couponLoadStatus = CouponLoadStatus.error;
+  void prefillProfile(UserProfileEntity profile) {
+    fullNameController.text = profile.name ?? '';
+    addressController.text = profile.address ?? '';
     notifyListeners();
   }
-}
+
+  /// เรียกตอนเปิดหน้า check-in เพื่อโหลดคูปองจริงของ user คนนี้
+  Future<void> loadCoupons() async {
+    _couponLoadStatus = CouponLoadStatus.loading;
+    notifyListeners();
+    try {
+      _coupons = await promotionUsecase.getMyCoupons();
+
+      // ✅ ถ้าคูปองที่เคยเลือกไว้กลายเป็นใช้ไม่ได้ (หมดอายุ/ใช้แล้ว) เคลียร์ทิ้ง
+      if (_selectedCoupon != null &&
+          !_selectedCoupon!.isUsable(_baseAmountForDiscount)) {
+        _selectedCoupon = null;
+      }
+
+      _couponLoadStatus = CouponLoadStatus.loaded;
+      notifyListeners();
+    } catch (e) {
+      _couponLoadError = 'ไม่สามารถโหลดคูปองได้';
+      _couponLoadStatus = CouponLoadStatus.error;
+      notifyListeners();
+    }
+  }
 
   /// เลือกคูปอง — ส่ง null เพื่อ "ไม่ใช้คูปอง"
   // void selectCoupon(int? userPromotionId) {
@@ -225,10 +234,16 @@ class CheckInScreenProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> saveQRCode() async {
+  Future<void> saveQRCode(double amount) async {
     try {
-      ByteData byteData = await rootBundle.load("assets/images/QRcodePay.png");
-      Uint8List bytes = byteData.buffer.asUint8List();
+      final painter = QrPainter(
+        data: PromptPayQr.createPayload(amount),
+        version: QrVersions.auto,
+        gapless: true,
+      );
+      final byteData = await painter.toImageData(1024);
+      if (byteData == null) throw Exception('สร้าง QR code ไม่สำเร็จ');
+      final Uint8List bytes = byteData.buffer.asUint8List();
       final result = await ImageGallerySaver.saveImage(
         bytes,
         quality: 100,

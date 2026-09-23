@@ -19,10 +19,14 @@ class ListModel {
   String? checkInStatus;
   String? checkOutStatus;
   String? inspectionStatus;
-  String? checkinStatus; // เพิ่ม: มาจาก c.status AS checkin_status ที่ backend JOIN มา
+  String?
+      checkinStatus; // เพิ่ม: มาจาก c.status AS checkin_status ที่ backend JOIN มา
   dynamic roomKey;
   DateTime? createdAt;
   dynamic updatedAt;
+  String? cancelReason;
+  String? cancelledBy;
+  DateTime? cancelledAt;
 
   ListModel({
     this.id,
@@ -49,6 +53,9 @@ class ListModel {
     this.roomKey,
     this.createdAt,
     this.updatedAt,
+    this.cancelReason,
+    this.cancelledBy,
+    this.cancelledAt,
   });
 
   factory ListModel.fromJson(Map<String, dynamic> json) => ListModel(
@@ -76,12 +83,18 @@ class ListModel {
         checkInStatus: json["check_in_status"],
         checkOutStatus: json["check_out_status"],
         inspectionStatus: json["inspection_status"],
-        checkinStatus: json["checkin_status"], // เพิ่ม: ตรงกับ alias จาก backend
+        checkinStatus:
+            json["checkin_status"], // เพิ่ม: ตรงกับ alias จาก backend
         roomKey: json["room_key"],
         createdAt: json["created_at"] == null
             ? null
             : DateTime.parse(json["created_at"]).toLocal(),
         updatedAt: json["updated_at"],
+        cancelReason: json["cancel_reason"],
+        cancelledBy: json["cancelled_by"],
+        cancelledAt: json["cancelled_at"] == null
+            ? null
+            : DateTime.tryParse(json["cancelled_at"].toString()),
       );
 
   Map<String, dynamic> toJson() => {
@@ -109,5 +122,8 @@ class ListModel {
         "room_key": roomKey,
         "created_at": createdAt?.toIso8601String(),
         "updated_at": updatedAt,
+        "cancel_reason": cancelReason,
+        "cancelled_by": cancelledBy,
+        "cancelled_at": cancelledAt?.toIso8601String(),
       };
 }

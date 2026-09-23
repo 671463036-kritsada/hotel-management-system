@@ -299,7 +299,7 @@ class _RoomConditionCheckScreenDesktopBodyState
                 onTap: () async {
                   final picker = ImagePicker();
                   final XFile? image = await picker.pickImage(
-                      source: ImageSource.camera, imageQuality: 50);
+                      source: ImageSource.gallery, imageQuality: 50);
                   if (image != null) {
                     setModalState(() => tempImage = File(image.path));
                   }

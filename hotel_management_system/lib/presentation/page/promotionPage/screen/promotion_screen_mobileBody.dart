@@ -5,6 +5,7 @@ import 'package:hotel_management_system/util/widget/components/bavbar/bottomNavb
 import 'package:hotel_management_system/util/widget/components/bavbar/topNavbar.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:hotel_management_system/util/provider/user_provider.dart';
 
 import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -326,7 +327,7 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
     return BoxshowPromotionCard(
       title: promo.title,
       description: promo.description ?? '',
-      bedsInfo: "รหัส: ${promo.code}",
+      bedsInfo: "รหัส: ${promo.code} • ${promo.conditionText}",
       price: priceLabel,
       textColor: Colors.black,
       rating: 0,
@@ -342,6 +343,26 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
         );
       },
       onFavoriteChanged: (value) {},
+      onClaim: () => _claimPromotion(promo),
+    );
+  }
+
+  Future<void> _claimPromotion(PromotionEntitise promo) async {
+    if (!context.read<UserProvider>().isLogin) {
+      Navigator.pushNamed(context, '/login');
+      return;
+    }
+
+    final provider = context.read<PromotionProvider>();
+    final success = await provider.claimPromotion(promo.id.toString());
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success
+            ? 'รับคูปอง ${promo.code} สำเร็จ'
+            : (provider.claimError ?? 'รับคูปองไม่สำเร็จ')),
+        backgroundColor: success ? Colors.green : Colors.red,
+      ),
     );
   }
 }

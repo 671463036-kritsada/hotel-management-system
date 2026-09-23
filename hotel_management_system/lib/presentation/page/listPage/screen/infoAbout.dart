@@ -20,6 +20,7 @@ class Infoabout extends StatelessWidget {
   final String? slipUrl;
   final double? remainingAmount; // เพิ่ม
   final String? roomKey;
+  final String? cancelReason;
 
   Infoabout({
     super.key,
@@ -36,7 +37,8 @@ class Infoabout extends StatelessWidget {
     this.personCount,
     this.slipUrl,
     this.remainingAmount,
-    this.roomKey, // เพิ่ม
+    this.roomKey,
+    this.cancelReason,
   });
 
   String _formatDateRange(DateTime? start, DateTime? end) {
@@ -123,6 +125,8 @@ class Infoabout extends StatelessWidget {
             _infoRow("จำนวนคืน", _calculateNights(checkIn, checkOut).toString(),
                 null),
             _infoRow("จำนวนคน", (personCount ?? 0).toString(), null),
+            if (cancelReason != null && cancelReason!.isNotEmpty)
+              _infoRow("เหตุผลการยกเลิก", cancelReason!, Colors.red),
             SizedBox(
               height: 10,
             ),

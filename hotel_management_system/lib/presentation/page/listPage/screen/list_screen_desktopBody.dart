@@ -24,6 +24,38 @@ class ListScreenDesktopBody extends StatefulWidget {
 }
 
 class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
+  Future<void> _cancelBooking(String bookingId) async {
+    var reasonText = '';
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('ยกเลิกการจอง'),
+        content: TextField(
+          maxLines: 3,
+          onChanged: (value) => reasonText = value,
+          decoration: const InputDecoration(
+            labelText: 'เหตุผลการยกเลิก',
+            hintText: 'กรุณาระบุเหตุผล',
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('ยกเลิก')),
+          FilledButton(
+            onPressed: () {
+              if (reasonText.trim().isEmpty) return;
+              Navigator.pop(dialogContext, reasonText.trim());
+            },
+            child: const Text('ยืนยัน'),
+          ),
+        ],
+      ),
+    );
+    if (reason == null || !mounted) return;
+    await context.read<ListScreenProvider>().cancelBooking(bookingId, reason);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +124,17 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                     statusCheckout: booking.checkOutStatus,
                                     statusConCheck: booking.statusConCheck,
                                     roomKey: booking.roomKey,
+                                    cancelReason: booking.cancelReason,
+                                    onCancel: booking.checkInStatus != true &&
+                                            booking.checkOutStatus != true &&
+                                            ![
+                                              'CANCELLED_BY_USER',
+                                              'CANCELLED_BY_ADMIN',
+                                              'REJECTED'
+                                            ].contains(booking.status)
+                                        ? () =>
+                                            _cancelBooking(booking.bookingId)
+                                        : null,
                                     onTap: () {
                                       showModalBottomSheet(
                                         context: context,
@@ -124,6 +167,8 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                                 slipUrl: booking.slipUrl,
                                                 remainingAmount: booking
                                                     .remainingAmount, // เพิ่ม
+                                                cancelReason:
+                                                    booking.cancelReason,
                                               ),
                                             ),
                                           );

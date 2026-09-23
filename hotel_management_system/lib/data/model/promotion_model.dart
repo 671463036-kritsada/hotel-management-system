@@ -30,6 +30,7 @@ class PromotionModel {
   double? maxDiscountAmount;
   int? usageLimit;
   int? usedCount;
+  int? claimedCount;
   DateTime? startDate;
   DateTime? endDate;
   bool? isActive;
@@ -46,6 +47,7 @@ class PromotionModel {
     this.maxDiscountAmount,
     this.usageLimit,
     this.usedCount,
+    this.claimedCount,
     this.startDate,
     this.endDate,
     this.isActive,
@@ -63,6 +65,7 @@ class PromotionModel {
         maxDiscountAmount: _parseDouble(json["max_discount_amount"]),
         usageLimit: json["usage_limit"],
         usedCount: json["used_count"],
+        claimedCount: json["claimed_count"],
         startDate: json["start_date"] == null
             ? null
             : DateTime.parse(json["start_date"]),
@@ -82,6 +85,7 @@ class PromotionModel {
         "max_discount_amount": maxDiscountAmount,
         "usage_limit": usageLimit,
         "used_count": usedCount,
+        "claimed_count": claimedCount,
         "start_date": startDate?.toIso8601String(),
         "end_date": endDate?.toIso8601String(),
         "is_active": isActive,
@@ -99,6 +103,7 @@ class PromotionModel {
         maxDiscountAmount: maxDiscountAmount,
         usageLimit: usageLimit,
         usedCount: usedCount ?? 0,
+        claimedCount: claimedCount ?? 0,
         startDate: startDate,
         endDate: endDate,
         isActive: isActive ?? false,

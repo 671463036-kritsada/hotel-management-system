@@ -19,6 +19,8 @@ class BoxshowPromotionCard extends StatelessWidget {
     this.priceSuffix = "ยอดรวมก่อนหักภาษี",
     this.onTap,
     this.onFavoriteChanged,
+    this.onClaim,
+    this.claimLabel = "รับคูปอง",
     this.badgeColor = Colors.white,
     this.cardHeight = 200,
     this.textColor,
@@ -36,6 +38,8 @@ class BoxshowPromotionCard extends StatelessWidget {
   final String priceSuffix;
   final VoidCallback? onTap;
   final ValueChanged<bool>? onFavoriteChanged;
+  final VoidCallback? onClaim;
+  final String claimLabel;
   final Color? badgeColor, textColor;
   final double cardHeight;
 
@@ -115,31 +119,31 @@ class BoxshowPromotionCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (rating != null)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            rating!.toStringAsFixed(2),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (reviewCount != null)
-                            Text(
-                              " ($reviewCount)",
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                        ],
-                      ),
+                    // if (rating != null)
+                    //   Row(
+                    //     children: [
+                    //       const Icon(
+                    //         Icons.star,
+                    //         size: 16,
+                    //       ),
+                    //       const SizedBox(width: 4),
+                    //       Text(
+                    //         rating!.toStringAsFixed(2),
+                    //         style: const TextStyle(
+                    //           fontSize: 14,
+                    //           fontWeight: FontWeight.w500,
+                    //         ),
+                    //       ),
+                    //       if (reviewCount != null)
+                    //         Text(
+                    //           " ($reviewCount)",
+                    //           style: const TextStyle(
+                    //             fontSize: 14,
+                    //             color: Colors.grey,
+                    //           ),
+                    //         ),
+                    //     ],
+                    //   ),
                   ],
                 ),
 
@@ -190,6 +194,18 @@ class BoxshowPromotionCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onClaim != null) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Button(
+                      text: claimLabel,
+                      onTap: onClaim!,
+                      color: Constants.secondaryColor,
+                      btnPadding: 10,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

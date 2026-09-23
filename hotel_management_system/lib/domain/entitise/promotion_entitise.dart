@@ -10,6 +10,7 @@ class PromotionEntitise {
   final double? maxDiscountAmount;
   final int? usageLimit;
   final int usedCount;
+  final int claimedCount;
   final DateTime? startDate;
   final DateTime? endDate;
   final bool isActive;
@@ -26,10 +27,34 @@ class PromotionEntitise {
     this.maxDiscountAmount,
     this.usageLimit,
     required this.usedCount,
+    required this.claimedCount,
     this.startDate,
     this.endDate,
     required this.isActive,
   });
+
+  bool get isExpired => endDate != null && DateTime.now().isAfter(endDate!);
+  bool get isNotStarted =>
+      startDate != null && DateTime.now().isBefore(startDate!);
+  bool get isUsageExhausted =>
+      usageLimit != null && claimedCount >= usageLimit!;
+
+  String get conditionText {
+    final conditions = <String>[];
+    if (minBookingAmount > 0) {
+      conditions.add('ยอดขั้นต่ำ ${minBookingAmount.toStringAsFixed(0)} บาท');
+    }
+    if (maxDiscountAmount != null) {
+      conditions.add('ลดสูงสุด ${maxDiscountAmount!.toStringAsFixed(0)} บาท');
+    }
+    if (usageLimit != null) {
+      conditions
+          .add('เหลือ ${usageLimit! - claimedCount}/${usageLimit!} สิทธิ์');
+    }
+    return conditions.isEmpty
+        ? 'ไม่มีเงื่อนไขเพิ่มเติม'
+        : conditions.join(' • ');
+  }
 }
 
 class UserCouponEntitise {

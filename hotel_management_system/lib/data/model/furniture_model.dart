@@ -3,8 +3,7 @@ import 'dart:convert';
 FurnitureModel furnitureModelFromJson(String str) =>
     FurnitureModel.fromJson(json.decode(str));
 
-String furnitureModelToJson(FurnitureModel data) =>
-    json.encode(data.toJson());
+String furnitureModelToJson(FurnitureModel data) => json.encode(data.toJson());
 
 class FurnitureModel {
   int? id;
@@ -16,6 +15,8 @@ class FurnitureModel {
 
   // รูปที่แม่บ้านตรวจล่าสุด
   String? housekeeperInspectionImage;
+  String? housekeeperStatus;
+  String? housekeeperNote;
 
   List<Inspection>? inspections;
 
@@ -27,6 +28,8 @@ class FurnitureModel {
     this.isCustom,
     this.image,
     this.housekeeperInspectionImage,
+    this.housekeeperStatus,
+    this.housekeeperNote,
     this.inspections,
   });
 
@@ -42,8 +45,9 @@ class FurnitureModel {
         image: json["image"],
 
         // ⭐ รับค่าจาก Backend
-        housekeeperInspectionImage:
-            json["housekeeperInspectionImage"],
+        housekeeperInspectionImage: json["housekeeperInspectionImage"],
+        housekeeperStatus: json["housekeeperStatus"]?.toString(),
+        housekeeperNote: json["housekeeperNote"]?.toString(),
 
         inspections: json["inspections"] == null
             ? []
@@ -63,8 +67,9 @@ class FurnitureModel {
         "image": image,
 
         // ⭐ ส่งกลับถ้าจำเป็น
-        "housekeeperInspectionImage":
-            housekeeperInspectionImage,
+        "housekeeperInspectionImage": housekeeperInspectionImage,
+        "housekeeperStatus": housekeeperStatus,
+        "housekeeperNote": housekeeperNote,
 
         "inspections": inspections == null
             ? []
@@ -119,8 +124,7 @@ class Inspection {
         "status": status,
         "note": note,
         "damageImage": damageImage,
-        "inspectedAt":
-            inspectedAt?.toIso8601String(),
+        "inspectedAt": inspectedAt?.toIso8601String(),
       };
 }
 

@@ -261,7 +261,7 @@ class _RoomConditionCheckScreenMobileBodyState
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "ถ่ายรูปความเสียหาย",
+                          "เลือกรูปความเสียหายจากคลัง",
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 13,
@@ -270,7 +270,7 @@ class _RoomConditionCheckScreenMobileBodyState
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          "แตะเพื่อเปิดกล้อง",
+                          "แตะเพื่อเลือกไฟล์รูปภาพ",
                           style: TextStyle(
                             color: Colors.grey.shade400,
                             fontSize: 11,
@@ -498,7 +498,7 @@ class _RoomConditionCheckScreenMobileBodyState
                   onTap: () async {
                     final picker = ImagePicker();
                     final XFile? image = await picker.pickImage(
-                        source: ImageSource.camera, imageQuality: 50);
+                        source: ImageSource.gallery, imageQuality: 50);
                     if (image != null) {
                       setModalState(() => tempImage = File(image.path));
                     }

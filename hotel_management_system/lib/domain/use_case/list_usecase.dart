@@ -5,6 +5,12 @@ import 'package:hotel_management_system/domain/entitise/list_entitise.dart';
 class ListUsecase {
   final ListRepositoriseImpl repository;
   ListUsecase(this.repository);
+
+  Future<bool> cancelBooking(String bookingId, String reason) {
+    if (reason.trim().isEmpty) throw Exception("กรุณาระบุเหตุผลการยกเลิก");
+    return repository.cancelBooking(bookingId, reason.trim());
+  }
+
   Future<List<BookingListEntity>> getListData() async {
     try {
       final listDataModel = await repository.getListData();
@@ -35,6 +41,9 @@ class ListUsecase {
                     item.checkinStatus, // เพิ่ม: ปล่อยเป็น null ได้ตามธรรมชาติ
                 roomKey: item.roomKey?.toString(),
                 createdAt: item.createdAt,
+                cancelReason: item.cancelReason,
+                cancelledBy: item.cancelledBy,
+                cancelledAt: item.cancelledAt,
               ))
           .toList();
     } on SocketException {

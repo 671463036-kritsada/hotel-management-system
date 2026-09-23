@@ -16,6 +16,8 @@ class Boxlistcompanent extends StatelessWidget {
 
   final Function()? onTap;
   final Future<void> Function()? onCheckOut;
+  final Future<void> Function()? onCancel;
+  final String? cancelReason;
   final Future<void> Function(int rating, String comment)?
       onSubmitReview; // เพิ่ม
 
@@ -33,6 +35,8 @@ class Boxlistcompanent extends StatelessWidget {
       this.statusConCheck,
       this.roomKey,
       this.onCheckOut,
+      this.onCancel,
+      this.cancelReason,
       this.onSubmitReview}); // เพิ่ม
 
   @override
@@ -113,6 +117,10 @@ class Boxlistcompanent extends StatelessWidget {
                     _buildInfoRow(Icons.info_outline, "สถานะ", textStatus,
                         color: statusColor),
                   ],
+                  if (cancelReason != null && cancelReason!.isNotEmpty)
+                    _buildInfoRow(
+                        Icons.info_outline, "เหตุผลยกเลิก", cancelReason!,
+                        color: Colors.red),
                   if (roomKey != "" && roomKey != null) ...[
                     const SizedBox(height: 8),
                     _buildInfoRow(Icons.key, "รหัสเข้าห้อง", roomKey,
@@ -122,7 +130,26 @@ class Boxlistcompanent extends StatelessWidget {
               ),
             ),
 
-            // --- Footer: ปุ่ม action ---
+            // --- User cancellation is available before check-in ---
+            if (onCancel != null)
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onCancel,
+                  icon: const Icon(Icons.cancel_outlined, size: 18),
+                  label: const Text("ยกเลิกการจอง"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+
+            // --- Check-in/check-out actions ---
             if (statusChekin == true)
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

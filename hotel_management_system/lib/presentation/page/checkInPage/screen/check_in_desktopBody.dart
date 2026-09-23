@@ -5,6 +5,7 @@ import 'package:hotel_management_system/data/repositorise/check_in_repositorise.
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
 import 'package:hotel_management_system/util/widget/core/network/dio_client.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../data/data_source/remote_data_source/promotion_remote.dart';
 import '../../../../data/repositorise/promotion_repositorise.dart';
@@ -16,6 +17,10 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/check_in_screen_provider.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
+import '../../../../util/function/promptpay_qr.dart';
+import '../../../../data/data_source/remote_data_source/user_profile_remote.dart';
+import '../../../../data/repositorise/user_profile_respositorise.dart';
+import '../../../../domain/use_case/user_profile_usecase.dart';
 
 class CheckInScreenDesktopBody extends StatefulWidget {
   final String? bookingID;
@@ -51,6 +56,13 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
       depositAmount: widget.depositAmount,
     );
     _provider.loadCoupons();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UserProfileUseCase(
+        repository: UserProfileRepositoryImpl(
+          remoteDataSource: UserProfileRemoteDataSourceImpl(),
+        ),
+      ).getMyProfile().then(_provider.prefillProfile).catchError((_) {});
+    });
   }
 
   @override
@@ -343,15 +355,21 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                                           Constants
                                                               .borderRadius),
                                                 ),
-                                                child: Image.asset(
-                                                    "assets/images/QRcodePay.png"),
+                                                child: QrImageView(
+                                                  data:
+                                                      PromptPayQr.createPayload(
+                                                          provider.amountDue),
+                                                  size: 240,
+                                                  backgroundColor: Colors.white,
+                                                ),
                                               ),
                                               const SizedBox(height: 16),
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: OutlinedButton.icon(
                                                   onPressed: () =>
-                                                      provider.saveQRCode(),
+                                                      provider.saveQRCode(
+                                                          provider.amountDue),
                                                   icon: const Icon(
                                                       Icons.download),
                                                   label: const Text(

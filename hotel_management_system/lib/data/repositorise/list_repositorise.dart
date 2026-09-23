@@ -5,6 +5,7 @@ import 'package:hotel_management_system/data/model/list_model.dart';
 
 abstract class ListRepositorise {
   Future<List<ListModel>> getListData();
+  Future<bool> cancelBooking(String bookingId, String reason);
 }
 
 class ListRepositoriseImpl implements ListRepositorise {
@@ -22,5 +23,10 @@ class ListRepositoriseImpl implements ListRepositorise {
     } catch (e) {
       throw Exception("เกิดข้อผิดพลาด $e");
     }
+  }
+
+  @override
+  Future<bool> cancelBooking(String bookingId, String reason) {
+    return remoteDataSource.cancelBooking(bookingId, reason);
   }
 }

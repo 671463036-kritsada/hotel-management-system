@@ -34,8 +34,7 @@ class FurnitureItem {
   });
 }
 
-class RoomConditionCheckScreenProvider
-    extends ChangeNotifier {
+class RoomConditionCheckScreenProvider extends ChangeNotifier {
   final FurnitureUsecase usecase;
 
   RoomConditionCheckScreenProvider(this.usecase);
@@ -57,30 +56,20 @@ class RoomConditionCheckScreenProvider
   // GETTERS
   // ============================================================
 
-  List<FurnitureItem> get furnitureList =>
-      _furnitureList;
+  List<FurnitureItem> get furnitureList => _furnitureList;
 
-  int get remainingSeconds =>
-      _remainingSeconds;
+  int get remainingSeconds => _remainingSeconds;
 
-  bool get isTimeUp =>
-      _remainingSeconds <= 0;
+  bool get isTimeUp => _remainingSeconds <= 0;
 
-  bool get isLoading =>
-      _isLoading;
+  bool get isLoading => _isLoading;
 
-  String? get errorMessage =>
-      _errorMessage;
+  String? get errorMessage => _errorMessage;
 
-  int get normalCount =>
-      _furnitureList
-          .where((f) => f.status == "ปกติ")
-          .length;
+  int get normalCount => _furnitureList.where((f) => f.status == "ปกติ").length;
 
   int get damagedCount =>
-      _furnitureList
-          .where((f) => f.status == "ชำรุด")
-          .length;
+      _furnitureList.where((f) => f.status == "ชำรุด").length;
 
   // ============================================================
   // AUTO SUBMIT
@@ -138,14 +127,12 @@ class RoomConditionCheckScreenProvider
     _safeNotify();
 
     try {
-      final entities =
-          await usecase.getFurnitureData(
+      final entities = await usecase.getFurnitureData(
         roomID,
         bookingId,
       );
 
-      _furnitureList =
-          entities.map((entity) {
+      _furnitureList = entities.map((entity) {
         return FurnitureItem(
           id: entity.id,
           title: entity.title ?? "",
@@ -157,17 +144,14 @@ class RoomConditionCheckScreenProvider
           // ไม่เอา note ของแม่บ้านมาเป็น note ของ user
           note: "",
 
-          isCustom:
-              entity.isCustom ?? false,
+          isCustom: entity.isCustom ?? false,
 
           // รูปแม่บ้าน
-          inspectionImageUrl:
-              entity.housekeeperInspectionImage,
+          inspectionImageUrl: entity.housekeeperInspectionImage,
         );
       }).toList();
     } catch (e) {
-      _errorMessage =
-          "ไม่สามารถโหลดข้อมูลเฟอร์นิเจอร์ได้ กรุณาลองใหม่อีกครั้ง";
+      _errorMessage = "ไม่สามารถโหลดข้อมูลเฟอร์นิเจอร์ได้ กรุณาลองใหม่อีกครั้ง";
 
       debugPrint(
         "Load furniture error: $e",
@@ -205,11 +189,9 @@ class RoomConditionCheckScreenProvider
   String formatTime(int seconds) {
     final h = seconds ~/ 3600;
 
-    final m =
-        (seconds % 3600) ~/ 60;
+    final m = (seconds % 3600) ~/ 60;
 
-    final s =
-        seconds % 60;
+    final s = seconds % 60;
 
     return "${h.toString().padLeft(2, '0')}:"
         "${m.toString().padLeft(2, '0')}:"
@@ -224,14 +206,12 @@ class RoomConditionCheckScreenProvider
     int index,
     String status,
   ) {
-    _furnitureList[index].status =
-        status;
+    _furnitureList[index].status = status;
 
     // ถ้าเปลี่ยนจากชำรุดกลับเป็นปกติ
     // ล้างรูป damage ที่ถ่ายไว้
     if (status != "ชำรุด") {
-      _furnitureList[index].damageImage =
-          null;
+      _furnitureList[index].damageImage = null;
     }
 
     _safeNotify();
@@ -245,8 +225,7 @@ class RoomConditionCheckScreenProvider
     int index,
     String note,
   ) {
-    _furnitureList[index].note =
-        note;
+    _furnitureList[index].note = note;
 
     _safeNotify();
   }
@@ -258,18 +237,15 @@ class RoomConditionCheckScreenProvider
   Future<void> pickDamageImage(
     int index,
   ) async {
-    final picker =
-        ImagePicker();
+    final picker = ImagePicker();
 
-    final XFile? image =
-        await picker.pickImage(
-      source: ImageSource.camera,
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
       imageQuality: 50,
     );
 
     if (image != null) {
-      _furnitureList[index].damageImage =
-          File(image.path);
+      _furnitureList[index].damageImage = File(image.path);
 
       _safeNotify();
     }
@@ -302,23 +278,18 @@ class RoomConditionCheckScreenProvider
   // ============================================================
 
   void _validateBeforeSubmit() {
-    for (var i = 0;
-        i < _furnitureList.length;
-        i++) {
-      final item =
-          _furnitureList[i];
+    for (var i = 0; i < _furnitureList.length; i++) {
+      final item = _furnitureList[i];
 
       // ยังไม่ได้ตรวจ
-      if (item.status ==
-          "ยังไม่ได้ตรวจสอบ") {
+      if (item.status == "ยังไม่ได้ตรวจสอบ") {
         throw Exception(
           "กรุณาตรวจสอบ ${item.title} ก่อนบันทึก",
         );
       }
 
       // ชำรุดแต่ไม่มีรูป
-      if (item.status == "ชำรุด" &&
-          item.damageImage == null) {
+      if (item.status == "ชำรุด" && item.damageImage == null) {
         throw Exception(
           "กรุณาถ่ายรูปความเสียหายของ ${item.title}",
         );
@@ -360,14 +331,10 @@ class RoomConditionCheckScreenProvider
       // 1. เตรียมรูปตาม field
       // ========================================================
 
-      final photosByField =
-          <String, File>{};
+      final photosByField = <String, File>{};
 
-      for (var i = 0;
-          i < _furnitureList.length;
-          i++) {
-        final item =
-            _furnitureList[i];
+      for (var i = 0; i < _furnitureList.length; i++) {
+        final item = _furnitureList[i];
 
         // ------------------------------------------
         // ชำรุด
@@ -375,9 +342,7 @@ class RoomConditionCheckScreenProvider
 
         if (item.status == "ชำรุด") {
           if (item.damageImage != null) {
-            photosByField[
-                    "photo_${i}_damage"] =
-                item.damageImage!;
+            photosByField["photo_${i}_damage"] = item.damageImage!;
           }
         }
 
@@ -398,25 +363,20 @@ class RoomConditionCheckScreenProvider
       // 2. เตรียม FurnitureEntitise
       // ========================================================
 
-      final reportData =
-          _furnitureList.map((item) {
+      final reportData = _furnitureList.map((item) {
         return FurnitureEntitise(
           id: item.id,
           roomID: roomID,
           bookingId: _bookingId,
           title: item.title,
 
-          image:
-              item.image is String
-                  ? item.image as String
-                  : null,
+          image: item.image is String ? item.image as String : null,
 
           status: item.status,
 
           note: item.note,
 
-          isCustom:
-              item.isCustom,
+          isCustom: item.isCustom,
 
           // รูป damage ของ user
           // Backend จะเอาไฟล์จาก photo_i_damage
@@ -443,8 +403,10 @@ class RoomConditionCheckScreenProvider
         photosByField,
       );
 
+      await usecase.confirmUserCondition(_bookingId!);
+
       debugPrint(
-        "furniture report สำเร็จ",
+        "furniture report และยืนยันสภาพห้องสำเร็จ",
       );
 
       debugPrint(

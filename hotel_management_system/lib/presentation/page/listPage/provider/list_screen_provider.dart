@@ -28,6 +28,7 @@ class BookingItem {
   final int roomsCount;
   final int personCount;
   final String? slipUrl;
+  final String? cancelReason;
 
   BookingItem(
       {required this.bookingId,
@@ -50,7 +51,8 @@ class BookingItem {
       required this.checkOut,
       required this.roomsCount,
       required this.personCount,
-      this.slipUrl});
+      this.slipUrl,
+      this.cancelReason});
 }
 
 class ListScreenProvider extends ChangeNotifier {
@@ -84,6 +86,12 @@ class ListScreenProvider extends ChangeNotifier {
       notifyListeners();
       rethrow; // โยน error ต่อให้ widget จัดการแสดงผล
     }
+  }
+
+  Future<bool> cancelBooking(String bookingId, String reason) async {
+    final result = await usecase.cancelBooking(bookingId, reason);
+    if (result) await getBookingList();
+    return result;
   }
 
   // เพิ่มฟังก์ชันใหม่สำหรับส่งรีวิว
@@ -133,7 +141,8 @@ class ListScreenProvider extends ChangeNotifier {
             checkOut: entity.checkOut,
             roomsCount: entity.roomsCount,
             personCount: entity.personCount,
-            slipUrl: entity.slipUrl);
+            slipUrl: entity.slipUrl,
+            cancelReason: entity.cancelReason);
       }).toList();
       _isLoading = false;
       notifyListeners();

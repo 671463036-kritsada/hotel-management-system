@@ -13,6 +13,8 @@ abstract class FurnitureRepositorise {
     List<FurnitureModel> submitData,
     Map<String, File> photosByField,
   );
+
+  Future<bool> confirmUserCondition(String bookingId);
 }
 
 class FurnitureRepositoriseImpl implements FurnitureRepositorise {
@@ -26,8 +28,7 @@ class FurnitureRepositoriseImpl implements FurnitureRepositorise {
     String bookingId,
   ) async {
     try {
-      final furnitureData =
-          await remoteDataSource.getFurnitureData(
+      final furnitureData = await remoteDataSource.getFurnitureData(
         roomID,
         bookingId,
       );
@@ -54,6 +55,19 @@ class FurnitureRepositoriseImpl implements FurnitureRepositorise {
         submitData,
         photosByField,
       );
+    } on SocketException {
+      throw Exception("ไม่มีการเชื่อมต่อ internet");
+    } on HttpException {
+      throw Exception("ไม่สามารถเชื่อมต่อ server ได้");
+    } catch (e) {
+      throw Exception("เกิดข้อผิดพลาด $e");
+    }
+  }
+
+  @override
+  Future<bool> confirmUserCondition(String bookingId) async {
+    try {
+      return await remoteDataSource.confirmUserCondition(bookingId);
     } on SocketException {
       throw Exception("ไม่มีการเชื่อมต่อ internet");
     } on HttpException {

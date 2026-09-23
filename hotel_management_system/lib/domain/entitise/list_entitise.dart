@@ -19,9 +19,13 @@ class BookingListEntity {
   final String checkInStatus;
   final String checkOutStatus;
   final String inspectionStatus;
-  final String? checkinStatus; // เพิ่ม: nullable เพราะอาจยังไม่เคย submit checkin เลย
+  final String?
+      checkinStatus; // เพิ่ม: nullable เพราะอาจยังไม่เคย submit checkin เลย
   final String? roomKey;
   final DateTime? createdAt;
+  final String? cancelReason;
+  final String? cancelledBy;
+  final DateTime? cancelledAt;
 
   BookingListEntity({
     required this.bookingId,
@@ -47,5 +51,8 @@ class BookingListEntity {
     this.checkinStatus, // เพิ่ม (optional เพราะ nullable)
     required this.roomKey,
     required this.createdAt,
+    this.cancelReason,
+    this.cancelledBy,
+    this.cancelledAt,
   });
 }

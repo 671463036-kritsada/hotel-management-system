@@ -16,10 +16,11 @@ abstract class furnitureRemoteDataSource {
     List<FurnitureModel> reportData,
     Map<String, File> photosByField,
   );
+
+  Future<bool> confirmUserCondition(String bookingId);
 }
 
-class furnitureRemoteDataSourceImpl
-    implements furnitureRemoteDataSource {
+class furnitureRemoteDataSourceImpl implements furnitureRemoteDataSource {
   final Dio _dio = DioClient.dio;
 
   String _fileNameOf(File file) {
@@ -44,14 +45,12 @@ class furnitureRemoteDataSourceImpl
         },
       );
 
-      final List<dynamic> data =
-          response.data["data"] ?? [];
+      final List<dynamic> data = response.data["data"] ?? [];
 
       return data.cast<Map<String, dynamic>>();
     } on DioException catch (e) {
       throw Exception(
-        e.response?.data?["message"] ??
-            "ไม่สามารถโหลดข้อมูลเฟอร์นิเจอร์ได้",
+        e.response?.data?["message"] ?? "ไม่สามารถโหลดข้อมูลเฟอร์นิเจอร์ได้",
       );
     } catch (e) {
       throw Exception("เกิดข้อผิดพลาด: $e");
@@ -74,9 +73,7 @@ class furnitureRemoteDataSourceImpl
       // items JSON
       // --------------------------------------------------------
 
-      final body = reportData
-          .map((e) => e.toJson())
-          .toList();
+      final body = reportData.map((e) => e.toJson()).toList();
 
       formData.fields.add(
         MapEntry(
@@ -115,15 +112,28 @@ class furnitureRemoteDataSourceImpl
         data: formData,
       );
 
-      return response.statusCode == 200 ||
-          response.statusCode == 201;
+      return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
       throw Exception(
-        e.response?.data?["message"] ??
-            "ส่งรายงานไม่สำเร็จ",
+        e.response?.data?["message"] ?? "ส่งรายงานไม่สำเร็จ",
       );
     } catch (e) {
       throw Exception("เกิดข้อผิดพลาด: $e");
+    }
+  }
+
+  @override
+  Future<bool> confirmUserCondition(String bookingId) async {
+    try {
+      final response = await _dio.post(
+        'furniture/confirm',
+        data: {'bookingId': bookingId},
+      );
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      throw Exception(
+        e.response?.data?["message"] ?? "ไม่สามารถยืนยันสภาพห้องได้",
+      );
     }
   }
 }
