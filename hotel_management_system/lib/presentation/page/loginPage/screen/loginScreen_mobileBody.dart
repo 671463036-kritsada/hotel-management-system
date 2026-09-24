@@ -57,14 +57,14 @@ class LoginScreenMobileBody extends StatelessWidget {
                       Navigator.of(context).pop(); // ปิด dialog ก่อน
 
                       if (loginArgs != null) {
-                        // มี "ปลายทางเดิม" ที่ user ตั้งใจจะไป → พาไปต่อทันที
+                        // มี "ปลายทางเดิม" ที่ user ตั้งใจจะไป พาไปต่อทันที
                         Navigator.pushReplacementNamed(
                           context,
                           loginArgs.redirectRoute,
                           arguments: loginArgs.redirectArguments,
                         );
                       } else {
-                        // login แบบปกติ ไม่มี redirect → ไปหน้า promotion ตามเดิม
+                        // login แบบปกติ ไม่มี redirect ไปหน้า promotion ตามเดิม
                         Navigator.pushReplacementNamed(
                             context, "/promotion_page");
                       }
