@@ -83,14 +83,6 @@ class LoginScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loginWithGoogle() async {
-    // TODO: เชื่อม Google Auth
-  }
-
-  void loginWithFacebook() async {
-    // TODO: เชื่อม Facebook Auth
-  }
-
   /// เช็คสถานะ login แล้วจัดการผลลัพธ์
   /// onSucess คือ dialog ที่แต่ละแพลตฟอร์ม (mobile/desktop) กำหนดเอง
   void handleLoginResult(BuildContext context, VoidCallback onSuccess) {
@@ -104,6 +96,14 @@ class LoginScreenProvider extends ChangeNotifier {
       );
       resetStatus();
     }
+  }
+
+  void loginWithGoogle() async {
+    // TODO: เชื่อม Google Auth
+  }
+
+  void loginWithFacebook() async {
+    // TODO: เชื่อม Facebook Auth
   }
 
   void resetStatus() {

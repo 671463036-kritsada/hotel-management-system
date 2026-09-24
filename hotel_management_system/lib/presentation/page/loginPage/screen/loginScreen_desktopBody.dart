@@ -1,7 +1,6 @@
 // login_screen.dart (Desktop)
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/widget/components/button/button.dart';
-import 'package:hotel_management_system/util/widget/components/button/buttonAuth.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 import 'package:hotel_management_system/util/widget/core/form_enum.dart';
 import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
@@ -150,28 +149,28 @@ class LoginScreenDesktopBody extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 20),
-              Text('หรือเข้าสู่ระบบด้วย',
-                  style: TextStyle(
-                      fontSize: Constants.fontSizeLabel,
-                      color: Colors.grey[600]),
-                  textAlign: TextAlign.center),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ButtonAuth(
-                      onTap: () =>
-                          context.read<LoginScreenProvider>().loginWithGoogle(),
-                      ImagePath: "assets/images/authLogo/Google_Logo.png"),
-                  const SizedBox(width: 20),
-                  ButtonAuth(
-                      onTap: () => context
-                          .read<LoginScreenProvider>()
-                          .loginWithFacebook(),
-                      ImagePath: "assets/images/authLogo/FacebookLogo.png"),
-                ],
-              ),
+              // const SizedBox(height: 20),
+              // Text('หรือเข้าสู่ระบบด้วย',
+              //     style: TextStyle(
+              //         fontSize: Constants.fontSizeLabel,
+              //         color: Colors.grey[600]),
+              //     textAlign: TextAlign.center),
+              // const SizedBox(height: 20),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     ButtonAuth(
+              //         onTap: () =>
+              //             context.read<LoginScreenProvider>().loginWithGoogle(),
+              //         ImagePath: "assets/images/authLogo/Google_Logo.png"),
+              //     const SizedBox(width: 20),
+              //     ButtonAuth(
+              //         onTap: () => context
+              //             .read<LoginScreenProvider>()
+              //             .loginWithFacebook(),
+              //         ImagePath: "assets/images/authLogo/FacebookLogo.png"),
+              //   ],
+              // ),
               SizedBox(height: 20),
             ],
           ),
