@@ -122,7 +122,7 @@ class LoginScreenMobileBody extends StatelessWidget {
                 // --- Login Button ---
                 Consumer<LoginScreenProvider>(
                   builder: (context, provider, _) {
-                    // เรียก provider ให้จัดการ status เอง ส่ง context + dialog callback เข้าไป
+                    // เรียก provider ให้จัดการ status เอง ส่ง context และ dialog callback เข้าไป
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       provider.handleLoginResult(
                           context, () => _showSuccessDialog(context));
