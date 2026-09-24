@@ -17,10 +17,12 @@ class LoginRepositoryImpl implements LoginRepository {
   Future<LoginModel> login({
     required String email,
     required String password,
-  }) {
-    return remoteDataSource.login(
+  }) async {
+    final data = await remoteDataSource.login(
       email: email,
       password: password,
     );
+
+    return LoginModel.fromJson(data);
   }
 }

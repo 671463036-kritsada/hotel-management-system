@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../../model/login_model.dart';
-
 abstract class LoginRemoteDataSource {
-  Future<LoginModel> login({
+  Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   });
@@ -17,7 +15,7 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource {
   LoginRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<LoginModel> login({
+  Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
@@ -30,11 +28,10 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource {
         },
       );
 
-      return LoginModel.fromJson(response.data);
+      return response.data;
     } on DioException catch (e) {
       throw Exception(
-        e.response?.data["message"] ??
-            "Login Failed",
+        e.response?.data["message"] ?? "Login Failed",
       );
     }
   }
