@@ -4,6 +4,9 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/book
 import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/payment_remote.dart';
+import 'package:hotel_management_system/data/repositorise/payment_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/payment_usecase.dart';
 import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +18,6 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/booking_form_provider_route.dart';
 import '../../../../util/widget/core/network/dio_client.dart';
-import '../../../../util/function/promptpay_qr.dart';
 
 class BookingFormScreenMobileBody extends StatefulWidget {
   const BookingFormScreenMobileBody({super.key});
@@ -37,7 +39,9 @@ class _BookingFormScreenMobileBodyState
           BookingFormRemoteDataSourceImpl(DioClient.dio),
           HomeRemoteDataSourceImpl(DioClient.dio)),
     );
-    _provider = BookingFormScreenProvider(bookingUsecase);
+    final paymentUsecase = PaymentUsecase(
+        PaymentRepositoriseImpl(PaymentRemoteDataSourceImpl(DioClient.dio)));
+    _provider = BookingFormScreenProvider(bookingUsecase, paymentUsecase);
     _provider.addListener(_onProviderChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -191,6 +195,11 @@ class _BookingFormScreenMobileBodyState
               children: [
                 Consumer2<BookingFormScreenProvider, CartProvider>(
                   builder: (context, provider, cart, _) {
+                    if (provider.qrPayloadStatus == QrPayloadStatus.initial &&
+                        cart.items.isNotEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => provider.loadQrPayload(cart.items));
+                    }
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -222,27 +231,35 @@ class _BookingFormScreenMobileBodyState
                           Text("จ่ายค่ามัดจำผ่าน QR code",
                               style:
                                   TextStyle(fontSize: Constants.fontSizeBody)),
+                          const SizedBox(height: 20),
                           Center(
                             child: Container(
-                              width: double.infinity,
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 color: Constants.secondaryColor,
                                 borderRadius: BorderRadius.circular(
                                     Constants.borderRadius),
                               ),
-                              child: QrImageView(
-                                data: PromptPayQr.createPayload(
-                                    cart.depositAmount),
-                                size: 240,
-                                backgroundColor: Colors.white,
-                              ),
+                              child: provider.qrPayload != null
+                                  ? QrImageView(
+                                      data: provider.qrPayload!,
+                                      size: 240,
+                                      backgroundColor: Colors.white,
+                                    )
+                                  : const SizedBox(
+                                      width: 240,
+                                      height: 240,
+                                      child: Center(
+                                          child: CircularProgressIndicator()),
+                                    ),
                             ),
                           ),
                           Center(
                             child: GestureDetector(
-                              onTap: () =>
-                                  provider.saveQRCode(cart.depositAmount),
+                              onTap: provider.qrPayload != null
+                                  ? () =>
+                                      provider.saveQRCode(cart.depositAmount)
+                                  : null,
                               child: Container(
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 10),

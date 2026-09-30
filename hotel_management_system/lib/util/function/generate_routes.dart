@@ -45,6 +45,9 @@ import '../../data/data_source/remote_data_source/history_remote.dart';
 import '../../data/data_source/remote_data_source/login_remote.dart';
 import '../../data/data_source/remote_data_source/user_profile_remote.dart';
 import '../../data/repositorise/booking_form_repositorise.dart';
+import '../../data/data_source/remote_data_source/payment_remote.dart';
+import '../../data/repositorise/payment_repositorise.dart';
+import '../../domain/use_case/payment_usecase.dart';
 import '../../data/repositorise/check_in_repositorise.dart';
 import '../../data/repositorise/extra_bed_repositorise.dart';
 import '../../data/repositorise/history_repository.dart';
@@ -125,10 +128,12 @@ RouteFactory onGenerateRoute = (settings) {
     case "/booking_form":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
-                create: (_) => BookingFormScreenProvider(BookingFormUsecase(
-                    BookingFormRepositoriseImpl(
+                create: (_) => BookingFormScreenProvider(
+                    BookingFormUsecase(BookingFormRepositoriseImpl(
                         BookingFormRemoteDataSourceImpl(DioClient.dio),
-                        HomeRemoteDataSourceImpl(DioClient.dio)))),
+                        HomeRemoteDataSourceImpl(DioClient.dio))),
+                    PaymentUsecase(PaymentRepositoriseImpl(
+                        PaymentRemoteDataSourceImpl(DioClient.dio)))),
                 child: const BookingFormScreen(),
               ),
           // รายการห้องพักอ่านจาก CartProvider (global) ไม่ต้องส่ง arguments

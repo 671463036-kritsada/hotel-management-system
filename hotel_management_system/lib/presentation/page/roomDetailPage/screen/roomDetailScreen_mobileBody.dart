@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hotel_management_system/util/provider/cart_provider.dart';
-import 'package:hotel_management_system/util/provider/user_provider.dart';
-import '../../../../util/model/model.dart';
+import '../../../../util/function/login_flow.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/extra_bed_entitise.dart';
@@ -63,14 +62,12 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
       return;
     }
 
-    if (!context.read<UserProvider>().isLogin) {
-      Navigator.pushNamed(
-        context,
-        '/login',
-        arguments: LoginPageArguments(redirectRoute: '/cart'),
-      );
-      return;
-    }
+    final canContinue = await ensureLoggedIn(
+      context,
+      redirectRoute: '/cart',
+      cartItemToAdd: selection,
+    );
+    if (!canContinue) return;
 
     try {
       await context.read<CartProvider>().addItem(selection);

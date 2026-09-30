@@ -4,6 +4,9 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/book
 import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/repositorise/booking_form_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/payment_remote.dart';
+import 'package:hotel_management_system/data/repositorise/payment_repositorise.dart';
+import 'package:hotel_management_system/domain/use_case/payment_usecase.dart';
 import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:hotel_management_system/util/widget/components/button/button.dart';
@@ -16,7 +19,6 @@ import '../../../../util/widget/components/dialog/dialog_helper.dart';
 import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../../../../util/widget/core/network/dio_client.dart';
-import '../../../../util/function/promptpay_qr.dart';
 
 class BookingFormScreenDesktopBody extends StatefulWidget {
   const BookingFormScreenDesktopBody({super.key});
@@ -38,7 +40,9 @@ class _BookingFormScreenDesktopBodyState
           BookingFormRemoteDataSourceImpl(DioClient.dio),
           HomeRemoteDataSourceImpl(DioClient.dio)),
     );
-    _provider = BookingFormScreenProvider(bookingUsecase);
+    final paymentUsecase = PaymentUsecase(
+        PaymentRepositoriseImpl(PaymentRemoteDataSourceImpl(DioClient.dio)));
+    _provider = BookingFormScreenProvider(bookingUsecase, paymentUsecase);
     _provider.addListener(_onProviderChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -179,6 +183,11 @@ class _BookingFormScreenDesktopBodyState
               Expanded(
                 child: Consumer2<BookingFormScreenProvider, CartProvider>(
                   builder: (context, provider, cart, _) {
+                    if (provider.qrPayloadStatus == QrPayloadStatus.initial &&
+                        cart.items.isNotEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => provider.loadQrPayload(cart.items));
+                    }
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(32),
                       child: Center(
@@ -327,21 +336,34 @@ class _BookingFormScreenDesktopBodyState
                                                           Constants
                                                               .borderRadius),
                                                 ),
-                                                child: QrImageView(
-                                                  data:
-                                                      PromptPayQr.createPayload(
-                                                          cart.depositAmount),
-                                                  size: 240,
-                                                  backgroundColor: Colors.white,
-                                                ),
+                                                child: provider.qrPayload !=
+                                                        null
+                                                    ? QrImageView(
+                                                        data:
+                                                            provider.qrPayload!,
+                                                        size: 240,
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                      )
+                                                    : const SizedBox(
+                                                        width: 240,
+                                                        height: 240,
+                                                        child: Center(
+                                                            child:
+                                                                CircularProgressIndicator()),
+                                                      ),
                                               ),
                                               const SizedBox(height: 16),
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: OutlinedButton.icon(
-                                                  onPressed: () =>
-                                                      provider.saveQRCode(
-                                                          cart.depositAmount),
+                                                  onPressed: provider
+                                                              .qrPayload !=
+                                                          null
+                                                      ? () => provider
+                                                          .saveQRCode(cart
+                                                              .depositAmount)
+                                                      : null,
                                                   icon: const Icon(
                                                       Icons.download),
                                                   label: const Text(

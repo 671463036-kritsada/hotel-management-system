@@ -79,7 +79,7 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: Constants.primaryColor,
-            side: BorderSide(color: Constants.primaryColor),
+            side: const BorderSide(color: Constants.primaryColor),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
@@ -161,7 +161,7 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
           padding: const EdgeInsets.all(Constants.padding),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 80,
               ),
               // Container(
@@ -197,10 +197,10 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
                           onTap: () => _openDateFilterSheet(context),
                           btnSize: 250,
                           color: Constants.primaryColor),
-                      SizedBox(
+                      const SizedBox(
                         height: 12,
                       ),
-                      Row(
+                      const Row(
                         children: [
                           Text(
                             "โปรโมชั่นพิเศษ",
@@ -210,11 +210,11 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
                           ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 12,
                       ),
                       _buildPromotionList(),
-                      SizedBox(
+                      const SizedBox(
                         height: 100,
                       ),
                     ],
@@ -224,14 +224,14 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
             ],
           ),
         ),
-        Positioned(
+        const Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: Topnavbar(
               widthFactor: 0.2,
             )),
-        Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
+        const Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
       ])),
     );
   }
@@ -287,13 +287,13 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
               children: [
                 Text(
                   provider.promotionsError!,
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => provider.fetchActivePromotions(),
-                  child: Text("ลองใหม่อีกครั้ง"),
+                  child: const Text("ลองใหม่อีกครั้ง"),
                 ),
               ],
             ),

@@ -10,6 +10,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../data/data_source/remote_data_source/promotion_remote.dart';
 import '../../../../data/repositorise/promotion_repositorise.dart';
 import '../../../../domain/use_case/promotion_usecase.dart';
+import '../../../../data/data_source/remote_data_source/payment_remote.dart';
+import '../../../../data/repositorise/payment_repositorise.dart';
+import '../../../../domain/use_case/payment_usecase.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -17,7 +20,6 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/check_in_screen_provider.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
-import '../../../../util/function/promptpay_qr.dart';
 import '../../../../data/data_source/remote_data_source/user_profile_remote.dart';
 import '../../../../data/repositorise/user_profile_respositorise.dart';
 import '../../../../domain/use_case/user_profile_usecase.dart';
@@ -49,11 +51,15 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
         CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
     final promotionUsecase = PromotionUsecase(PromotionRepositoriseImpl(
         PromotionRemoteDataSourceImpl(DioClient.dio)));
-    _provider = CheckInScreenProvider(checkInUsecase, promotionUsecase);
+    final paymentUsecase = PaymentUsecase(
+        PaymentRepositoriseImpl(PaymentRemoteDataSourceImpl(DioClient.dio)));
+    _provider =
+        CheckInScreenProvider(checkInUsecase, promotionUsecase, paymentUsecase);
     _provider.addListener(_onProviderChanged);
     _provider.setPricing(
       totalPrice: widget.totalPrice,
       depositAmount: widget.depositAmount,
+      bookingId: widget.bookingID,
     );
     _provider.loadCoupons();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -355,21 +361,34 @@ class _CheckInScreenDesktopBodyState extends State<CheckInScreenDesktopBody> {
                                                           Constants
                                                               .borderRadius),
                                                 ),
-                                                child: QrImageView(
-                                                  data:
-                                                      PromptPayQr.createPayload(
-                                                          provider.amountDue),
-                                                  size: 240,
-                                                  backgroundColor: Colors.white,
-                                                ),
+                                                child: provider.qrPayload !=
+                                                        null
+                                                    ? QrImageView(
+                                                        data:
+                                                            provider.qrPayload!,
+                                                        size: 240,
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                      )
+                                                    : const SizedBox(
+                                                        width: 240,
+                                                        height: 240,
+                                                        child: Center(
+                                                            child:
+                                                                CircularProgressIndicator()),
+                                                      ),
                                               ),
                                               const SizedBox(height: 16),
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: OutlinedButton.icon(
-                                                  onPressed: () =>
-                                                      provider.saveQRCode(
-                                                          provider.amountDue),
+                                                  onPressed: provider
+                                                              .qrPayload !=
+                                                          null
+                                                      ? () => provider
+                                                          .saveQRCode(provider
+                                                              .amountDue)
+                                                      : null,
                                                   icon: const Icon(
                                                       Icons.download),
                                                   label: const Text(

@@ -10,6 +10,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../data/data_source/remote_data_source/promotion_remote.dart';
 import '../../../../data/repositorise/promotion_repositorise.dart';
 import '../../../../domain/use_case/promotion_usecase.dart';
+import '../../../../data/data_source/remote_data_source/payment_remote.dart';
+import '../../../../data/repositorise/payment_repositorise.dart';
+import '../../../../domain/use_case/payment_usecase.dart';
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
@@ -17,15 +20,14 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/form_enum.dart';
 import '../provider/check_in_screen_provider.dart';
 import '../../../../util/widget/components/dialog/dialog_helper.dart';
-import '../../../../util/function/promptpay_qr.dart';
 import '../../../../data/data_source/remote_data_source/user_profile_remote.dart';
 import '../../../../data/repositorise/user_profile_respositorise.dart';
 import '../../../../domain/use_case/user_profile_usecase.dart';
 
 class CheckInScreenMobileBody extends StatefulWidget {
   final String? bookingID;
-  final double totalPrice; // เพิ่มใหม่: ราคาค่าเช่าซื้อทั้งหมด (ก่อนหักใดๆ)
-  final double depositAmount; // เพิ่มใหม่: ค่าหมัดจำที่ชำระไปแล้ว
+  final double totalPrice; // ราคาค่าเช่าซื้อทั้งหมด (ก่อนหักใดๆ)
+  final double depositAmount; // ค่าหมัดจำที่ชำระไปแล้ว
 
   const CheckInScreenMobileBody({
     super.key,
@@ -47,17 +49,19 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     super.initState();
     final checkInUsecase = CheckInUsecase(
         CheckInRepositoriseImpl(CheckInRemoteDataSourceImpl(DioClient.dio)));
-    final promotionUsecase = PromotionUsecase(// เพิ่ม
-        PromotionRepositoriseImpl(
-            PromotionRemoteDataSourceImpl(DioClient.dio)));
-    _provider = CheckInScreenProvider(
-        checkInUsecase, promotionUsecase); // แก้: เพิ่ม param
+    final promotionUsecase = PromotionUsecase(PromotionRepositoriseImpl(
+        PromotionRemoteDataSourceImpl(DioClient.dio)));
+    final paymentUsecase = PaymentUsecase(
+        PaymentRepositoriseImpl(PaymentRemoteDataSourceImpl(DioClient.dio)));
+    _provider =
+        CheckInScreenProvider(checkInUsecase, promotionUsecase, paymentUsecase);
     _provider.addListener(_onProviderChanged);
     _provider.setPricing(
       totalPrice: widget.totalPrice,
       depositAmount: widget.depositAmount,
+      bookingId: widget.bookingID,
     );
-    _provider.loadCoupons(); // เพิ่ม: โหลดคูปองจริงตอนเปิดหน้า
+    _provider.loadCoupons();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UserProfileUseCase(
         repository: UserProfileRepositoryImpl(
@@ -137,15 +141,12 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start, // เพิ่ม: กันข้อความสองบรรทัดเยื้องกัน
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            // เพิ่ม: ให้ label บีบตัวและ wrap แทนการดันจำนวนเงินออกจอ
             child: Text(label, style: style),
           ),
-          const SizedBox(
-              width: 8), // เพิ่ม: กันข้อความชนกันตอน label ยาวจนเกือบเต็มบรรทัด
+          const SizedBox(width: 8),
           Text(displayAmount, style: style),
         ],
       ),
@@ -298,7 +299,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                       "หัก ค่าหมัดจำ", -provider.depositAmount),
                                   if (provider.discountAmount > 0)
                                     _priceRow(
-                                      "หัก ส่วนลดคูปอง (${provider.selectedCoupon?.title ?? ''})", // แก้
+                                      "หัก ส่วนลดคูปอง (${provider.selectedCoupon?.title ?? ''})",
                                       -provider.discountAmount,
                                     ),
                                   const Divider(height: 24),
@@ -317,25 +318,32 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                                     fontSize: Constants.fontSizeBody)),
                             Center(
                               child: Container(
-                                width: double.infinity,
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Constants.secondaryColor,
                                   borderRadius: BorderRadius.circular(
                                       Constants.borderRadius),
                                 ),
-                                child: QrImageView(
-                                  data: PromptPayQr.createPayload(
-                                      provider.amountDue),
-                                  size: 240,
-                                  backgroundColor: Colors.white,
-                                ),
+                                child: provider.qrPayload != null
+                                    ? QrImageView(
+                                        data: provider.qrPayload!,
+                                        size: 240,
+                                        backgroundColor: Colors.white,
+                                      )
+                                    : const SizedBox(
+                                        width: 240,
+                                        height: 240,
+                                        child: Center(
+                                            child: CircularProgressIndicator()),
+                                      ),
                               ),
                             ),
                             const SizedBox(height: 20),
                             GestureDetector(
-                              onTap: () =>
-                                  provider.saveQRCode(provider.amountDue),
+                              onTap: provider.qrPayload != null
+                                  ? () =>
+                                      provider.saveQRCode(provider.amountDue)
+                                  : null,
                               child: Center(
                                 child: Text(
                                   "บันทึก QRcode",

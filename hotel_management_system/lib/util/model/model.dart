@@ -1,10 +1,11 @@
+import '../../domain/entitise/cart_item_entitise.dart';
+
 class RoomDetailArguments {
   final String roomId;
   final String roomType;
 
   RoomDetailArguments({required this.roomId, required this.roomType});
 }
-
 
 class RoomConditionCheckArguments {
   final String roomId;
@@ -29,10 +30,12 @@ class HomeFilterArgs {
 class LoginPageArguments {
   final String redirectRoute;
   final Object? redirectArguments;
+  final CartItemEntitise? cartItemToAdd;
 
   LoginPageArguments({
     required this.redirectRoute,
     this.redirectArguments,
+    this.cartItemToAdd,
   });
 }
 

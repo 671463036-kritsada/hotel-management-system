@@ -4,31 +4,63 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotel_management_system/domain/entitise/check_in_entitise.dart';
-import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart'; // เพิ่ม: UserCouponEntitise อยู่ในนี้
+import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/check_in_usecase.dart';
-import 'package:hotel_management_system/domain/use_case/promotion_usecase.dart'; // เพิ่ม
+import 'package:hotel_management_system/domain/use_case/payment_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/promotion_usecase.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signature/signature.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../../../util/function/promptpay_qr.dart';
 import '../../../../domain/entitise/user_profile_entity.dart';
 
 enum CheckInStatus { initial, loading, success, error }
 
 enum SaveQRStatus { initial, success, error }
 
-enum CouponLoadStatus { initial, loading, loaded, error } // เพิ่ม
+enum CouponLoadStatus { initial, loading, loaded, error }
 
-// ลบคลาส CouponModel ทั้งหมดทิ้ง
+enum QrPayloadStatus { initial, loading, loaded, error }
 
 class CheckInScreenProvider extends ChangeNotifier {
   final CheckInUsecase usecase;
-  final PromotionUsecase promotionUsecase; // แก้: ใช้ตัวจริง
-  CheckInScreenProvider(this.usecase, this.promotionUsecase); // แก้ constructor
+  final PromotionUsecase promotionUsecase;
+  final PaymentUsecase paymentUsecase;
+  CheckInScreenProvider(
+      this.usecase, this.promotionUsecase, this.paymentUsecase);
 
-  // --- State เดิม (ไม่แก้) ---
+  // --- QR payload (สร้างโดย backend เท่านั้น) ---
+  String? _qrPayload;
+  QrPayloadStatus _qrPayloadStatus = QrPayloadStatus.initial;
+  String _qrPayloadError = '';
+
+  String? get qrPayload => _qrPayload;
+  QrPayloadStatus get qrPayloadStatus => _qrPayloadStatus;
+  String get qrPayloadError => _qrPayloadError;
+
+  String? _bookingId;
+
+  /// ยอด QR คำนวณโดย backend เองจาก bookingId + คูปองที่เลือก (กัน client ปลอมยอด)
+  Future<void> loadQrPayload() async {
+    final bookingId = _bookingId;
+    if (bookingId == null) return;
+    _qrPayloadStatus = QrPayloadStatus.loading;
+    notifyListeners();
+    try {
+      _qrPayload = await paymentUsecase.getCheckinQrPayload(
+        bookingId,
+        userPromotionId: _selectedCoupon?.userPromotionId,
+      );
+      _qrPayloadStatus = QrPayloadStatus.loaded;
+    } catch (e) {
+      _qrPayloadError = 'ไม่สามารถสร้าง QR code ได้';
+      _qrPayloadStatus = QrPayloadStatus.error;
+    }
+    notifyListeners();
+  }
+
+  // --- State
   CheckInStatus _status = CheckInStatus.initial;
   String _errorMessage = '';
   String _gender = "ชาย";
@@ -46,7 +78,7 @@ class CheckInScreenProvider extends ChangeNotifier {
     penColor: Colors.black,
   );
 
-  // --- Coupon & Price State (แก้ใหม่) ---
+  // --- Coupon & Price State ---
   double _totalPrice = 0;
   double _depositAmount = 0;
 
@@ -79,10 +111,16 @@ class CheckInScreenProvider extends ChangeNotifier {
     return result < 0 ? 0 : result;
   }
 
-  void setPricing({required double totalPrice, required double depositAmount}) {
+  void setPricing({
+    required double totalPrice,
+    required double depositAmount,
+    String? bookingId,
+  }) {
     _totalPrice = totalPrice;
     _depositAmount = depositAmount;
+    if (bookingId != null) _bookingId = bookingId;
     notifyListeners();
+    loadQrPayload();
   }
 
   void prefillProfile(UserProfileEntity profile) {
@@ -98,7 +136,7 @@ class CheckInScreenProvider extends ChangeNotifier {
     try {
       _coupons = await promotionUsecase.getMyCoupons();
 
-      // ✅ ถ้าคูปองที่เคยเลือกไว้กลายเป็นใช้ไม่ได้ (หมดอายุ/ใช้แล้ว) เคลียร์ทิ้ง
+      // ถ้าคูปองที่เคยเลือกไว้กลายเป็นใช้ไม่ได้ (หมดอายุ/ใช้แล้ว) เคลียร์ทิ้ง
       if (_selectedCoupon != null &&
           !_selectedCoupon!.isUsable(_baseAmountForDiscount)) {
         _selectedCoupon = null;
@@ -112,20 +150,6 @@ class CheckInScreenProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  /// เลือกคูปอง — ส่ง null เพื่อ "ไม่ใช้คูปอง"
-  // void selectCoupon(int? userPromotionId) {
-  //   if (userPromotionId == null) {
-  //     _selectedCoupon = null;
-  //   } else {
-  //     _selectedCoupon = _coupons.firstWhere(
-  //       (c) => c.userPromotionId == userPromotionId,
-  //       orElse: () => _coupons.first,
-  //     );
-  //   }
-  //   notifyListeners();
-  // }
-  // --- End Coupon & Price State ---
 
   // --- Getter เดิม (ไม่แก้) ---
   CheckInStatus get status => _status;
@@ -220,7 +244,7 @@ class CheckInScreenProvider extends ChangeNotifier {
         idCardImage: _idCardImage?.path ?? '',
         paymentSlipImage: _paymentSlipImage?.path ?? '',
         signatureImage: signatureBase64,
-        userPromotionId: _selectedCoupon?.userPromotionId, // เพิ่ม
+        userPromotionId: _selectedCoupon?.userPromotionId,
       );
 
       await usecase.getCheckInData(checkInData);
@@ -236,8 +260,10 @@ class CheckInScreenProvider extends ChangeNotifier {
 
   Future<void> saveQRCode(double amount) async {
     try {
+      final payload = _qrPayload;
+      if (payload == null) throw Exception('ยังไม่มี QR code ให้บันทึก');
       final painter = QrPainter(
-        data: PromptPayQr.createPayload(amount),
+        data: payload,
         version: QrVersions.auto,
         gapless: true,
       );
@@ -282,6 +308,7 @@ class CheckInScreenProvider extends ChangeNotifier {
     if (userPromotionId == null) {
       _selectedCoupon = null;
       notifyListeners();
+      loadQrPayload();
       return;
     }
 
@@ -290,7 +317,7 @@ class CheckInScreenProvider extends ChangeNotifier {
       orElse: () => _coupons.first,
     );
 
-    // ✅ กันเลือกคูปองที่ใช้ไม่ได้ (หมดอายุ/ใช้แล้ว/ยอดไม่ถึงขั้นต่ำ)
+    // กันเลือกคูปองที่ใช้ไม่ได้ (หมดอายุ/ใช้แล้ว/ยอดไม่ถึงขั้นต่ำ)
     // แม้ UI จะ disable ปุ่มไว้แล้ว เผื่อมีทางอื่นเรียก selectCoupon เข้ามา
     if (!coupon.isUsable(_baseAmountForDiscount)) {
       return;
@@ -298,6 +325,7 @@ class CheckInScreenProvider extends ChangeNotifier {
 
     _selectedCoupon = coupon;
     notifyListeners();
+    loadQrPayload();
   }
 
   @override

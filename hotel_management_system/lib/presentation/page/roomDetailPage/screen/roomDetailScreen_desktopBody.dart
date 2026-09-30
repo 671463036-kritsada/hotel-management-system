@@ -4,8 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../util/provider/cart_provider.dart';
-import '../../../../util/provider/user_provider.dart';
-import '../../../../util/model/model.dart';
+import '../../../../util/function/login_flow.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -172,17 +171,13 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                                             return;
                                           }
 
-                                          if (!context
-                                              .read<UserProvider>()
-                                              .isLogin) {
-                                            Navigator.pushNamed(
-                                              context,
-                                              '/login',
-                                              arguments: LoginPageArguments(
-                                                  redirectRoute: '/cart'),
-                                            );
-                                            return;
-                                          }
+                                          final canContinue =
+                                              await ensureLoggedIn(
+                                            context,
+                                            redirectRoute: '/cart',
+                                            cartItemToAdd: selection,
+                                          );
+                                          if (!canContinue) return;
 
                                           try {
                                             await context

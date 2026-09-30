@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/entitise/cart_item_entitise.dart';
-import '../../../../util/model/model.dart';
+import '../../../../util/function/login_flow.dart';
 import '../../../../util/provider/cart_provider.dart';
-import '../../../../util/provider/user_provider.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
@@ -44,16 +43,12 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  void _onCheckoutTap(BuildContext context) {
-    final isLogin = context.read<UserProvider>().isLogin;
-    if (!isLogin) {
-      Navigator.pushNamed(
-        context,
-        "/login",
-        arguments: LoginPageArguments(redirectRoute: "/booking_form"),
-      );
-      return;
-    }
+  Future<void> _onCheckoutTap(BuildContext context) async {
+    final canContinue = await ensureLoggedIn(
+      context,
+      redirectRoute: '/booking_form',
+    );
+    if (!canContinue || !context.mounted) return;
     Navigator.pushNamed(context, "/booking_form");
   }
 

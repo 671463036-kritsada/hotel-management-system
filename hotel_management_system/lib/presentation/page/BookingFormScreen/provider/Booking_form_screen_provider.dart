@@ -6,19 +6,44 @@ import 'package:hotel_management_system/domain/entitise/booking_form_entitise.da
 import 'package:hotel_management_system/domain/entitise/cart_item_entitise.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hotel_management_system/domain/use_case/booking_form_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/payment_usecase.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../data/model/login_model.dart';
-import '../../../../util/function/promptpay_qr.dart';
 
 enum BookingFormStatus { initial, loading, success, error }
 
 enum SaveQRStatus { initial, success, error }
 
+enum QrPayloadStatus { initial, loading, loaded, error }
+
 class BookingFormScreenProvider extends ChangeNotifier {
   final BookingFormUsecase bookingFormUseCase;
-  BookingFormScreenProvider(this.bookingFormUseCase);
+  final PaymentUsecase paymentUsecase;
+  BookingFormScreenProvider(this.bookingFormUseCase, this.paymentUsecase);
+
+  // --- QR payload (สร้างโดย backend เท่านั้น) ---
+  String? _qrPayload;
+  QrPayloadStatus _qrPayloadStatus = QrPayloadStatus.initial;
+  String _qrPayloadError = '';
+
+  String? get qrPayload => _qrPayload;
+  QrPayloadStatus get qrPayloadStatus => _qrPayloadStatus;
+  String get qrPayloadError => _qrPayloadError;
+
+  Future<void> loadQrPayload(List<CartItemEntitise> items) async {
+    _qrPayloadStatus = QrPayloadStatus.loading;
+    notifyListeners();
+    try {
+      _qrPayload = await paymentUsecase.getBookingCartQrPayload(items);
+      _qrPayloadStatus = QrPayloadStatus.loaded;
+    } catch (e) {
+      _qrPayloadError = 'ไม่สามารถสร้าง QR code ได้';
+      _qrPayloadStatus = QrPayloadStatus.error;
+    }
+    notifyListeners();
+  }
 
   // --- State ---
   BookingFormStatus _status = BookingFormStatus.initial;
@@ -102,8 +127,10 @@ class BookingFormScreenProvider extends ChangeNotifier {
 
   Future<void> saveQRCode(double amount) async {
     try {
+      final payload = _qrPayload;
+      if (payload == null) throw Exception('ยังไม่มี QR code ให้บันทึก');
       final painter = QrPainter(
-        data: PromptPayQr.createPayload(amount),
+        data: payload,
         version: QrVersions.auto,
         gapless: true,
       );

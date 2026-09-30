@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/util/widget/components/button/button.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 import 'package:hotel_management_system/util/widget/core/form_enum.dart';
-import 'package:hotel_management_system/presentation/page/homePage/screen/home_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../util/function/login_flow.dart';
 import '../provider/login_screen_provider.dart';
 
 class LoginScreenDesktopBody extends StatelessWidget {
@@ -16,7 +16,7 @@ class LoginScreenDesktopBody extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -51,11 +51,8 @@ class LoginScreenDesktopBody extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const HomeScreen()));
+                        Navigator.of(dialogContext).pop();
+                        continueAfterLogin(context, defaultRoute: '/home');
                       },
                       child: const Text('ตกลง',
                           style: TextStyle(
