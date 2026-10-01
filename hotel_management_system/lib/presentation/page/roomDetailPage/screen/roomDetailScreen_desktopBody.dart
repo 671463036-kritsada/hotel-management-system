@@ -11,6 +11,32 @@ import '../../../../util/widget/core/constants.dart';
 import '../../../../util/widget/core/typeRoom_enum.dart';
 import '../provider/room_detail_screen_provider.dart';
 
+Widget _buildInfoChip({required IconData icon, required String label}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.grey.shade100,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.grey.shade200),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: Constants.secondaryColor),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class RoomDetailScreenDesktopBody extends StatefulWidget {
   final String roomId;
   final RoomType roomType;
@@ -82,6 +108,16 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold),
                                   ),
+                                  if (room.name.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      room.name,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87),
+                                    ),
+                                  ],
                                   const SizedBox(height: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -99,6 +135,30 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                                           color: Constants.secondaryColor,
                                           fontWeight: FontWeight.bold),
                                     ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      if (room.building.isNotEmpty &&
+                                          room.building != '0')
+                                        _buildInfoChip(
+                                          icon: Icons.apartment_outlined,
+                                          label: 'ตึก ${room.building}',
+                                        ),
+                                      _buildInfoChip(
+                                        icon: Icons.king_bed_outlined,
+                                        label: room.bedType.isNotEmpty
+                                            ? room.bedType
+                                            : 'เตียงเดี่ยว',
+                                      ),
+                                      _buildInfoChip(
+                                        icon: Icons.people_outline,
+                                        label:
+                                            'พักได้สูงสุด ${room.capacity} คน',
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 20),
                                   const Divider(),

@@ -24,6 +24,32 @@ String _baht(double v) {
   return '฿$intPart.${parts[1]}';
 }
 
+Widget _buildInfoChip({required IconData icon, required String label}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.grey.shade100,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.grey.shade200),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: Constants.secondaryColor),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class RoomDetailScreenMobileBody extends StatefulWidget {
   final String roomId;
   final RoomType roomType;
@@ -171,6 +197,16 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                             ),
                           ],
                         ),
+                        if (room.name.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            room.name,
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87),
+                          ),
+                        ],
                         const SizedBox(height: 10),
                         Text(
                           '${_baht(room.pricePerNight)} / คืน',
@@ -178,6 +214,29 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                               fontSize: 22,
                               color: Constants.primaryColor,
                               fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (room.building.isNotEmpty &&
+                                room.building != '0')
+                              _buildInfoChip(
+                                icon: Icons.apartment_outlined,
+                                label: 'ตึก ${room.building}',
+                              ),
+                            _buildInfoChip(
+                              icon: Icons.king_bed_outlined,
+                              label: room.bedType.isNotEmpty
+                                  ? room.bedType
+                                  : 'เตียงเดี่ยว',
+                            ),
+                            _buildInfoChip(
+                              icon: Icons.people_outline,
+                              label: 'พักได้สูงสุด ${room.capacity} คน',
+                            ),
+                          ],
                         ),
                         const Divider(height: 40),
                         const _SectionTitle('รายละเอียดที่พัก'),

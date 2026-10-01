@@ -76,7 +76,7 @@ class PromotionProvider extends ChangeNotifier {
       await usecase.claimPromotion(promotionId);
       _isClaiming = false;
       notifyListeners();
-      // โหลดคูปองใหม่หลังจากเก็บสำเร็จ
+      await fetchActivePromotions();
       await fetchMyCoupons(status: _couponStatus);
       return true;
     } catch (e) {

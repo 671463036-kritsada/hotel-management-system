@@ -12,7 +12,11 @@ class HomeModel {
   String? name;
   String? description;
   String? pricePerNight;
-  List<String>? imageUrls; // เปลี่ยนจาก imageUrl (String?) เป็น imageUrls (List<String>?)
+  String? building;
+  String? bedType;
+  int? capacity;
+  List<String>?
+      imageUrls; // เปลี่ยนจาก imageUrl (String?) เป็น imageUrls (List<String>?)
   DateTime? createdAt;
 
   HomeModel({
@@ -21,6 +25,9 @@ class HomeModel {
     this.name,
     this.description,
     this.pricePerNight,
+    this.building,
+    this.bedType,
+    this.capacity,
     this.imageUrls,
     this.createdAt,
   });
@@ -30,12 +37,18 @@ class HomeModel {
         roomType: json["roomType"],
         name: json["name"],
         description: json["description"],
-        pricePerNight: json["pricePerNight"],
+        pricePerNight: json["pricePerNight"]?.toString(),
+        building: json["building"]?.toString() ?? '1',
+        bedType: json["bedType"]?.toString() ?? 'เตียงเดี่ยว',
+        capacity: json["capacity"] != null
+            ? int.tryParse(json["capacity"].toString()) ?? 2
+            : 2,
         imageUrls: json["imageUrls"] != null
             ? List<String>.from(json["imageUrls"])
             : <String>[],
-        createdAt:
-            json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+        createdAt: json["createdAt"] == null
+            ? null
+            : DateTime.parse(json["createdAt"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +57,9 @@ class HomeModel {
         "name": name,
         "description": description,
         "pricePerNight": pricePerNight,
+        "building": building,
+        "bedType": bedType,
+        "capacity": capacity,
         "imageUrls": imageUrls,
         "createdAt": createdAt?.toIso8601String(),
       };

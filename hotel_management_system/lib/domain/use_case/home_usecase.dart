@@ -14,8 +14,12 @@ class HomeUsecase {
     return HomeEntitise(
       roomId: item.roomId ?? '',
       roomType: item.roomType ?? "",
+      name: item.name ?? "",
       description: item.description ?? "",
       pricePerNight: double.tryParse(item.pricePerNight ?? '') ?? 0.0,
+      building: item.building ?? '1',
+      bedType: item.bedType ?? 'เตียงเดี่ยว',
+      capacity: item.capacity ?? 2,
       imageUrls: fullImageUrls,
       bedCount: 1,
     );

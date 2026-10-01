@@ -11,6 +11,10 @@ import '../../../../util/widget/core/typeRoom_enum.dart';
 class RoomDetail {
   final String roomId;
   final RoomType roomType;
+  final String name;
+  final String building;
+  final String bedType;
+  final int capacity;
   final List<String> imageUrls;
   final String description;
   final double pricePerNight;
@@ -18,6 +22,10 @@ class RoomDetail {
   RoomDetail({
     required this.roomId,
     required this.roomType,
+    this.name = '',
+    this.building = '1',
+    this.bedType = 'เตียงเดี่ยว',
+    this.capacity = 2,
     required this.imageUrls,
     required this.description,
     required this.pricePerNight,
@@ -102,6 +110,10 @@ class RoomDetailScreenProvider extends ChangeNotifier {
       _roomDetail = RoomDetail(
         roomId: room.roomId,
         roomType: roomType,
+        name: room.name,
+        building: room.building,
+        bedType: room.bedType,
+        capacity: room.capacity,
         imageUrls: room.imageUrls,
         description: room.description,
         pricePerNight: room.pricePerNight,

@@ -33,7 +33,7 @@ Widget createBoxShowData(
       crossAxisCount: crossAxisCount,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 0.78,
+      childAspectRatio: 0.74,
     ),
     itemCount: filteredRooms.length,
     itemBuilder: (context, index) {
@@ -105,18 +105,45 @@ Widget createBoxShowData(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      room.roomType.toLowerCase() == 'house'
-                          ? 'บ้านพัก'
-                          : 'ห้องพัก',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            room.name.isNotEmpty
+                                ? room.name
+                                : (room.roomType.toLowerCase() == 'house'
+                                    ? 'บ้านพัก'
+                                    : 'ห้องพัก'),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (room.building.isNotEmpty && room.building != '0')
+                          Container(
+                            margin: const EdgeInsets.only(left: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Text(
+                              'ตึก ${room.building}',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     _buildInfoRow(
-                      bedCount: room.bedCount,
-                      // status: room.status,
+                      bedType: room.bedType,
+                      capacity: room.capacity,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -138,23 +165,29 @@ Widget createBoxShowData(
   );
 }
 
-Widget _buildInfoRow({required int bedCount}) {
+Widget _buildInfoRow({
+  required String bedType,
+  required int capacity,
+}) {
   return Row(
     children: [
       Icon(Icons.king_bed_outlined, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      Text('$bedCount เตียง',
-          style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-      const SizedBox(width: 10),
+      Flexible(
+        child: Text(
+          bedType.isNotEmpty ? bedType : 'เตียงเดี่ยว',
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      const SizedBox(width: 8),
       Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
       const SizedBox(width: 4),
-      // Text(
-      //   status,
-      //   style: TextStyle(
-      //     fontSize: 12,
-      //     color: status == 'ว่าง' ? Colors.green[600] : Colors.orange[700],
-      //   ),
-      // ),
+      Text(
+        '$capacity คน',
+        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+      ),
     ],
   );
 }
