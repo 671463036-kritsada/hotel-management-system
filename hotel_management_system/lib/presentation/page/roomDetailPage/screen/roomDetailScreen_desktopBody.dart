@@ -102,39 +102,46 @@ class _RoomDetailScreenDesktopState extends State<RoomDetailScreenDesktopBody> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        room.name.isNotEmpty
+                                            ? room.name
+                                            : (room.roomType == RoomType.rooms
+                                                ? 'ห้องพัก'
+                                                : 'บ้านพัก'),
+                                        style: const TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Constants.secondaryColor
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          room.roomType == RoomType.rooms
+                                              ? 'ห้องพัก'
+                                              : 'บ้านพัก',
+                                          style: const TextStyle(
+                                              color: Constants.secondaryColor,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
                                     'ห้องหมายเลข ${room.roomId}',
-                                    style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  if (room.name.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      room.name,
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Constants.secondaryColor
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      room.roomType == RoomType.rooms
-                                          ? 'Standard Room'
-                                          : 'Private House',
-                                      style: const TextStyle(
-                                          color: Constants.secondaryColor,
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500),
                                   ),
                                   const SizedBox(height: 12),
                                   Wrap(

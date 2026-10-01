@@ -34,7 +34,7 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
           widget.filterArgs!.checkIn,
           widget.filterArgs!.checkOut,
         );
-      } 
+      }
     });
   }
 
@@ -50,6 +50,109 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
       ),
       onPressed: () => context.read<HomeScreenProvider>().selectRoomType(type),
       child: Text(label),
+    );
+  }
+
+  Widget _buildFilterChipsSection(BuildContext context) {
+    final provider = context.watch<HomeScreenProvider>();
+    final names = provider.availableNames;
+
+    String priceLabel;
+    IconData priceIcon;
+    Color priceColor = Colors.grey.shade700;
+    Color priceBgColor = Colors.grey.shade100;
+
+    switch (provider.priceSortOrder) {
+      case PriceSortOrder.lowToHigh:
+        priceLabel = "ราคา: ต่ำ-สูง";
+        priceIcon = Icons.arrow_upward;
+        priceColor = Constants.primaryColor;
+        priceBgColor = Constants.primaryColor.withOpacity(0.12);
+        break;
+      case PriceSortOrder.highToLow:
+        priceLabel = "ราคา: สูง-ต่ำ";
+        priceIcon = Icons.arrow_downward;
+        priceColor = Constants.primaryColor;
+        priceBgColor = Constants.primaryColor.withOpacity(0.12);
+        break;
+      case PriceSortOrder.none:
+        priceLabel = "ราคา";
+        priceIcon = Icons.swap_vert;
+        break;
+    }
+
+    return SizedBox(
+      height: 38,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          // ปุ่มกรอง/เรียงลำดับราคา
+          InkWell(
+            onTap: () => context.read<HomeScreenProvider>().togglePriceSort(),
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: priceBgColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: provider.priceSortOrder != PriceSortOrder.none
+                      ? Constants.primaryColor
+                      : Colors.grey.shade300,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(priceIcon, size: 16, color: priceColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    priceLabel,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: provider.priceSortOrder != PriceSortOrder.none
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: priceColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // รายการ Filter Chips ตามชื่อประเภทห้อง
+          ...names.map((name) {
+            final isSelected = provider.selectedNameFilter == name;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(name),
+                selected: isSelected,
+                labelStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
+                backgroundColor: Colors.grey.shade100,
+                selectedColor: Constants.primaryColor,
+                checkmarkColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected
+                        ? Constants.primaryColor
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                onSelected: (_) =>
+                    context.read<HomeScreenProvider>().selectNameFilter(name),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 
@@ -165,7 +268,19 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
                         _buildTabButton(context, "บ้านพัก", RoomType.house),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    Consumer<HomeScreenProvider>(
+                      builder: (context, provider, child) {
+                        if (!provider.hasDateFilter ||
+                            provider.roomData.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: _buildFilterChipsSection(context),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
                     Consumer<HomeScreenProvider>(
                       builder: (context, provider, child) {
                         return Expanded(
@@ -173,13 +288,13 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
                               ? const Center(child: CircularProgressIndicator())
                               : provider.errorMessage.isNotEmpty
                                   ? Center(child: Text(provider.errorMessage))
-                                  : provider.roomData.isEmpty
+                                  : provider.filteredRoomData.isEmpty
                                       ? const Center(
                                           child: Text(
-                                              "ไม่มีห้องว่างในช่วงวันที่เลือก"))
+                                              "ไม่พบห้องพักที่ตรงกับตัวกรอง"))
                                       : createBoxShowData(
                                           provider.selectedRoomType,
-                                          provider.roomData,
+                                          provider.filteredRoomData,
                                           len: provider.len,
                                           crossAxisCount: 4,
                                         ),

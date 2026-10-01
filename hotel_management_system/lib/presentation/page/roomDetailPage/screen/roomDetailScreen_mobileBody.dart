@@ -156,57 +156,53 @@ class _RoomDetailScreenState extends State<RoomDetailScreenMobileBody> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  'ห้องหมายเลข ${room.roomId}',
-                                  style: const TextStyle(
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold),
-                                  maxLines: 1,
-                                  softWrap: false,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    room.name.isNotEmpty
+                                        ? room.name
+                                        : (room.roomType == RoomType.rooms
+                                            ? 'ห้องพัก'
+                                            : 'บ้านพัก'),
+                                    style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'ห้องหมายเลข ${room.roomId}',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Constants.secondaryColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    room.roomType == RoomType.rooms
-                                        ? 'Standard Room'
-                                        : 'Private House',
-                                    style: const TextStyle(
-                                        color: Constants.secondaryColor,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 1,
-                                    softWrap: false,
-                                  ),
-                                ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color:
+                                    Constants.secondaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                room.roomType == RoomType.rooms
+                                    ? 'ห้องพัก'
+                                    : 'บ้านพัก',
+                                style: const TextStyle(
+                                    color: Constants.secondaryColor,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
                         ),
-                        if (room.name.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            room.name,
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87),
-                          ),
-                        ],
                         const SizedBox(height: 10),
                         Text(
                           '${_baht(room.pricePerNight)} / คืน',

@@ -147,7 +147,7 @@ Widget createBoxShowData(
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '฿${room.pricePerNight}',
+                      '฿${room.pricePerNight.toStringAsFixed(room.pricePerNight.truncateToDouble() == room.pricePerNight ? 0 : 2)}',
                       style: const TextStyle(
                         color: Constants.secondaryColor,
                         fontSize: 16,
