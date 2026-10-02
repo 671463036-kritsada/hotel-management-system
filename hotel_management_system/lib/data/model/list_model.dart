@@ -27,6 +27,7 @@ class ListModel {
   String? cancelReason;
   String? cancelledBy;
   DateTime? cancelledAt;
+  bool doNotDisturb;
 
   ListModel({
     this.id,
@@ -56,6 +57,7 @@ class ListModel {
     this.cancelReason,
     this.cancelledBy,
     this.cancelledAt,
+    this.doNotDisturb = false,
   });
 
   factory ListModel.fromJson(Map<String, dynamic> json) => ListModel(
@@ -95,6 +97,9 @@ class ListModel {
         cancelledAt: json["cancelled_at"] == null
             ? null
             : DateTime.tryParse(json["cancelled_at"].toString()),
+        doNotDisturb: json["do_not_disturb"] == true ||
+            json["do_not_disturb"] == 1 ||
+            json["do_not_disturb"] == "1",
       );
 
   Map<String, dynamic> toJson() => {
@@ -125,5 +130,6 @@ class ListModel {
         "cancel_reason": cancelReason,
         "cancelled_by": cancelledBy,
         "cancelled_at": cancelledAt?.toIso8601String(),
+        "do_not_disturb": doNotDisturb,
       };
 }

@@ -13,6 +13,7 @@ class HousekeeperFurnitureItem {
 
   String status;
   String note;
+  String priority;
   bool isCustom;
 
   File? photo;
@@ -31,6 +32,7 @@ class HousekeeperFurnitureItem {
     this.image,
     this.status = "ปกติ",
     this.note = "",
+    this.priority = "medium",
     this.isCustom = false,
     this.photo,
     this.lastDamageImageUrl,
@@ -143,6 +145,11 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFurniturePriority(int index, String priority) {
+    _roomFurniture[index].priority = priority;
+    notifyListeners();
+  }
+
   // --- เพิ่มของนอกรายการเข้า "list เดียวกัน" กับของเดิม ---
   void addExtraFurniture(String title, {String note = ''}) {
     _roomFurniture.add(HousekeeperFurnitureItem(
@@ -200,6 +207,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
           ? 'แม่บ้านพบความเสียหายระหว่างตรวจห้อง'
           : item.note.trim(),
       imageFiles: [item.damagePhoto!],
+      priority: item.priority,
     );
 
     if (success) {
@@ -234,6 +242,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   }) async {
     try {
       return await housekeeperRoomUseCase.createIssue(
@@ -241,6 +250,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
         issueType: issueType,
         description: description,
         imageFiles: imageFiles,
+        priority: priority,
       );
     } catch (e) {
       _errorMessage = _cleanError(e);
@@ -343,6 +353,7 @@ class HousekeeperRoomCheckScreenProvider extends ChangeNotifier {
               ? 'แม่บ้านพบความเสียหายระหว่างตรวจห้อง'
               : item.note.trim(),
           imageFiles: repairPhoto == null ? [] : [repairPhoto],
+          priority: item.priority,
         );
 
         if (!issueSuccess) return false;

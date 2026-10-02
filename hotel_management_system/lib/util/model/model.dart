@@ -3,8 +3,15 @@ import '../../domain/entitise/cart_item_entitise.dart';
 class RoomDetailArguments {
   final String roomId;
   final String roomType;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
 
-  RoomDetailArguments({required this.roomId, required this.roomType});
+  RoomDetailArguments({
+    required this.roomId,
+    required this.roomType,
+    this.checkIn,
+    this.checkOut,
+  });
 }
 
 class RoomConditionCheckArguments {

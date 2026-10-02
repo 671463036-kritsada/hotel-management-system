@@ -14,6 +14,7 @@ Widget createBoxShowData(
   List<HomeEntitise> rooms, {
   int len = 10,
   int crossAxisCount = 2,
+  Future<void> Function(HomeEntitise room)? onRoomTap,
 }) {
   final filteredRooms = rooms
       .where((room) {
@@ -43,10 +44,19 @@ Widget createBoxShowData(
           : 'assets/images/rooms/room1.jpg';
 
       return InkWell(
-        onTap: () {
-          Navigator.pushNamed(context, '/room_detail',
-              arguments: RoomDetailArguments(
-                  roomId: room.roomId, roomType: room.roomType));
+        onTap: () async {
+          if (onRoomTap != null) {
+            await onRoomTap(room);
+            return;
+          }
+          Navigator.pushNamed(
+            context,
+            '/room_detail',
+            arguments: RoomDetailArguments(
+              roomId: room.roomId,
+              roomType: room.roomType,
+            ),
+          );
         },
         child: Container(
           decoration: BoxDecoration(

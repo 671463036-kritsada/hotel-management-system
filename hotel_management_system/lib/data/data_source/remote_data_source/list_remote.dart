@@ -4,6 +4,7 @@ import 'package:hotel_management_system/data/model/responseModelRemote/response_
 abstract class ListRemoteDatasource {
   Future<List<Map<String, dynamic>>> getListData();
   Future<bool> cancelBooking(String bookingId, String reason);
+  Future<bool> setDoNotDisturb(String bookingId, bool enabled);
 }
 
 class ListRemoteDatasourceImpl implements ListRemoteDatasource {
@@ -68,6 +69,21 @@ class ListRemoteDatasourceImpl implements ListRemoteDatasource {
     } on DioException catch (error) {
       throw Exception(
           error.response?.data?['message'] ?? 'ยกเลิก booking ไม่สำเร็จ');
+    }
+  }
+
+  @override
+  Future<bool> setDoNotDisturb(String bookingId, bool enabled) async {
+    try {
+      final response = await dio.patch(
+        'bookings/$bookingId/do-not-disturb',
+        data: {'doNotDisturb': enabled},
+      );
+      return response.statusCode == 200;
+    } on DioException catch (error) {
+      throw Exception(
+        error.response?.data?['message'] ?? 'เปลี่ยนสถานะห้ามรบกวนไม่สำเร็จ',
+      );
     }
   }
 }

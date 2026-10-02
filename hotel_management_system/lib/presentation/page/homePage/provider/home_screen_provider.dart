@@ -111,7 +111,7 @@ class HomeScreenProvider extends ChangeNotifier {
   }
 
   Future<void> filterAvailableRooms() async {
-    if (!hasDateFilter) return;
+    if (!hasDateFilter || isLoading) return;
 
     isLoading = true;
     errorMessage = '';
@@ -129,6 +129,13 @@ class HomeScreenProvider extends ChangeNotifier {
       errorMessage = 'ไม่สามารถโหลดข้อมูลห้องว่างได้: $e';
       notifyListeners();
     }
+  }
+
+  Future<bool?> refreshAndCheckRoom(String roomId) async {
+    if (!hasDateFilter || isLoading) return null;
+    await filterAvailableRooms();
+    if (errorMessage.isNotEmpty) return null;
+    return roomData.any((room) => room.roomId == roomId);
   }
 
   String _formatDate(DateTime date) {

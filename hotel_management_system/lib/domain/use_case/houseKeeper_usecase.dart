@@ -29,6 +29,7 @@ class HousekeeperRoomUseCase {
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   }) async {
     try {
       return await repository.createIssue(
@@ -36,6 +37,7 @@ class HousekeeperRoomUseCase {
         issueType: issueType,
         description: description,
         imageFiles: imageFiles,
+        priority: priority,
       );
     } catch (e) {
       throw Exception("UseCase error: $e");

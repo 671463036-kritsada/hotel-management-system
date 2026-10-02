@@ -6,6 +6,7 @@ import 'package:hotel_management_system/data/model/list_model.dart';
 abstract class ListRepositorise {
   Future<List<ListModel>> getListData();
   Future<bool> cancelBooking(String bookingId, String reason);
+  Future<bool> setDoNotDisturb(String bookingId, bool enabled);
 }
 
 class ListRepositoriseImpl implements ListRepositorise {
@@ -28,5 +29,10 @@ class ListRepositoriseImpl implements ListRepositorise {
   @override
   Future<bool> cancelBooking(String bookingId, String reason) {
     return remoteDataSource.cancelBooking(bookingId, reason);
+  }
+
+  @override
+  Future<bool> setDoNotDisturb(String bookingId, bool enabled) {
+    return remoteDataSource.setDoNotDisturb(bookingId, enabled);
   }
 }

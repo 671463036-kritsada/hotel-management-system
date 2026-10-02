@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/presentation/page/splashPage/screen/splash_screen.dart';
 import 'package:hotel_management_system/util/function/generate_routes.dart';
+import 'package:hotel_management_system/util/function/app_route_observer.dart';
 import 'package:hotel_management_system/util/provider/cart_provider.dart';
 import 'package:hotel_management_system/util/provider/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class MainApp extends StatelessWidget {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
+          navigatorObservers: [appRouteObserver],
           home: SplashScreen(),
           theme: ThemeData(
             fontFamily: 'Prompt',

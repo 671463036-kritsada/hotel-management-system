@@ -186,6 +186,18 @@ class _ListScreenMobileBodyState extends State<ListScreenMobileBody> {
                                                 status: booking.bookingStatus,
                                                 checkInStatus:
                                                     booking.checkInStatus,
+                                                checkOutStatus:
+                                                    booking.checkOutStatus,
+                                                doNotDisturb:
+                                                    booking.doNotDisturb,
+                                                isUpdatingDoNotDisturb: provider
+                                                    .isUpdatingDoNotDisturb(
+                                                        booking.bookingId),
+                                                onDoNotDisturbChanged:
+                                                    (enabled) => provider
+                                                        .setDoNotDisturb(
+                                                            booking.bookingId,
+                                                            enabled),
                                                 customerName:
                                                     booking.customerName,
                                                 phone: booking.phone,

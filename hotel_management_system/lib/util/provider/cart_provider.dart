@@ -34,8 +34,8 @@ class CartProvider extends ChangeNotifier {
   Future<void> addItem(CartItemEntitise item) async {
     final response = await DioClient.dio.post('cart', data: {
       'roomId': item.roomId,
-      'checkIn': item.checkIn.toIso8601String(),
-      'checkOut': item.checkOut.toIso8601String(),
+      'checkIn': _formatDate(item.checkIn),
+      'checkOut': _formatDate(item.checkOut),
       'adultCount': item.adultCount,
       'childCount': item.childCount,
       'extraBedTypeId': item.extraBedType?.id,
@@ -57,6 +57,9 @@ class CartProvider extends ChangeNotifier {
     ));
     notifyListeners();
   }
+
+  String _formatDate(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   Future<void> removeItem(int id) async {
     await DioClient.dio.delete('cart/$id');

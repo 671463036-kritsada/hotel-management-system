@@ -45,8 +45,8 @@ class CartItemModel {
       roomId: '${json['room_id']}',
       roomType: roomType,
       imageUrl: ImageUrlHelper.toFullImageUrl(json['image_url']?.toString()),
-      checkIn: DateTime.parse('${json['check_in']}'),
-      checkOut: DateTime.parse('${json['check_out']}'),
+      checkIn: DateTime.parse('${json['check_in']}').toLocal(),
+      checkOut: DateTime.parse('${json['check_out']}').toLocal(),
       adultCount: int.tryParse('${json['adult_count'] ?? 1}') ?? 1,
       childCount: int.tryParse('${json['child_count'] ?? 0}') ?? 0,
       extraBedType: json['extra_bed_type_id'] == null

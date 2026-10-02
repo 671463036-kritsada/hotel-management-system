@@ -13,6 +13,10 @@ class Infoabout extends StatelessWidget {
   final String? phone;
   final String? email;
   final String? roomId;
+  final bool? checkOutStatus;
+  final bool doNotDisturb;
+  final bool isUpdatingDoNotDisturb;
+  final Future<void> Function(bool enabled)? onDoNotDisturbChanged;
   final DateTime? checkIn;
   final DateTime? checkOut;
   final int? roomsCount;
@@ -27,6 +31,10 @@ class Infoabout extends StatelessWidget {
     this.bookingId,
     this.status,
     this.checkInStatus,
+    this.checkOutStatus,
+    this.doNotDisturb = false,
+    this.isUpdatingDoNotDisturb = false,
+    this.onDoNotDisturbChanged,
     this.customerName,
     this.phone,
     this.email,
@@ -143,6 +151,16 @@ class Infoabout extends StatelessWidget {
             if (checkInStatus == true)
               Text("รหัสเข้าห้อง: ${roomKey}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            if (checkInStatus == true &&
+                checkOutStatus != true &&
+                onDoNotDisturbChanged != null) ...[
+              const SizedBox(height: 16),
+              _DoNotDisturbControl(
+                enabled: doNotDisturb,
+                isSaving: isUpdatingDoNotDisturb,
+                onChanged: onDoNotDisturbChanged!,
+              ),
+            ],
             SizedBox(
               height: 20,
             ),
@@ -174,6 +192,74 @@ class Infoabout extends StatelessWidget {
             const SizedBox(height: 30),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DoNotDisturbControl extends StatefulWidget {
+  final bool enabled;
+  final bool isSaving;
+  final Future<void> Function(bool enabled) onChanged;
+
+  const _DoNotDisturbControl({
+    required this.enabled,
+    required this.isSaving,
+    required this.onChanged,
+  });
+
+  @override
+  State<_DoNotDisturbControl> createState() => _DoNotDisturbControlState();
+}
+
+class _DoNotDisturbControlState extends State<_DoNotDisturbControl> {
+  late bool _enabled = widget.enabled;
+  bool _isSaving = false;
+
+  @override
+  void didUpdateWidget(covariant _DoNotDisturbControl oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.enabled != widget.enabled) {
+      _enabled = widget.enabled;
+    }
+  }
+
+  Future<void> _setEnabled(bool enabled) async {
+    setState(() => _isSaving = true);
+    try {
+      await widget.onChanged(enabled);
+      if (mounted) setState(() => _enabled = enabled);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SwitchListTile.adaptive(
+        value: _enabled,
+        onChanged: _isSaving || widget.isSaving ? null : _setEnabled,
+        title: const Text(
+          'ไม่สะดวกให้แม่บ้านเข้าทำความสะอาด',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+        subtitle: Text(
+          _isSaving ? 'กำลังบันทึก...' : 'แม่บ้านจะเห็นสถานะห้ามรบกวน',
+          style: const TextStyle(fontSize: 12),
+        ),
+        activeColor: Constants.primaryColor,
       ),
     );
   }

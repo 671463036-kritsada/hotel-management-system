@@ -38,6 +38,7 @@ class _HousekeeperRoomCheckScreenState
   Color _getStatusColor(String status) {
     final normalizedStatus = status.trim();
     if (normalizedStatus.contains("ปิดปรับปรุง")) return Colors.grey;
+    if (normalizedStatus.contains("ห้ามรบกวน")) return Colors.deepPurple;
     if (normalizedStatus.contains("รอตรวจสอบ")) return Colors.blue;
     if (normalizedStatus.contains("เสร็จสิ้น")) return Colors.green;
     if (normalizedStatus.contains("กำลังทำความสะอาด") ||
@@ -79,6 +80,7 @@ class _HousekeeperRoomCheckScreenState
         _legendItem("กำลังทำความสะอาด / มีแขก", Colors.orange),
         _legendItem("รอตรวจสอบ", Colors.blue),
         _legendItem("เสร็จสิ้น", Colors.green),
+        _legendItem("ห้ามรบกวน", Colors.deepPurple),
         _legendItem("ปิดปรับปรุง", Colors.grey),
       ],
     );
@@ -100,18 +102,23 @@ class _HousekeeperRoomCheckScreenState
 
   Widget _buildRoomTile(HousekeeperRoomEntity room) {
     final statusColor = _getStatusColor(room.status);
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider.value(
-            value: context.read<HousekeeperRoomCheckScreenProvider>(),
-            child: StartWorkScreen(roomNo: room.roomNo),
-          ),
-        ),
-      );
-    },
+    final isUnderMaintenance = room.status.contains("ปิดปรับปรุง");
+    final isDoNotDisturb = room.status.contains("ห้ามรบกวน");
+
+    return GestureDetector(
+      onTap: isUnderMaintenance || isDoNotDisturb
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider.value(
+                    value: context.read<HousekeeperRoomCheckScreenProvider>(),
+                    child: StartWorkScreen(roomNo: room.roomNo),
+                  ),
+                ),
+              );
+            },
       child: Container(
         decoration: BoxDecoration(
           color: statusColor.withOpacity(0.15),

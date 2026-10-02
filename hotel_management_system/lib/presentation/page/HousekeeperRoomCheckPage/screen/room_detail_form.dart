@@ -475,6 +475,31 @@ class _RoomDetailFormScreenState extends State<RoomDetailFormScreen> {
 
             const SizedBox(height: 12),
 
+            DropdownButtonFormField<String>(
+              value: item.priority,
+              decoration: InputDecoration(
+                labelText: 'ระดับความเร่งด่วน',
+                isDense: true,
+                filled: true,
+                fillColor: Constants.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'low', child: Text('ปกติ')),
+                DropdownMenuItem(value: 'medium', child: Text('ปานกลาง')),
+                DropdownMenuItem(value: 'high', child: Text('เร่งด่วน')),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  provider.updateFurniturePriority(index, value);
+                }
+              },
+            ),
+
+            const SizedBox(height: 12),
+
             // ----------------------------------------------------------
             // รูปความเสียหาย
             // ----------------------------------------------------------

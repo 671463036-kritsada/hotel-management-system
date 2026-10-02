@@ -28,6 +28,7 @@ abstract class HousekeeperRoomRemoteDataSource {
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   });
 
   Future<bool> saveRoomDetail({
@@ -40,8 +41,7 @@ class HousekeeperRoomRemoteDataSourceImpl
     implements HousekeeperRoomRemoteDataSource {
   final Dio _dio = DioClient.dio;
 
-  String _fileNameOf(File file) =>
-      file.path.split(Platform.pathSeparator).last;
+  String _fileNameOf(File file) => file.path.split(Platform.pathSeparator).last;
 
   @override
   Future<List<HousekeeperRoomModel>> getRooms() async {
@@ -138,13 +138,14 @@ class HousekeeperRoomRemoteDataSourceImpl
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   }) async {
     try {
       final formData = FormData.fromMap({
         'roomNo': roomNo,
         'issueType': issueType,
         'description': description,
-        'priority': 'medium',
+        'priority': priority,
       });
 
       // ✅ multer ใช้ .array("images", 5) -> ต้องส่งไฟล์ทุกไฟล์ใต้ชื่อฟิลด์

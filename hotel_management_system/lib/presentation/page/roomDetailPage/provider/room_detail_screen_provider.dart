@@ -95,10 +95,15 @@ class RoomDetailScreenProvider extends ChangeNotifier {
   bool get canProceed => _roomDetail != null && nights > 0 && _adultCount >= 1;
 
   // --- Load ---
-  Future<void> getRoomDetail(String roomId, RoomType roomType) async {
+  Future<void> getRoomDetail(
+    String roomId,
+    RoomType roomType, {
+    DateTimeRange? initialDateRange,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     _resetSelection();
+    _dateRange = initialDateRange;
     notifyListeners();
 
     try {

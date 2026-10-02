@@ -11,6 +11,11 @@ class ListUsecase {
     return repository.cancelBooking(bookingId, reason.trim());
   }
 
+  Future<bool> setDoNotDisturb(String bookingId, bool enabled) {
+    if (bookingId.trim().isEmpty) throw Exception("ไม่พบรายการจอง");
+    return repository.setDoNotDisturb(bookingId, enabled);
+  }
+
   Future<List<BookingListEntity>> getListData() async {
     try {
       final listDataModel = await repository.getListData();
@@ -44,6 +49,7 @@ class ListUsecase {
                 cancelReason: item.cancelReason,
                 cancelledBy: item.cancelledBy,
                 cancelledAt: item.cancelledAt,
+                doNotDisturb: item.doNotDisturb,
               ))
           .toList();
     } on SocketException {

@@ -18,6 +18,7 @@ abstract class HousekeeperRoomRepository {
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   });
 
   Future<bool> saveRoomDetail({
@@ -93,6 +94,7 @@ class HousekeeperRoomRepositoryImpl implements HousekeeperRoomRepository {
     required String issueType,
     required String description,
     required List<File> imageFiles,
+    String priority = 'medium',
   }) async {
     try {
       return await remoteDataSource.createIssue(
@@ -100,6 +102,7 @@ class HousekeeperRoomRepositoryImpl implements HousekeeperRoomRepository {
         issueType: issueType,
         description: description,
         imageFiles: imageFiles,
+        priority: priority,
       );
     } catch (e) {
       throw Exception("Repository error: $e");

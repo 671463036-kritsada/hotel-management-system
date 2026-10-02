@@ -29,6 +29,7 @@ class BookingItem {
   final int personCount;
   final String? slipUrl;
   final String? cancelReason;
+  bool doNotDisturb;
 
   BookingItem(
       {required this.bookingId,
@@ -52,7 +53,8 @@ class BookingItem {
       required this.roomsCount,
       required this.personCount,
       this.slipUrl,
-      this.cancelReason});
+      this.cancelReason,
+      this.doNotDisturb = false});
 }
 
 class ListScreenProvider extends ChangeNotifier {
@@ -65,10 +67,36 @@ class ListScreenProvider extends ChangeNotifier {
   List<BookingItem> _bookingList = [];
   bool _isLoading = false;
   bool _isCheckingOut = false;
+  String? _updatingDoNotDisturbBookingId;
 
   List<BookingItem> get bookingList => _bookingList;
   bool get isLoading => _isLoading;
   bool get isCheckingOut => _isCheckingOut;
+  bool isUpdatingDoNotDisturb(String bookingId) =>
+      _updatingDoNotDisturbBookingId == bookingId;
+
+  Future<void> setDoNotDisturb(String bookingId, bool enabled) async {
+    final booking = _bookingList.firstWhere(
+      (item) => item.bookingId == bookingId,
+    );
+    final previousValue = booking.doNotDisturb;
+
+    _updatingDoNotDisturbBookingId = bookingId;
+    booking.doNotDisturb = enabled;
+    notifyListeners();
+
+    try {
+      final success = await usecase.setDoNotDisturb(bookingId, enabled);
+      if (!success) throw Exception('เปลี่ยนสถานะห้ามรบกวนไม่สำเร็จ');
+    } catch (error) {
+      booking.doNotDisturb = previousValue;
+      notifyListeners();
+      rethrow;
+    } finally {
+      _updatingDoNotDisturbBookingId = null;
+      notifyListeners();
+    }
+  }
 
   Future<bool> checkOutBooking(String bookingId) async {
     _isCheckingOut = true;
@@ -142,7 +170,8 @@ class ListScreenProvider extends ChangeNotifier {
             roomsCount: entity.roomsCount,
             personCount: entity.personCount,
             slipUrl: entity.slipUrl,
-            cancelReason: entity.cancelReason);
+            cancelReason: entity.cancelReason,
+            doNotDisturb: entity.doNotDisturb);
       }).toList();
       _isLoading = false;
       notifyListeners();

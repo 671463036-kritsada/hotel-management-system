@@ -26,6 +26,7 @@ class BookingListEntity {
   final String? cancelReason;
   final String? cancelledBy;
   final DateTime? cancelledAt;
+  final bool doNotDisturb;
 
   BookingListEntity({
     required this.bookingId,
@@ -54,5 +55,6 @@ class BookingListEntity {
     this.cancelReason,
     this.cancelledBy,
     this.cancelledAt,
+    this.doNotDisturb = false,
   });
 }

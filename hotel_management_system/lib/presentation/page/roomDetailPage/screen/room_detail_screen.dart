@@ -24,16 +24,26 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isArgsLoaded) {
-      final args = ModalRoute.of(context)!.settings.arguments as RoomDetailArguments;
+      final args =
+          ModalRoute.of(context)!.settings.arguments as RoomDetailArguments;
       roomId = args.roomId;
       roomType = args.roomType.toLowerCase() == 'house'
           ? RoomType.house
           : RoomType.rooms;
       _isArgsLoaded = true;
+      final checkIn = args.checkIn;
+      final checkOut = args.checkOut;
+      final initialDateRange = checkIn != null && checkOut != null
+          ? DateTimeRange(start: checkIn, end: checkOut)
+          : null;
 
       // เรียก getRoomDetail ตรงนี้แทน initState เพราะตอนนี้มี roomId/roomType แล้ว
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<RoomDetailScreenProvider>().getRoomDetail(roomId, roomType);
+        context.read<RoomDetailScreenProvider>().getRoomDetail(
+              roomId,
+              roomType,
+              initialDateRange: initialDateRange,
+            );
       });
     }
   }

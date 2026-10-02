@@ -297,6 +297,34 @@ class _HomeScreenDesktopBodyState extends State<HomeScreenDesktopBody> {
                                           provider.filteredRoomData,
                                           len: provider.len,
                                           crossAxisCount: 4,
+                                          onRoomTap: (room) async {
+                                            final available = await provider
+                                                .refreshAndCheckRoom(
+                                                    room.roomId);
+                                            if (!context.mounted) return;
+                                            if (available != true) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(available ==
+                                                          false
+                                                      ? 'ห้องนี้ถูกจองไปแล้ว กรุณาเลือกห้องอื่น'
+                                                      : 'ตรวจสอบห้องไม่สำเร็จ กรุณาลองอีกครั้ง'),
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/room_detail',
+                                              arguments: RoomDetailArguments(
+                                                roomId: room.roomId,
+                                                roomType: room.roomType,
+                                                checkIn: provider.checkInDate,
+                                                checkOut: provider.checkOutDate,
+                                              ),
+                                            );
+                                          },
                                         ),
                         );
                       },
