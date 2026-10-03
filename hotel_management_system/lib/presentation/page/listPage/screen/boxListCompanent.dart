@@ -263,8 +263,7 @@ class Boxlistcompanent extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey[400]),
         const SizedBox(width: 8),
-        Text("$label  ",
-            style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+        Text("$label  ", style: const TextStyle(fontSize: 13, color: Colors.black)),
         Expanded(
           child: Text(value.toString(),
               style: TextStyle(
