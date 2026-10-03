@@ -191,7 +191,7 @@ class _CheckInScreenMobileBodyState extends State<CheckInScreenMobileBody> {
                             createInputField(
                               InputFieldType.idCard,
                               imageFile: provider.idCardImage,
-                              onTap: provider.takeIdCardPhoto,
+                              onTap: () => provider.takeIdCardPhoto(context),
                             ),
                             const SizedBox(height: 20),
                             Text('ลายเซ็นยืนยัน',

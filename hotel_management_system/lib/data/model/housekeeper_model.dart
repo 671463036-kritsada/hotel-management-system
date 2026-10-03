@@ -7,6 +7,7 @@ class HousekeeperRoomModel {
   final String roomNo;
   final String building;
   final String cleaningStatus;
+  final bool hasGuest;
   final String? roomType;
   final String? roomName;
   final String? description;
@@ -16,6 +17,7 @@ class HousekeeperRoomModel {
     required this.roomNo,
     required this.building,
     required this.cleaningStatus,
+    this.hasGuest = false,
     this.roomType,
     this.roomName,
     this.description,
@@ -31,6 +33,7 @@ class HousekeeperRoomModel {
       // (ดู houskeeper_service.js) กันเหนียวรับได้ทั้งคู่เผื่อ backend เปลี่ยน
       cleaningStatus:
           (json['cleaningStatus'] ?? json['status'] ?? '').toString(),
+      hasGuest: json['hasGuest'] == true,
       roomType: json['roomType']?.toString(),
       roomName: json['roomName']?.toString(),
       description: json['description']?.toString(),

@@ -10,6 +10,7 @@ import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
+import '../../../../util/function/image_url.dart';
 
 class RoomConditionCheckScreenDesktopBody extends StatefulWidget {
   final String roomId;
@@ -33,7 +34,7 @@ class _RoomConditionCheckScreenDesktopBodyState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context
           .read<RoomConditionCheckScreenProvider>()
-          .init(widget.roomId, widget.bookingId); // ✅ เพิ่ม bookingId
+          .init(widget.roomId, widget.bookingId);
     });
   }
 
@@ -63,8 +64,11 @@ class _RoomConditionCheckScreenDesktopBodyState
   }
 
   Widget _buildItemImage(FurnitureItem item) {
-    if (item.image is String) {
-      return Image.asset(item.image,
+    final imageUrl = ImageUrlHelper.toFullImageUrl(item.inspectionImageUrl) ??
+        ImageUrlHelper.toFullImageUrl(
+            item.image is String ? item.image as String : null);
+    if (imageUrl != null) {
+      return Image.network(imageUrl,
           width: 70,
           height: 70,
           fit: BoxFit.cover,
@@ -74,7 +78,7 @@ class _RoomConditionCheckScreenDesktopBodyState
         width: 70,
         height: 70,
         color: Colors.orange.shade100,
-        child: Icon(item.image as IconData, color: Colors.orange));
+        child: const Icon(Icons.warning_amber_rounded, color: Colors.orange));
   }
 
   Widget _buildStatusPicker(int index, FurnitureItem item) {
@@ -283,7 +287,7 @@ class _RoomConditionCheckScreenDesktopBodyState
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          BorderSide(color: Constants.primaryColor, width: 2)),
+                          const BorderSide(color: Constants.primaryColor, width: 2)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -331,12 +335,12 @@ class _RoomConditionCheckScreenDesktopBodyState
                               height: 180,
                               width: double.infinity,
                               fit: BoxFit.cover),
-                          Positioned(
+                          const Positioned(
                               right: 10,
                               top: 10,
                               child: CircleAvatar(
                                   backgroundColor: Colors.black54,
-                                  child: const Icon(Icons.edit,
+                                  child: Icon(Icons.edit,
                                       color: Colors.white, size: 18))),
                         ]),
                       ),
@@ -393,7 +397,7 @@ class _RoomConditionCheckScreenDesktopBodyState
       body: SafeArea(
         child: Column(
           children: [
-            Topnavbar(
+            const Topnavbar(
               widthFactor: 0.1,
             ),
             Expanded(
@@ -475,11 +479,11 @@ class _RoomConditionCheckScreenDesktopBodyState
                                           ),
                                           child: Row(
                                             children: [
-                                              Icon(Icons.chair_outlined,
+                                              const Icon(Icons.chair_outlined,
                                                   color: Constants.primaryColor,
                                                   size: 22),
                                               const SizedBox(width: 10),
-                                              Text("รายการเฟอร์นิเจอร์ทั้งหมด",
+                                              const Text("รายการเฟอร์นิเจอร์ทั้งหมด",
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -500,7 +504,7 @@ class _RoomConditionCheckScreenDesktopBodyState
                                                 ),
                                                 child: Text(
                                                   "${provider.furnitureList.length} รายการ",
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                       fontSize: 13,
                                                       color: Constants
                                                           .primaryColor,

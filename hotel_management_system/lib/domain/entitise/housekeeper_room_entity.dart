@@ -6,10 +6,12 @@ class HousekeeperRoomEntity {
   // ไม่ผ่านทันที
   String building;
   String status;
+  bool hasGuest;
 
   HousekeeperRoomEntity({
     this.roomNo = '',
     this.building = '1',
     this.status = '',
+    this.hasGuest = false,
   });
 }

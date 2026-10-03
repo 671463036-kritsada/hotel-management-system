@@ -168,17 +168,40 @@ class CheckInScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> takeIdCardPhoto() async {
-    var status = await Permission.camera.request();
-    if (status.isGranted) {
-      final ImagePicker picker = ImagePicker();
-      final XFile? photo = await picker.pickImage(source: ImageSource.camera);
-      if (photo != null) {
-        _idCardImage = File(photo.path);
-        notifyListeners();
-      }
-    } else if (status.isPermanentlyDenied) {
-      openAppSettings();
+  Future<void> takeIdCardPhoto(BuildContext context) async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('ถ่ายรูป'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('เลือกจากคลังรูปภาพ'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null) return;
+
+    if (source == ImageSource.camera) {
+      final status = await Permission.camera.request();
+      if (status.isPermanentlyDenied) openAppSettings();
+      if (!status.isGranted) return;
+    }
+
+    final XFile? photo =
+        await ImagePicker().pickImage(source: source, imageQuality: 80);
+    if (photo != null) {
+      _idCardImage = File(photo.path);
+      notifyListeners();
     }
   }
 

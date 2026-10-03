@@ -41,6 +41,7 @@ class HousekeeperRoomRepositoryImpl implements HousekeeperRoomRepository {
                 roomNo: m.roomNo,
                 building: m.building,
                 status: m.cleaningStatus,
+                hasGuest: m.hasGuest,
               ))
           .toList();
     } catch (e) {

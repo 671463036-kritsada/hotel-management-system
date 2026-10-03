@@ -13,11 +13,11 @@ import '../provider/room_condition_check_screen_provider.dart';
 
 class RoomConditionCheckScreenMobileBody extends StatefulWidget {
   final String roomId;
-  final String bookingId; // ✅ เพิ่มใหม่
+  final String bookingId;
   const RoomConditionCheckScreenMobileBody({
     super.key,
     required this.roomId,
-    required this.bookingId, // ✅ เพิ่มใหม่
+    required this.bookingId,
   });
 
   @override
@@ -33,7 +33,7 @@ class _RoomConditionCheckScreenMobileBodyState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context
           .read<RoomConditionCheckScreenProvider>()
-          .init(widget.roomId, widget.bookingId); // ✅ เพิ่ม bookingId
+          .init(widget.roomId, widget.bookingId); 
     });
   }
 
@@ -61,7 +61,8 @@ class _RoomConditionCheckScreenMobileBodyState
   }
 
   Widget _buildItemImage(FurnitureItem item) {
-    final imageUrl = ImageUrlHelper.toFullImageUrl(item.inspectionImageUrl);
+    final imageUrl = ImageUrlHelper.toFullImageUrl(item.inspectionImageUrl) ??
+        ImageUrlHelper.toFullImageUrl(item.image?.toString());
     if (imageUrl != null) {
       return Image.network(
         imageUrl,

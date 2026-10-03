@@ -9,6 +9,44 @@ import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
 
+enum _RoomKind {
+  closed,
+  doNotDisturb,
+  guestRequest,
+  vacantPending,
+  cleaning,
+  review,
+  done,
+  occupied,
+  unknown,
+}
+
+class _RoomView {
+  final _RoomKind kind;
+  final String label;
+  final Color color;
+  final IconData icon;
+
+  const _RoomView(this.kind, this.label, this.color, this.icon);
+}
+
+const _legendViews = [
+  _RoomView(_RoomKind.vacantPending, "ไม่มีแขก รอทำความสะอาด", Colors.red,
+      Icons.person_off),
+  _RoomView(_RoomKind.guestRequest, "แขกขอให้ทำความสะอาด", Colors.pink,
+      Icons.notifications_active),
+  _RoomView(_RoomKind.cleaning, "กำลังทำความสะอาด", Colors.teal,
+      Icons.cleaning_services),
+  _RoomView(_RoomKind.occupied, "มีแขกพักอยู่", Colors.orange, Icons.person),
+  _RoomView(_RoomKind.doNotDisturb, "ห้ามรบกวน", Colors.deepPurple,
+      Icons.do_not_disturb_on),
+  _RoomView(
+      _RoomKind.review, "รอตรวจสอบ", Colors.blue, Icons.fact_check_outlined),
+  _RoomView(
+      _RoomKind.done, "เสร็จสิ้น", Colors.green, Icons.check_circle_outline),
+  _RoomView(_RoomKind.closed, "ปิดปรับปรุง", Colors.grey, Icons.block),
+];
+
 class HousekeeperRoomCheckScreen extends StatefulWidget {
   const HousekeeperRoomCheckScreen({super.key});
 
@@ -20,6 +58,11 @@ class HousekeeperRoomCheckScreen extends StatefulWidget {
 class _HousekeeperRoomCheckScreenState
     extends State<HousekeeperRoomCheckScreen> {
   final TextEditingController _searchController = TextEditingController();
+  _RoomKind? _selectedKind;
+
+  void _toggleKind(_RoomKind kind) {
+    setState(() => _selectedKind = _selectedKind == kind ? null : kind);
+  }
 
   @override
   void initState() {
@@ -35,21 +78,45 @@ class _HousekeeperRoomCheckScreenState
     super.dispose();
   }
 
-  Color _getStatusColor(String status) {
-    final normalizedStatus = status.trim();
-    if (normalizedStatus.contains("ปิดปรับปรุง")) return Colors.grey;
-    if (normalizedStatus.contains("ห้ามรบกวน")) return Colors.deepPurple;
-    if (normalizedStatus.contains("รอตรวจสอบ")) return Colors.blue;
-    if (normalizedStatus.contains("เสร็จสิ้น")) return Colors.green;
-    if (normalizedStatus.contains("กำลังทำความสะอาด") ||
-        normalizedStatus.contains("ลูกค้าพัก")) {
-      return Colors.orange;
+  _RoomView _describe(HousekeeperRoomEntity room) {
+    final status = room.status.trim();
+    final pending = status.contains("รอทำความสะอาด") ||
+        status.contains("ยังไม่ได้ทำความสะอาด");
+
+    if (status.contains("ปิดปรับปรุง")) {
+      return const _RoomView(
+          _RoomKind.closed, "ปิดปรับปรุง", Colors.grey, Icons.block);
     }
-    if (normalizedStatus.contains("รอทำความสะอาด") ||
-        normalizedStatus.contains("ยังไม่ได้ทำความสะอาด")) {
-      return Colors.red;
+    if (status.contains("ห้ามรบกวน")) {
+      return const _RoomView(_RoomKind.doNotDisturb, "แขกพัก ห้ามรบกวน",
+          Colors.deepPurple, Icons.do_not_disturb_on);
     }
-    return Colors.grey;
+    if (pending && room.hasGuest) {
+      return const _RoomView(_RoomKind.guestRequest, "แขกขอให้ทำความสะอาด",
+          Colors.pink, Icons.notifications_active);
+    }
+    if (pending) {
+      return const _RoomView(_RoomKind.vacantPending, "ไม่มีแขก รอทำความสะอาด",
+          Colors.red, Icons.person_off);
+    }
+    if (status.contains("กำลังทำความสะอาด")) {
+      return const _RoomView(_RoomKind.cleaning, "กำลังทำความสะอาด",
+          Colors.teal, Icons.cleaning_services);
+    }
+    if (status.contains("รอตรวจสอบ")) {
+      return const _RoomView(_RoomKind.review, "รอตรวจสอบ", Colors.blue,
+          Icons.fact_check_outlined);
+    }
+    if (status.contains("เสร็จสิ้น")) {
+      return const _RoomView(_RoomKind.done, "เสร็จสิ้น", Colors.green,
+          Icons.check_circle_outline);
+    }
+    if (status.contains("ลูกค้าพัก")) {
+      return const _RoomView(
+          _RoomKind.occupied, "มีแขกพักอยู่", Colors.orange, Icons.person);
+    }
+    return _RoomView(
+        _RoomKind.unknown, status, Colors.grey, Icons.help_outline);
   }
 
   // ใช้ field "building" จริงจาก backend (rooms.building) ไม่ใช่เดาจาก roomNo
@@ -73,40 +140,101 @@ class _HousekeeperRoomCheckScreenState
 
   Widget _buildLegend() {
     return Wrap(
-      spacing: 10,
-      runSpacing: 5,
+      spacing: 8,
+      runSpacing: 6,
+      children: _legendViews.map(_legendItem).toList(),
+    );
+  }
+
+  Widget _legendItem(_RoomView view) {
+    final selected = _selectedKind == view.kind;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => _toggleKind(view.kind),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected ? view.color.withOpacity(0.15) : null,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? view.color : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(view.icon, size: 14, color: view.color),
+            const SizedBox(width: 4),
+            Text(view.label, style: const TextStyle(fontSize: 11)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummary(List<HousekeeperRoomEntity> rooms) {
+    final kinds = rooms.map((room) => _describe(room).kind).toList();
+    final guestRequests =
+        kinds.where((kind) => kind == _RoomKind.guestRequest).length;
+    final vacantPending =
+        kinds.where((kind) => kind == _RoomKind.vacantPending).length;
+
+    return Row(
       children: [
-        _legendItem("รอทำความสะอาด", Colors.red),
-        _legendItem("กำลังทำความสะอาด / มีแขก", Colors.orange),
-        _legendItem("รอตรวจสอบ", Colors.blue),
-        _legendItem("เสร็จสิ้น", Colors.green),
-        _legendItem("ห้ามรบกวน", Colors.deepPurple),
-        _legendItem("ปิดปรับปรุง", Colors.grey),
+        Expanded(
+          child: _summaryCard(_RoomKind.guestRequest, "แขกขอให้ทำความสะอาด",
+              guestRequests, Colors.pink, Icons.notifications_active),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _summaryCard(_RoomKind.vacantPending, "ไม่มีแขก รอทำความสะอาด",
+              vacantPending, Colors.red, Icons.person_off),
+        ),
       ],
     );
   }
 
-  Widget _legendItem(String label, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 11)),
-      ],
+  Widget _summaryCard(
+      _RoomKind kind, String label, int count, Color color, IconData icon) {
+    final selected = _selectedKind == kind;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => _toggleKind(kind),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(selected ? 0.25 : 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? color : color.withOpacity(0.6),
+            width: selected ? 2.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[800])),
+            ),
+            Text("$count",
+                style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildRoomTile(HousekeeperRoomEntity room) {
-    final statusColor = _getStatusColor(room.status);
-    final isUnderMaintenance = room.status.contains("ปิดปรับปรุง");
-    final isDoNotDisturb = room.status.contains("ห้ามรบกวน");
+    final view = _describe(room);
+    final cannotEnter =
+        view.kind == _RoomKind.closed || view.kind == _RoomKind.doNotDisturb;
 
     return GestureDetector(
-      onTap: isUnderMaintenance || isDoNotDisturb
+      onTap: cannotEnter
           ? null
           : () {
               Navigator.push(
@@ -119,16 +247,27 @@ class _HousekeeperRoomCheckScreenState
                 ),
               );
             },
-      child: Container(
-        decoration: BoxDecoration(
-          color: statusColor.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: statusColor, width: 1),
-        ),
-        child: Center(
-          child: Text(
-            room.roomNo,
-            style: TextStyle(fontWeight: FontWeight.bold, color: statusColor),
+      child: Tooltip(
+        message: view.label,
+        child: Container(
+          decoration: BoxDecoration(
+            color: view.color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: view.color, width: 1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(view.icon, size: 16, color: view.color),
+              const SizedBox(height: 2),
+              Text(
+                room.roomNo,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: view.color),
+              ),
+            ],
           ),
         ),
       ),
@@ -188,6 +327,7 @@ class _HousekeeperRoomCheckScreenState
       backgroundColor: Constants.white,
       body: SafeArea(
         child: Stack(
+          fit: StackFit.expand,
           children: [
             SingleChildScrollView(
               padding: const EdgeInsets.only(
@@ -217,6 +357,12 @@ class _HousekeeperRoomCheckScreenState
                     ),
                   ),
                   const SizedBox(height: 15),
+                  Consumer<HousekeeperRoomCheckScreenProvider>(
+                    builder: (context, provider, _) => provider.isLoading
+                        ? const SizedBox.shrink()
+                        : _buildSummary(provider.filteredRooms),
+                  ),
+                  const SizedBox(height: 15),
                   _buildLegend(),
                   const SizedBox(height: 15),
                   Consumer<HousekeeperRoomCheckScreenProvider>(
@@ -227,11 +373,25 @@ class _HousekeeperRoomCheckScreenState
                       if (provider.errorMessage.isNotEmpty) {
                         return Center(child: Text(provider.errorMessage));
                       }
-                      if (provider.filteredRooms.isEmpty) {
-                        return const Center(
-                            child: Text("ไม่พบหมายเลขห้องที่ค้นหา"));
+                      final rooms = _selectedKind == null
+                          ? provider.filteredRooms
+                          : provider.filteredRooms
+                              .where((room) =>
+                                  _describe(room).kind == _selectedKind)
+                              .toList();
+                      if (rooms.isEmpty) {
+                        return Center(
+                          child: _selectedKind == null
+                              ? const Text("ไม่พบหมายเลขห้องที่ค้นหา")
+                              : TextButton(
+                                  onPressed: () =>
+                                      setState(() => _selectedKind = null),
+                                  child: const Text(
+                                      "ไม่มีห้องในสถานะนี้ กดเพื่อแสดงทั้งหมด"),
+                                ),
+                        );
                       }
-                      final grouped = _groupByBuilding(provider.filteredRooms);
+                      final grouped = _groupByBuilding(rooms);
                       final buildingKeys = grouped.keys.toList()..sort();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +405,7 @@ class _HousekeeperRoomCheckScreenState
                 ],
               ),
             ),
-            Positioned(
+            const Positioned(
                 top: 0, left: 0, right: 0, child: Topnavbar(widthFactor: 0.2)),
             const Positioned(
                 bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
