@@ -6,7 +6,7 @@ import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
 
 import '../../../../domain/entitise/cart_item_entitise.dart';
 import '../../../../domain/entitise/extra_bed_entitise.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../../homePage/companents/typeRoom_enum.dart';
 
 class RoomDetail {
   final String roomId;

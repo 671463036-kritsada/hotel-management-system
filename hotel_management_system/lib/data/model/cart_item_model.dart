@@ -1,7 +1,7 @@
 import '../../domain/entitise/cart_item_entitise.dart';
 import '../../domain/entitise/extra_bed_entitise.dart';
 import '../../util/function/image_url.dart';
-import '../../util/widget/core/typeRoom_enum.dart';
+import '../../presentation/page/homePage/companents/typeRoom_enum.dart';
 
 class CartItemModel {
   final int id;

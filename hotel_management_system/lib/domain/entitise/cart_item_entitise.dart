@@ -1,7 +1,7 @@
 // domain/entitise/cart_item_entitise.dart
 //
 // รายการห้องพักหนึ่งรายการในตะกร้า (แต่ละห้องเลือกวันที่/จำนวนผู้เข้าพักแยกกันเอง)
-import '../../util/widget/core/typeRoom_enum.dart';
+import '../../presentation/page/homePage/companents/typeRoom_enum.dart';
 import 'extra_bed_entitise.dart';
 
 class CartItemEntitise {

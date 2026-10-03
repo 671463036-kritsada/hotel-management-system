@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
-import '../../model/model.dart';
+import '../../../../util/model/model.dart';
 
 enum RoomType {
   rooms,

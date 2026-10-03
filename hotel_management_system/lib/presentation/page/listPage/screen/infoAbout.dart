@@ -225,6 +225,7 @@ class _DoNotDisturbControlState extends State<_DoNotDisturbControl> {
   }
 
   Future<void> _setEnabled(bool enabled) async {
+    if (_enabled == enabled) return;
     setState(() => _isSaving = true);
     try {
       await widget.onChanged(enabled);
@@ -243,23 +244,70 @@ class _DoNotDisturbControlState extends State<_DoNotDisturbControl> {
 
   @override
   Widget build(BuildContext context) {
+    final isBusy = _isSaving || widget.isSaving;
     return Container(
       decoration: BoxDecoration(
         color: Colors.blueGrey.withOpacity(0.07),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: SwitchListTile.adaptive(
-        value: _enabled,
-        onChanged: _isSaving || widget.isSaving ? null : _setEnabled,
-        title: const Text(
-          'ไม่สะดวกให้แม่บ้านเข้าทำความสะอาด',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'เลือกความต้องการทำความสะอาด',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          const SizedBox(height: 10),
+          _preferenceButton(
+            enabled: false,
+            selected: !_enabled,
+            icon: Icons.cleaning_services_outlined,
+            label: 'ขอให้แม่บ้านทำความสะอาด',
+            selectedColor: Colors.green.shade700,
+            isBusy: isBusy,
+          ),
+          const SizedBox(height: 8),
+          _preferenceButton(
+            enabled: true,
+            selected: _enabled,
+            icon: Icons.do_not_disturb_on_outlined,
+            label: 'ไม่สะดวกให้แม่บ้านเข้าทำความสะอาด',
+            selectedColor: Colors.red.shade700,
+            isBusy: isBusy,
+          ),
+          if (isBusy) ...[
+            const SizedBox(height: 8),
+            const Text('กำลังบันทึก...', style: TextStyle(fontSize: 12)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _preferenceButton({
+    required bool enabled,
+    required bool selected,
+    required IconData icon,
+    required String label,
+    required Color selectedColor,
+    required bool isBusy,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: isBusy ? null : () => _setEnabled(enabled),
+        icon: Icon(icon),
+        label: Text(label, textAlign: TextAlign.center),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: selected ? Colors.white : selectedColor,
+          backgroundColor: selected ? selectedColor : Colors.transparent,
+          side: BorderSide(
+            color: selected ? selectedColor : Colors.grey.shade400,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        subtitle: Text(
-          _isSaving ? 'กำลังบันทึก...' : 'แม่บ้านจะเห็นสถานะห้ามรบกวน',
-          style: const TextStyle(fontSize: 12),
-        ),
-        activeColor: Constants.primaryColor,
       ),
     );
   }

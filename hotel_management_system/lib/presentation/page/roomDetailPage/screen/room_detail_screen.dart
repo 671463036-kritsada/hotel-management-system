@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../util/model/model.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../../homePage/companents/typeRoom_enum.dart';
 import 'roomDetailScreen_desktopBody.dart';
 import 'roomDetailScreen_mobileBody.dart';
 import '../../../responsiveLayout/responsive_layout.dart';

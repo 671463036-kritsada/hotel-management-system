@@ -1,6 +1,4 @@
 // home_screen.dart
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../util/model/model.dart';
@@ -19,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with RouteAware {
   PageRoute<dynamic>? _subscribedRoute;
-  Timer? _availabilityRefreshTimer;
 
   @override
   void didChangeDependencies() {
@@ -35,44 +32,15 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   @override
-  void didPush() => _startAvailabilityRefresh();
-
-  @override
-  void didPopNext() {
-    _refreshAvailability();
-    _startAvailabilityRefresh();
-  }
-
-  @override
-  void didPushNext() => _stopAvailabilityRefresh();
-
-  @override
-  void didPop() => _stopAvailabilityRefresh();
-
-  void _startAvailabilityRefresh() {
-    _stopAvailabilityRefresh();
-    _availabilityRefreshTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) => _refreshAvailability(),
-    );
-  }
-
-  void _stopAvailabilityRefresh() {
-    _availabilityRefreshTimer?.cancel();
-    _availabilityRefreshTimer = null;
-  }
+  void didPopNext() => _refreshAvailability();
 
   void _refreshAvailability() {
     if (!mounted) return;
-    final provider = context.read<HomeScreenProvider>();
-    if (provider.hasDateFilter && !provider.isLoading) {
-      provider.filterAvailableRooms();
-    }
+    context.read<HomeScreenProvider>().refreshAvailableRoomsSilently();
   }
 
   @override
   void dispose() {
-    _stopAvailabilityRefresh();
     appRouteObserver.unsubscribe(this);
     super.dispose();
   }

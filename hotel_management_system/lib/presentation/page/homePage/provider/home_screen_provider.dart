@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/home_entitise.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../companents/typeRoom_enum.dart';
 
 enum PriceSortOrder {
   none,
@@ -17,6 +17,7 @@ class HomeScreenProvider extends ChangeNotifier {
   List<HomeEntitise> roomData = [];
   String errorMessage = '';
   bool isLoading = false;
+  Future<bool?>? _availabilityRefresh;
 
   // --- state สำหรับ filter ชื่อ/ประเภทย่อย และ การเรียงราคา ---
   String selectedNameFilter = 'ทั้งหมด';
@@ -132,10 +133,58 @@ class HomeScreenProvider extends ChangeNotifier {
   }
 
   Future<bool?> refreshAndCheckRoom(String roomId) async {
-    if (!hasDateFilter || isLoading) return null;
-    await filterAvailableRooms();
-    if (errorMessage.isNotEmpty) return null;
+    final refreshed = await refreshAvailableRoomsSilently();
+    if (refreshed != true) return null;
     return roomData.any((room) => room.roomId == roomId);
+  }
+
+  Future<bool?> refreshAvailableRoomsSilently() {
+    if (!hasDateFilter || isLoading) return Future.value(null);
+    if (_availabilityRefresh != null) return _availabilityRefresh!;
+
+    final requestedCheckIn = checkInDate!;
+    final requestedCheckOut = checkOutDate!;
+    final requestedRoomType = selectedRoomType;
+
+    late final Future<bool?> refresh;
+    refresh = _refreshAvailableRoomsSilently(
+      requestedCheckIn,
+      requestedCheckOut,
+      requestedRoomType,
+    ).whenComplete(() {
+      if (identical(_availabilityRefresh, refresh)) {
+        _availabilityRefresh = null;
+      }
+    });
+    _availabilityRefresh = refresh;
+    return refresh;
+  }
+
+  Future<bool?> _refreshAvailableRoomsSilently(
+    DateTime checkIn,
+    DateTime checkOut,
+    RoomType roomType,
+  ) async {
+    try {
+      final refreshedRooms = await homeUsecase.getAvailableRooms(
+        checkIn: _formatDate(checkIn),
+        checkOut: _formatDate(checkOut),
+        roomType: roomType == RoomType.rooms ? 'rooms' : 'house',
+      );
+
+      if (checkInDate != checkIn ||
+          checkOutDate != checkOut ||
+          selectedRoomType != roomType) {
+        return null;
+      }
+
+      roomData = refreshedRooms;
+      errorMessage = '';
+      notifyListeners();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   String _formatDate(DateTime date) {

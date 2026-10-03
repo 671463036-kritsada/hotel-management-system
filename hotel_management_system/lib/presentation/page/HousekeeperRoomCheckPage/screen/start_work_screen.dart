@@ -9,8 +9,15 @@ import 'room_detail_form.dart';
 
 class StartWorkScreen extends StatefulWidget {
   final String roomNo;
+  final bool isGuestRequest;
+  final bool isAlreadyCleaning;
 
-  const StartWorkScreen({super.key, required this.roomNo});
+  const StartWorkScreen({
+    super.key,
+    required this.roomNo,
+    this.isGuestRequest = false,
+    this.isAlreadyCleaning = false,
+  });
 
   @override
   State<StartWorkScreen> createState() => _StartWorkScreenState();
@@ -18,6 +25,8 @@ class StartWorkScreen extends StatefulWidget {
 
 class _StartWorkScreenState extends State<StartWorkScreen> {
   bool _isStarting = false;
+  bool _isCompleting = false;
+  late bool _hasStarted = widget.isGuestRequest && widget.isAlreadyCleaning;
 
   Future<void> _startWork() async {
     if (_isStarting) return;
@@ -37,9 +46,19 @@ class _StartWorkScreenState extends State<StartWorkScreen> {
 
     if (!mounted) return;
 
-    setState(() => _isStarting = false);
-
     if (success) {
+      if (widget.isGuestRequest) {
+        await provider.getRooms();
+        if (!mounted) return;
+        setState(() {
+          _hasStarted = true;
+          _isStarting = false;
+        });
+        return;
+      }
+
+      setState(() => _isStarting = false);
+
       // ใช้ pushReplacement แทน push เพื่อไม่ให้กดย้อนกลับจากหน้ารายละเอียด
       // แล้วเจอหน้า "เริ่มทำงาน" ซ้ำ (กดเริ่มงานได้แค่ครั้งเดียวต่อการเข้าห้อง)
       Navigator.pushReplacement(
@@ -52,6 +71,7 @@ class _StartWorkScreenState extends State<StartWorkScreen> {
         ),
       );
     } else {
+      setState(() => _isStarting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -63,6 +83,46 @@ class _StartWorkScreenState extends State<StartWorkScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _completeGuestCleaning() async {
+    if (_isCompleting) return;
+
+    setState(() => _isCompleting = true);
+    final provider = context.read<HousekeeperRoomCheckScreenProvider>();
+    final success = await provider.saveRoomDetail(
+      roomNo: widget.roomNo,
+      cleaningStatus: "ทำความสะอาดเสร็จสิ้น",
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      await provider.getRooms();
+      if (!mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text("ทำความสะอาดห้อง ${widget.roomNo} เสร็จแล้ว"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isCompleting = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          provider.errorMessage.isEmpty
+              ? 'ไม่สามารถบันทึกสถานะได้'
+              : provider.errorMessage,
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -88,14 +148,18 @@ class _StartWorkScreenState extends State<StartWorkScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.cleaning_services_rounded,
                 size: 72,
                 color: Constants.primaryColor,
               ),
               const SizedBox(height: 20),
               Text(
-                "พร้อมเริ่มทำความสะอาดห้อง ${widget.roomNo} หรือยัง?",
+                widget.isGuestRequest
+                    ? _hasStarted
+                        ? "ทำความสะอาดห้อง ${widget.roomNo} เสร็จแล้วหรือยัง?"
+                        : "แขกขอให้ทำความสะอาดห้อง ${widget.roomNo}"
+                    : "พร้อมเริ่มทำความสะอาดห้อง ${widget.roomNo} หรือยัง?",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: Constants.fontSizeTitle,
@@ -106,9 +170,21 @@ class _StartWorkScreenState extends State<StartWorkScreen> {
               SizedBox(
                 width: double.infinity,
                 child: Button(
-                  text: _isStarting ? "กำลังเริ่มงาน..." : "เริ่มทำงาน",
-                  onTap: _isStarting ? () {} : _startWork,
-                  color: Constants.primaryColor,
+                  text: widget.isGuestRequest && _hasStarted
+                      ? _isCompleting
+                          ? "กำลังบันทึก..."
+                          : "ทำความสะอาดเสร็จแล้ว"
+                      : _isStarting
+                          ? "กำลังเริ่มงาน..."
+                          : "เริ่มทำความสะอาด",
+                  onTap: _isStarting || _isCompleting
+                      ? () {}
+                      : widget.isGuestRequest && _hasStarted
+                          ? _completeGuestCleaning
+                          : _startWork,
+                  color: widget.isGuestRequest && _hasStarted
+                      ? Colors.green
+                      : Constants.primaryColor,
                 ),
               ),
             ],

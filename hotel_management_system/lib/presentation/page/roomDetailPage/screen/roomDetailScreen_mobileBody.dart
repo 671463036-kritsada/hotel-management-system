@@ -9,7 +9,7 @@ import '../../../../domain/entitise/extra_bed_entitise.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../../homePage/companents/typeRoom_enum.dart';
 import '../provider/room_detail_screen_provider.dart';
 
 // ---------- helpers ----------

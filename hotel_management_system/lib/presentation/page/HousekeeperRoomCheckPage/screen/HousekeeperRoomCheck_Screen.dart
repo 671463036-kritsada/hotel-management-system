@@ -242,7 +242,13 @@ class _HousekeeperRoomCheckScreenState
                 MaterialPageRoute(
                   builder: (_) => ChangeNotifierProvider.value(
                     value: context.read<HousekeeperRoomCheckScreenProvider>(),
-                    child: StartWorkScreen(roomNo: room.roomNo),
+                    child: StartWorkScreen(
+                      roomNo: room.roomNo,
+                      isGuestRequest: room.hasGuest &&
+                          (view.kind == _RoomKind.guestRequest ||
+                              view.kind == _RoomKind.cleaning),
+                      isAlreadyCleaning: view.kind == _RoomKind.cleaning,
+                    ),
                   ),
                 ),
               );

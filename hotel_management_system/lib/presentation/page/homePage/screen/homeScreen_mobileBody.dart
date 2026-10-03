@@ -7,7 +7,7 @@ import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
 // import '../../../../util/widget/core/form_enum.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../companents/typeRoom_enum.dart';
 import '../provider/home_screen_provider.dart';
 
 class HomeScreenMobileBody extends StatefulWidget {

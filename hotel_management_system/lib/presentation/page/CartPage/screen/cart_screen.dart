@@ -8,7 +8,7 @@ import '../../../../util/provider/cart_provider.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/components/button/button.dart';
 import '../../../../util/widget/core/constants.dart';
-import '../../../../util/widget/core/typeRoom_enum.dart';
+import '../../homePage/companents/typeRoom_enum.dart';
 
 String _formatDate(DateTime d) =>
     '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
