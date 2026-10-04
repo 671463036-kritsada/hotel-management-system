@@ -98,7 +98,9 @@ class LoginScreenDesktopBody extends StatelessWidget {
                             controller: provider.usernameController),
                         const SizedBox(height: 12),
                         createInputField(InputFieldType.password,
-                            controller: provider.passwordController),
+                            controller: provider.passwordController,
+                            obscureText: provider.obscurePassword,
+                            onTogglePasswordVisibility: provider.togglePasswordVisibility),
                       ],
                     ),
                   );

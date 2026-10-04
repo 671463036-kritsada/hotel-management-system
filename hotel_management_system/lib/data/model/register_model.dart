@@ -15,30 +15,22 @@ class RegisterModel {
   String? password;
   String? phone;
   String? address;
-  String? bankName;
 
   RegisterModel(
-      {this.name,
-      this.email,
-      this.password,
-      this.phone,
-      this.address,
-      this.bankName});
+      {this.name, this.email, this.password, this.phone, this.address});
 
   factory RegisterModel.fromJson(Map<String, dynamic> json) => RegisterModel(
       name: json["name"],
       email: json["email"],
       password: json["password"],
       phone: json["phone"],
-      address: json["address"],
-      bankName: json["bankName"]);
+      address: json["address"]);
 
   Map<String, dynamic> toJson() => {
         "name": name,
         "email": email,
         "password": password,
         "phone": phone,
-        "address": address,
-        "bankName": bankName
+        "address": address
       };
 }

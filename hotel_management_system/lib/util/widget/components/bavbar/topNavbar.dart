@@ -50,15 +50,15 @@ class Topnavbar extends StatelessWidget {
                   ),
                   color: Constants.secondaryColor,
                 ),
-                child: const Text(
-                  "กลับ",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: Constants.fontSizeLabel,
-                  ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Constants.white,
+                  size: 30,
                 ),
               ),
-            ),
+            )
+          else
+            SizedBox(width: screenWidth * widthFactor),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -30,8 +30,7 @@ enum InputFieldType {
   housekeeperCheck,
   housekeeperStatus,
   datePicker,
-  bank,
-  bankName
+  bank
 }
 
 Widget createInputField(InputFieldType type,
@@ -42,6 +41,8 @@ Widget createInputField(InputFieldType type,
     SignatureController? sigController,
     File? file,
     VoidCallback? onTap,
+    VoidCallback? onTogglePasswordVisibility,
+    bool? obscureText,
     String? textLabel,
     File? imageFile}) {
   switch (type) {
@@ -109,12 +110,6 @@ Widget createInputField(InputFieldType type,
           icon: Icons.account_balance,
           hint: "กรอกเลขบัญชีธนาคาร",
           controller: controller);
-    case InputFieldType.bankName:
-      return _buildBaseTextField(
-          label: "บัญชีธนาคาร",
-          icon: Icons.account_balance,
-          hint: "กรอกบัญชีธนาคาร",
-          controller: controller);
     case InputFieldType.numberOfGuests:
       return _buildBaseTextField(
           label: "จำนวนคน",
@@ -133,6 +128,8 @@ Widget createInputField(InputFieldType type,
         label: "รหัสผ่าน",
         icon: Icons.lock,
         isPassword: true,
+        obscureText: obscureText,
+        onTogglePasswordVisibility: onTogglePasswordVisibility,
         controller: controller,
       );
     case InputFieldType.email:
@@ -161,6 +158,8 @@ Widget createInputField(InputFieldType type,
         label: "ยืนยันรหัสผ่าน",
         icon: Icons.lock,
         isPassword: true,
+        obscureText: obscureText,
+        onTogglePasswordVisibility: onTogglePasswordVisibility,
         controller: controller,
       );
     case InputFieldType.gender:
@@ -234,6 +233,8 @@ Widget _buildBaseTextField({
   IconData? icon,
   String? hint,
   bool isPassword = false,
+  bool? obscureText,
+  VoidCallback? onTogglePasswordVisibility,
   TextInputType keyboardType = TextInputType.text,
   int maxLines = 1,
   TextEditingController? controller,
@@ -242,7 +243,7 @@ Widget _buildBaseTextField({
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: obscureText ?? isPassword,
       keyboardType: keyboardType,
       maxLines: maxLines,
       decoration: InputDecoration(
@@ -257,6 +258,19 @@ Widget _buildBaseTextField({
                 icon,
                 color: Constants.colorIcon,
                 size: 25,
+              )
+            : null,
+        suffixIcon: isPassword && onTogglePasswordVisibility != null
+            ? IconButton(
+                tooltip: (obscureText ?? isPassword)
+                    ? 'แสดงรหัสผ่าน'
+                    : 'ซ่อนรหัสผ่าน',
+                onPressed: onTogglePasswordVisibility,
+                icon: Icon(
+                  (obscureText ?? isPassword)
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
               )
             : null,
         border: InputBorder.none,

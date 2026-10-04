@@ -9,8 +9,7 @@ abstract class RegisterRepositorise {
       required String email,
       required String address,
       required String phoneNumber,
-      required String password,
-      required String bankName});
+      required String password});
 }
 
 class RegisterRepositoriseImpl implements RegisterRepositorise {
@@ -24,16 +23,14 @@ class RegisterRepositoriseImpl implements RegisterRepositorise {
       required String email,
       required String address,
       required String phoneNumber,
-      required String password,
-      required String bankName}) {
+      required String password}) {
     try {
       return remoteDataSource.register(
           username: username,
           email: email,
           phoneNumber: phoneNumber,
           address: address,
-          password: password,
-          bankName: bankName);
+          password: password);
     } on SocketException {
       throw Exception("ไม่มีการเขื่อมต่อ internet");
     } on HttpException {

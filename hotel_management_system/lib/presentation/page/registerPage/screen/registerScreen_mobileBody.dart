@@ -144,10 +144,6 @@ class RegisterScreenMobileBody extends StatelessWidget {
                               createInputField(InputFieldType.email,
                                   controller: provider.emailController),
 
-
-                              createInputField(InputFieldType.bankName,
-                                  controller: provider.bankNameController),
-
                               // input phone number
                               createInputField(InputFieldType.phoneNumber,
                                   controller: provider.phoneNumberController),
@@ -158,12 +154,18 @@ class RegisterScreenMobileBody extends StatelessWidget {
 
                               // input password
                               createInputField(InputFieldType.password,
-                                  controller: provider.passwordController),
+                                  controller: provider.passwordController,
+                                  obscureText: provider.obscurePassword,
+                                  onTogglePasswordVisibility:
+                                      provider.togglePasswordVisibility),
 
                               //input confirm password
                               createInputField(InputFieldType.confirmPassword,
                                   controller:
-                                      provider.confirmPasswordController),
+                                      provider.confirmPasswordController,
+                                  obscureText: provider.obscureConfirmPassword,
+                                  onTogglePasswordVisibility:
+                                      provider.toggleConfirmPasswordVisibility),
                               const SizedBox(height: 100),
                               provider.isLoading
                                   ? const CircularProgressIndicator()

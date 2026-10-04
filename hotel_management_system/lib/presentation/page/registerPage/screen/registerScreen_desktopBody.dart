@@ -159,11 +159,18 @@ class RegisterScreenDesktopBody extends StatelessWidget {
                                       controller:
                                           provider.phoneNumberController),
                                   createInputField(InputFieldType.password,
-                                      controller: provider.passwordController),
+                                      controller: provider.passwordController,
+                                      obscureText: provider.obscurePassword,
+                                      onTogglePasswordVisibility:
+                                          provider.togglePasswordVisibility),
                                   createInputField(
                                       InputFieldType.confirmPassword,
                                       controller:
-                                          provider.confirmPasswordController),
+                                          provider.confirmPasswordController,
+                                      obscureText:
+                                          provider.obscureConfirmPassword,
+                                      onTogglePasswordVisibility: provider
+                                          .toggleConfirmPasswordVisibility),
                                   const SizedBox(height: 100),
                                   provider.isLoading
                                       ? const CircularProgressIndicator()
