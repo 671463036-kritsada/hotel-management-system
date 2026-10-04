@@ -34,6 +34,35 @@ class CartItemModel {
     required this.extraBedPrice,
   });
 
+  factory CartItemModel.fromEntity(CartItemEntitise entity) => CartItemModel(
+        id: entity.id,
+        roomId: entity.roomId,
+        roomType: entity.roomType,
+        imageUrl: entity.imageUrl,
+        checkIn: entity.checkIn,
+        checkOut: entity.checkOut,
+        adultCount: entity.adultCount,
+        childCount: entity.childCount,
+        extraBedType: entity.extraBedType,
+        extraBedQuantity: entity.extraBedQuantity,
+        pricePerNight: entity.pricePerNight,
+        roomPrice: entity.roomPrice,
+        extraBedPrice: entity.extraBedPrice,
+      );
+
+  Map<String, dynamic> toCartRequestJson() => {
+        'roomId': roomId,
+        'checkIn': _formatDate(checkIn),
+        'checkOut': _formatDate(checkOut),
+        'adultCount': adultCount,
+        'childCount': childCount,
+        'extraBedTypeId': extraBedType?.id,
+        'extraBedQuantity': extraBedQuantity,
+      };
+
+  String _formatDate(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     final roomType = json['room_type']?.toString() == 'house'
         ? RoomType.house
@@ -67,8 +96,8 @@ class CartItemModel {
     );
   }
 
-  CartItemEntitise toEntity() => CartItemEntitise(
-        id: id,
+  CartItemEntitise toEntity({int? id}) => CartItemEntitise(
+        id: id ?? this.id,
         roomId: roomId,
         roomType: roomType,
         imageUrl: imageUrl,

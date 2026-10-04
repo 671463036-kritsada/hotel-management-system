@@ -68,9 +68,19 @@ Future<void> continueAfterLogin(
   }
 
   if (!context.mounted) return;
+  final redirectRoute = loginArguments?.redirectRoute;
+  if (redirectRoute == null) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      defaultRoute,
+      (route) => route.isFirst,
+    );
+    return;
+  }
+
   Navigator.pushReplacementNamed(
     context,
-    loginArguments?.redirectRoute ?? defaultRoute,
+    redirectRoute,
     arguments: loginArguments?.redirectArguments,
   );
 }

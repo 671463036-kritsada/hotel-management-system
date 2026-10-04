@@ -10,14 +10,7 @@ import 'boxListCompanent.dart';
 import 'infoAbout.dart';
 
 class ListScreenDesktopBody extends StatefulWidget {
-  final bool? checkInStatus, ckeckOutStatus, statusConCheck;
-
-  const ListScreenDesktopBody({
-    super.key,
-    this.checkInStatus,
-    this.ckeckOutStatus,
-    this.statusConCheck,
-  });
+  const ListScreenDesktopBody({super.key});
 
   @override
   State<ListScreenDesktopBody> createState() => _ListScreenDesktopBodyState();
@@ -82,11 +75,7 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                               child: CircularProgressIndicator());
                         }
 
-                        final filteredList = provider.filteredBookingList(
-                          checkInStatus: widget.checkInStatus,
-                          checkOutStatus: widget.ckeckOutStatus,
-                          statusConCheck: widget.statusConCheck,
-                        );
+                        final bookingList = provider.bookingList;
 
                         return SingleChildScrollView(
                           child: Padding(
@@ -102,7 +91,7 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                                 Constants.fontSizeHeader)),
                                   ],
                                 ),
-                                if (filteredList.isEmpty)
+                                if (bookingList.isEmpty)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 60),
                                     child: Text(
@@ -112,7 +101,7 @@ class _ListScreenDesktopBodyState extends State<ListScreenDesktopBody> {
                                           color: Colors.grey[500]),
                                     ),
                                   ),
-                                ...filteredList.map((booking) {
+                                ...bookingList.map((booking) {
                                   return Boxlistcompanent(
                                     roomNumber: booking.roomId,
                                     payamout: booking.totalPrice ?? 0,

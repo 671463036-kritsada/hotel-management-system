@@ -5,8 +5,13 @@ import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Topnavbar extends StatelessWidget {
   final double widthFactor;
+  final bool showBackButton;
 
-  const Topnavbar({super.key, required this.widthFactor});
+  const Topnavbar({
+    super.key,
+    required this.widthFactor,
+    this.showBackButton = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,34 +37,31 @@ class Topnavbar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Container(
-                    width: screenWidth * widthFactor,
-                    alignment: Alignment.center,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(Constants.borderRadius)),
-                      color: Constants.secondaryColor,
-                    ),
-                    child: const Text(
-                      "กลับ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: Constants.fontSizeLabel),
-                    )),
+          if (showBackButton)
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: screenWidth * widthFactor,
+                alignment: Alignment.center,
+                height: 50,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(Constants.borderRadius),
+                  ),
+                  color: Constants.secondaryColor,
+                ),
+                child: const Text(
+                  "กลับ",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: Constants.fontSizeLabel,
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const SizedBox(width: 10),
               GestureDetector(
                 onTap: () {

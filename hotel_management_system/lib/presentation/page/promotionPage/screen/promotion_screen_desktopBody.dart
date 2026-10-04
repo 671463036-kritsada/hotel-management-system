@@ -18,7 +18,6 @@ class _promotion_screen_desktopBodyState
     extends State<promotion_screen_desktopBody> {
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -165,6 +164,7 @@ class _promotion_screen_desktopBodyState
             right: 0,
             child: Topnavbar(
               widthFactor: 0.2,
+              showBackButton: false,
             )),
         Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
       ])),

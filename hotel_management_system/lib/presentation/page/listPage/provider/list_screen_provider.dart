@@ -12,7 +12,7 @@ class BookingItem {
   final double? totalPrice;
   final double? remainingAmount;
   final String status;
-  final String? checkinStatus; // เพิ่ม: ค่าดิบจาก checkins table
+  final String? checkinStatus; // ค่าดิบจาก checkins table
   final String textStatus;
   final Color statusColor;
   final bool? checkInStatus;
@@ -37,7 +37,7 @@ class BookingItem {
       required this.totalPrice,
       this.remainingAmount,
       required this.status,
-      this.checkinStatus, // เพิ่ม
+      this.checkinStatus,
       required this.textStatus,
       required this.statusColor,
       this.checkInStatus,
@@ -151,11 +151,9 @@ class ListScreenProvider extends ChangeNotifier {
             totalPrice: entity.amount,
             remainingAmount: entity.remainingAmount,
             status: entity.status,
-            checkinStatus: entity.checkinStatus, // เพิ่ม
-            textStatus: _mapStatusText(entity.status,
-                entity.checkinStatus), // แก้: ส่ง checkinStatus เข้าไปด้วย
-            statusColor:
-                _mapStatusColor(entity.status, entity.checkinStatus), // แก้
+            checkinStatus: entity.checkinStatus,
+            textStatus: _mapStatusText(entity.status, entity.checkinStatus),
+            statusColor: _mapStatusColor(entity.status, entity.checkinStatus),
             checkInStatus: entity.checkInStatus.toLowerCase() == 'checked_in',
             checkOutStatus:
                 entity.checkOutStatus.toLowerCase() == 'checked_out',
@@ -188,25 +186,6 @@ class ListScreenProvider extends ChangeNotifier {
       notifyListeners();
       throw Exception("เกิดข้อผิดพลาด $e");
     }
-  }
-
-  List<BookingItem> filteredBookingList({
-    bool? checkInStatus,
-    bool? checkOutStatus,
-    bool? statusConCheck,
-  }) {
-    return _bookingList.where((booking) {
-      if (checkInStatus != null && booking.checkInStatus != checkInStatus) {
-        return false;
-      }
-      if (checkOutStatus != null && booking.checkOutStatus != checkOutStatus) {
-        return false;
-      }
-      if (statusConCheck != null && booking.statusConCheck != statusConCheck) {
-        return false;
-      }
-      return true;
-    }).toList();
   }
 
   String _mapStatusText(String status, String? checkinStatus) {

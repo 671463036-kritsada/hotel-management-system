@@ -224,12 +224,13 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
             ],
           ),
         ),
-        const Positioned(
+        Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: Topnavbar(
               widthFactor: 0.2,
+              showBackButton: false,
             )),
         const Positioned(bottom: 0, left: 0, right: 0, child: Bottomnavbar()),
       ])),
