@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/presentation/page/promotionPage/provider/announcement_provider.dart';
+import 'package:hotel_management_system/presentation/page/promotionPage/provider/promotion_provider.dart';
+import 'package:hotel_management_system/presentation/page/promotionPage/components/announcement_carousel.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../util/widget/components/bavbar/bottomNavbar.dart';
 import '../../../../util/widget/components/bavbar/topNavbar.dart';
 import '../../../../util/widget/core/constants.dart';
-import '../components/boxShow_new.dart';
 import '../components/boxShow_promotion_card.dart';
 
 class promotion_screen_desktopBody extends StatefulWidget {
@@ -17,6 +20,56 @@ class promotion_screen_desktopBody extends StatefulWidget {
 class _promotion_screen_desktopBodyState
     extends State<promotion_screen_desktopBody> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<PromotionProvider>().fetchActivePromotions();
+      context.read<AnnouncementProvider>().fetchActiveAnnouncements();
+    });
+  }
+
+  Widget _buildAnnouncementCarousel() {
+    return Consumer<AnnouncementProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const SizedBox(
+            height: 300,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final announcements = provider.announcements
+            .where((announcement) => announcement.imageUrl.isNotEmpty)
+            .toList();
+
+        if (announcements.isEmpty) {
+          return SizedBox(
+            height: 250,
+            child: Center(
+              child: Text(
+                provider.error ?? 'ยังไม่มีข่าวสารและประชาสัมพันธ์',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+
+        return AnnouncementCarousel(
+          announcements: announcements,
+          onTap: (announcement) {
+            Navigator.pushNamed(
+              context,
+              '/announcement_detail_page',
+              arguments: announcement,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,132 +80,75 @@ class _promotion_screen_desktopBodyState
             padding: const EdgeInsets.all(Constants.padding),
             child: Column(
               children: [
-                SizedBox(
-                  height: 80,
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 370,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "ข่าวสารและประชาสัมพันธ์",
-                            style: TextStyle(
-                                fontSize: Constants.fontSizeHeader,
-                                fontWeight: Constants.fontWeightBold),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 12,
-                      ),
-                      BoxshowNew(
-                        images: [
-                          PromotionImage(
-                            id: 1,
-                            imageUrl:
-                                "https://www.amarinsamuiresort.com/images/promotion/banner-promotion-amarin-1.jpg",
-                          ),
-                          PromotionImage(
-                            id: 2,
-                            imageUrl:
-                                "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/hotel-promotion-flyer-template-design-570b9352e1e630985d11a6338fd5255c_screen.jpg?ts=1732552875",
-                          ),
-                          PromotionImage(
-                            id: 3,
-                            imageUrl:
-                                "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/hotel-promotion-discount-instagram-design-template-c9bd0ab0cd00aa7f8943317278b0f893_screen.jpg?ts=1616492668",
-                          ),
-                          PromotionImage(
-                            id: 4,
-                            imageUrl:
-                                "https://img.magnific.com/premium-psd/hotel-promo-unlock-luxury-with-up-30-off-social-media-post-design-psd_664694-284.jpg?semt=ais_test_b&w=740&q=80",
-                          ),
-                          PromotionImage(
-                            id: 5,
-                            imageUrl:
-                                "https://cdn.studios.skies.asia/www.mandarin-bkk.com/large/6ppZ4NruZP_1653466244.png",
-                          ),
-                        ],
-                        onTap: (id) {
-                          print("กด Promotion ID: $id");
-
-                          // เช่น ไปหน้า Detail
-                          // Navigator.pushNamed(
-                          //   context,
-                          //   "/promotion_detail",
-                          //   arguments: id,
-                          // );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 300,
+                const SizedBox(height: 80),
+                Expanded(
                   child: SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "โปรโมชั่นพิเศษ",
-                            style: TextStyle(
-                                fontSize: Constants.fontSizeHeader,
-                                fontWeight: Constants.fontWeightBold),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          "ข่าวสารและประชาสัมพันธ์",
+                          style: TextStyle(
+                            fontSize: Constants.fontSizeHeader,
+                            fontWeight: Constants.fontWeightBold,
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 12,
-                      ),
-                      BoxshowPromotionCard(
-                        title: "พักผ่อนเหนือระดับที่เชียงราย",
-                        description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
-                        bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
-                        price: "฿2,500",
-                        textColor: Colors.black,
-                        rating: 4.97,
-                        reviewCount: 156,
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-                        onTap: () {},
-                        onFavoriteChanged: (value) {},
-                      ),
-                      BoxshowPromotionCard(
-                        title: "พักผ่อนเหนือระดับที่เชียงราย",
-                        description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
-                        bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
-                        price: "฿2,500",
-                        textColor: Colors.black,
-                        rating: 4.97,
-                        reviewCount: 156,
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-                        onTap: () {},
-                        onFavoriteChanged: (value) {},
-                      ),
-                      BoxshowPromotionCard(
-                        title: "พักผ่อนเหนือระดับที่เชียงราย",
-                        description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
-                        bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
-                        price: "฿2,500",
-                        textColor: Colors.black,
-                        rating: 4.97,
-                        reviewCount: 156,
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-                        onTap: () {},
-                        onFavoriteChanged: (value) {},
-                      ),
-                      SizedBox(
-                        height: 100,
-                      ),
-                    ],
-                  )),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildAnnouncementCarousel(),
+                        const SizedBox(height: 20),
+                        Text(
+                          "โปรโมชั่นพิเศษ",
+                          style: TextStyle(
+                            fontSize: Constants.fontSizeHeader,
+                            fontWeight: Constants.fontWeightBold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        BoxshowPromotionCard(
+                          title: "พักผ่อนเหนือระดับที่เชียงราย",
+                          description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
+                          bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
+                          price: "฿2,500",
+                          textColor: Colors.black,
+                          rating: 4.97,
+                          reviewCount: 156,
+                          imageUrl:
+                              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+                          onTap: () {},
+                          onFavoriteChanged: (value) {},
+                        ),
+                        BoxshowPromotionCard(
+                          title: "พักผ่อนเหนือระดับที่เชียงราย",
+                          description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
+                          bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
+                          price: "฿2,500",
+                          textColor: Colors.black,
+                          rating: 4.97,
+                          reviewCount: 156,
+                          imageUrl:
+                              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+                          onTap: () {},
+                          onFavoriteChanged: (value) {},
+                        ),
+                        BoxshowPromotionCard(
+                          title: "พักผ่อนเหนือระดับที่เชียงราย",
+                          description: "บ้านพักส่วนตัวพร้อมวิวภูเขา",
+                          bedsInfo: "เตียงคู่ • 1 ห้องน้ำ",
+                          price: "฿2,500",
+                          textColor: Colors.black,
+                          rating: 4.97,
+                          reviewCount: 156,
+                          imageUrl:
+                              "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+                          onTap: () {},
+                          onFavoriteChanged: (value) {},
+                        ),
+                        SizedBox(
+                          height: 100,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

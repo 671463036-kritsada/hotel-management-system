@@ -21,6 +21,7 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   envied: ^1.2.1
   envied_generator: ^1.1.1
+  url_launcher: 6.3.1
 
 dev_dependencies:
   flutter_test:

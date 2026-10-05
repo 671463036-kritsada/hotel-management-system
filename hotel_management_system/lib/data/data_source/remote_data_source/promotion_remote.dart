@@ -7,7 +7,7 @@ abstract class PromotionRemoteDataSource {
   Future<List<PromotionModel>> getActivePromotions();
   Future<PromotionModel> getPromotionById(String id);
   Future<int> claimPromotion(String promotionId);
-  
+
   Future<List<UserCouponModel>> getMyCoupons({String status = "available"});
 }
 
@@ -36,8 +36,8 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
         throw Exception(responseModel.message ?? 'โหลดโปรโมชั่นไม่สำเร็จ');
       }
     } on DioException catch (e) {
-      throw Exception(
-          e.response?.data?['message'] ?? 'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+      throw Exception(e.response?.data?['message'] ??
+          'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
     } catch (e) {
       throw Exception('Failed to fetch promotions: $e');
     }
@@ -62,8 +62,8 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
       if (e.response?.statusCode == 404) {
         throw Exception('ไม่พบโปรโมชั่นหมายเลข $id');
       }
-      throw Exception(
-          e.response?.data?['message'] ?? 'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+      throw Exception(e.response?.data?['message'] ??
+          'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
     } catch (e) {
       throw Exception('Failed to fetch promotion: $e');
     }
@@ -93,7 +93,8 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
   }
 
   @override
-  Future<List<UserCouponModel>> getMyCoupons({String status = "available"}) async {
+  Future<List<UserCouponModel>> getMyCoupons(
+      {String status = "available"}) async {
     try {
       final response = await dio.get(
         '$_endpoint/my-coupons',
@@ -118,8 +119,8 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
       if (e.response?.statusCode == 401) {
         throw Exception('Token หมดอายุ กรุณา Login ใหม่');
       }
-      throw Exception(
-          e.response?.data?['message'] ?? 'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
+      throw Exception(e.response?.data?['message'] ??
+          'เซิร์ฟเวอร์ตอบกลับผิดพลาด: ${e.response?.statusCode}');
     } catch (e) {
       throw Exception('Failed to fetch coupons: $e');
     }

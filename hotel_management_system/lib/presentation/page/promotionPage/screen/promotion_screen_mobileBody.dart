@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/domain/entitise/promotion_entitise.dart';
-import 'package:hotel_management_system/presentation/page/promotionPage/components/boxShow_new.dart';
+import 'package:hotel_management_system/presentation/page/promotionPage/components/announcement_carousel.dart';
 import 'package:hotel_management_system/util/widget/components/bavbar/bottomNavbar.dart';
 import 'package:hotel_management_system/util/widget/components/bavbar/topNavbar.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
@@ -9,6 +9,7 @@ import 'package:hotel_management_system/util/provider/user_provider.dart';
 
 import '../../../../util/model/model.dart';
 import '../../../../util/widget/components/button/button.dart';
+import '../provider/announcement_provider.dart';
 import '../components/boxShow_promotion_card.dart';
 import '../provider/promotion_provider.dart';
 
@@ -33,7 +34,9 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PromotionProvider>().fetchActivePromotions();
+      final provider = context.read<PromotionProvider>();
+      provider.fetchActivePromotions();
+      context.read<AnnouncementProvider>().fetchActiveAnnouncements();
     });
   }
 
@@ -164,34 +167,23 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
               const SizedBox(
                 height: 80,
               ),
-              // Container(
-              //   width: double.infinity,
-              //   child: Column(
-              //     children: [
-              //       Row(
-              //         children: [
-              //           Text(
-              //             "ข่าวสารและประชาสัมพันธ์",
-              //             style: TextStyle(
-              //                 fontSize: Constants.fontSizeHeader,
-              //                 fontWeight: Constants.fontWeightBold),
-              //           ),
-              //         ],
-              //       ),
-              //       SizedBox(
-              //         height: 12,
-              //       ),
-              //       _buildBanner(),
-              //     ],
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 12,
-              // ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'ข่าวสารและประชาสัมพันธ์',
+                          style: TextStyle(
+                            fontSize: Constants.fontSizeHeader,
+                            fontWeight: Constants.fontWeightBold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildAnnouncementCarousel(),
+                      const SizedBox(height: 20),
                       Button(
                           text: "จองเลย ตอนนี้",
                           onTap: () => _openDateFilterSheet(context),
@@ -237,33 +229,40 @@ class _PromotionScreenMobilebodyState extends State<PromotionScreenMobilebody> {
     );
   }
 
-  /// Banner บนสุด: ใช้รูปจากโปรโมชั่นจริงที่มี imageUrl (ถ้ายังโหลดไม่เสร็จ/ไม่มี ให้ซ่อนไปเลย)
-  Widget _buildBanner() {
-    return Consumer<PromotionProvider>(
+  Widget _buildAnnouncementCarousel() {
+    return Consumer<AnnouncementProvider>(
       builder: (context, provider, _) {
-        if (provider.isLoadingPromotions) {
+        if (provider.isLoading) {
           return const SizedBox(
             height: 180,
             child: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final bannerImages = provider.promotions
-            .where((p) => p.imageUrl != null && p.imageUrl!.isNotEmpty)
-            .map((p) => PromotionImage(id: p.id, imageUrl: p.imageUrl!))
+        final announcements = provider.announcements
+            .where((announcement) => announcement.imageUrl.isNotEmpty)
             .toList();
 
-        if (bannerImages.isEmpty) {
-          return const SizedBox.shrink();
+        if (announcements.isEmpty) {
+          return SizedBox(
+            height: 180,
+            child: Center(
+              child: Text(
+                provider.error ?? 'ยังไม่มีข่าวสารและประชาสัมพันธ์',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+          );
         }
 
-        return BoxshowNew(
-          images: bannerImages,
-          onTap: (id) {
+        return AnnouncementCarousel(
+          announcements: announcements,
+          onTap: (announcement) {
             Navigator.pushNamed(
               context,
-              "/promotion_detail_page",
-              arguments: id.toString(),
+              '/announcement_detail_page',
+              arguments: announcement,
             );
           },
         );

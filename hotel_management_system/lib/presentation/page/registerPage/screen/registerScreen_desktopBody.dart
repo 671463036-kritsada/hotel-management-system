@@ -12,74 +12,81 @@ class RegisterScreenDesktopBody extends StatelessWidget {
   const RegisterScreenDesktopBody({super.key});
 
   void _showSuccessDialog(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: SizedBox(
-            width: screenWidth * 0.8 > 400 ? 400 : screenWidth * 0.8,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle_outline,
-                      color: Colors.green, size: 64),
-                  const SizedBox(height: 16),
-                  const Text('สมัครสมาชิกสำเร็จ',
-                      style: TextStyle(
-                          fontSize: Constants.fontSizeTitle,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text('กลับไปหน้าเข้าสู่ระบบครับ',
-                      style: TextStyle(
-                          fontSize: Constants.fontSizeBody,
-                          color: Colors.grey[700]),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Constants.secondaryColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: SizedBox(
+          width: screenWidth * 0.8 > 400 ? 400 : screenWidth * 0.8,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle_outline,
+                    color: Colors.green, size: 64),
+                const SizedBox(height: 16),
+                const Text(
+                  'สมัครสมาชิกสำเร็จ',
+                  style: TextStyle(
+                    fontSize: Constants.fontSizeTitle,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'กลับไปหน้าเข้าสู่ระบบครับ',
+                  style: TextStyle(
+                    fontSize: Constants.fontSizeBody,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Constants.secondaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (_) => const LoginScreen()));
-                      },
-                      child: const Text('ตกลง',
-                          style: TextStyle(
-                              fontSize: Constants.fontSizeBody,
-                              color: Colors.white)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'ตกลง',
+                      style: TextStyle(
+                        fontSize: Constants.fontSizeBody,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Constants.bgcolor,
+      backgroundColor: const Color(0xFFF7F5F6),
       body: SafeArea(
         child: Column(
           children: [
-            // --- Nav Bar ---
             Container(
               padding: const EdgeInsets.all(Constants.padding),
               decoration: BoxDecoration(
@@ -108,86 +115,141 @@ class RegisterScreenDesktopBody extends StatelessWidget {
                       height: 50,
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(
-                            Radius.circular(Constants.borderRadius)),
+                          Radius.circular(Constants.borderRadius),
+                        ),
                         color: Constants.secondaryColor,
                       ),
-                      child: const Text('กลับ',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: Constants.fontSizeLabel)),
+                      child: const Text(
+                        'กลับ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: Constants.fontSizeLabel,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // --- Content Body ---
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    const Text('สมัครสมาชิก',
-                        style: TextStyle(
-                            fontSize: Constants.fontSizeDisplay,
-                            fontWeight: Constants.fontWeightMedium)),
-                    const SizedBox(height: 50),
-                    Consumer<RegisterScreenProvider>(
-                      builder: (context, provider, _) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          provider.handleRegisterResult(
-                              context, () => _showSuccessDialog(context));
-                        });
-
-                        return SizedBox(
-                          width:
-                              screenWidth * 0.5 > 400 ? 400 : screenWidth * 0.5,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE9E4E7)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Constants.primaryColor.withOpacity(0.06),
+                            blurRadius: 28,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              'assets/images/HotelLogo.jpg',
+                              height: 64,
+                              fit: BoxFit.contain,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(Constants.padding),
-                              child: Column(
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'สมัครสมาชิก',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF29242A),
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'กรอกข้อมูลเพื่อสร้างบัญชีผู้เข้าพัก',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF777078),
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Consumer<RegisterScreenProvider>(
+                            builder: (context, provider, _) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                provider.handleRegisterResult(
+                                  context,
+                                  () => _showSuccessDialog(context),
+                                );
+                              });
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  createInputField(InputFieldType.username,
-                                      controller: provider.usernameController),
-                                  createInputField(InputFieldType.email,
-                                      controller: provider.emailController),
-                                  createInputField(InputFieldType.phoneNumber,
-                                      controller:
-                                          provider.phoneNumberController),
-                                  createInputField(InputFieldType.password,
-                                      controller: provider.passwordController,
-                                      obscureText: provider.obscurePassword,
-                                      onTogglePasswordVisibility:
-                                          provider.togglePasswordVisibility),
                                   createInputField(
-                                      InputFieldType.confirmPassword,
-                                      controller:
-                                          provider.confirmPasswordController,
-                                      obscureText:
-                                          provider.obscureConfirmPassword,
-                                      onTogglePasswordVisibility: provider
-                                          .toggleConfirmPasswordVisibility),
-                                  const SizedBox(height: 100),
+                                    InputFieldType.username,
+                                    controller: provider.usernameController,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.email,
+                                    controller: provider.emailController,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.phoneNumber,
+                                    controller: provider.phoneNumberController,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.address,
+                                    controller: provider.addressController,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.password,
+                                    controller: provider.passwordController,
+                                    obscureText: provider.obscurePassword,
+                                    onTogglePasswordVisibility:
+                                        provider.togglePasswordVisibility,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.confirmPassword,
+                                    controller:
+                                        provider.confirmPasswordController,
+                                    obscureText:
+                                        provider.obscureConfirmPassword,
+                                    onTogglePasswordVisibility: provider
+                                        .toggleConfirmPasswordVisibility,
+                                  ),
+                                  const SizedBox(height: 24),
                                   provider.isLoading
-                                      ? const CircularProgressIndicator()
+                                      ? const SizedBox(
+                                          height: 48,
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        )
                                       : Button(
                                           text: 'สมัครสมาชิก',
                                           onTap: () => provider.register(),
-                                          color: Constants.secondaryColor,
-                                          btnSize: 300,
+                                          color: Constants.primaryColor,
+                                          btnSize: double.infinity,
+                                          btnHigh: 52,
                                         ),
                                 ],
-                              ),
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

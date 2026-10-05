@@ -69,7 +69,7 @@ class RegisterScreenMobileBody extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Constants.bgcolor,
+      backgroundColor: const Color(0xFFF7F5F6),
       body: SafeArea(
         child: Column(
           children: [
@@ -118,69 +118,115 @@ class RegisterScreenMobileBody extends StatelessWidget {
             // --- Content Body ---
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    const Text('สมัครสมาชิก',
-                        style: TextStyle(
-                            fontSize: Constants.fontSizeDisplay,
-                            fontWeight: Constants.fontWeightMedium)),
-                    Consumer<RegisterScreenProvider>(
-                      builder: (context, provider, _) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          provider.handleRegisterResult(
-                              context, () => _showSuccessDialog(context));
-                        });
-
-                        return Padding(
-                          padding: const EdgeInsets.all(Constants.padding),
-                          child: Column(
-                            children: [
-                              // input username
-                              createInputField(InputFieldType.username,
-                                  controller: provider.usernameController),
-
-                              // input email
-                              createInputField(InputFieldType.email,
-                                  controller: provider.emailController),
-
-                              // input phone number
-                              createInputField(InputFieldType.phoneNumber,
-                                  controller: provider.phoneNumberController),
-
-                              // input address
-                              createInputField(InputFieldType.address,
-                                  controller: provider.addressController),
-
-                              // input password
-                              createInputField(InputFieldType.password,
-                                  controller: provider.passwordController,
-                                  obscureText: provider.obscurePassword,
-                                  onTogglePasswordVisibility:
-                                      provider.togglePasswordVisibility),
-
-                              //input confirm password
-                              createInputField(InputFieldType.confirmPassword,
-                                  controller:
-                                      provider.confirmPasswordController,
-                                  obscureText: provider.obscureConfirmPassword,
-                                  onTogglePasswordVisibility:
-                                      provider.toggleConfirmPasswordVisibility),
-                              const SizedBox(height: 100),
-                              provider.isLoading
-                                  ? const CircularProgressIndicator()
-                                  : Button(
-                                      text: 'สมัครสมาชิก',
-                                      onTap: () => provider.register(),
-                                      color: Constants.secondaryColor,
-                                      btnSize: 300,
-                                    ),
-                            ],
+                padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE9E4E7)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Constants.primaryColor.withOpacity(0.06),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
                           ),
-                        );
-                      },
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              'assets/images/HotelLogo.jpg',
+                              height: 58,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          const Text(
+                            'สมัครสมาชิก',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF29242A),
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'กรอกข้อมูลเพื่อสร้างบัญชีผู้เข้าพัก',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF777078),
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Consumer<RegisterScreenProvider>(
+                            builder: (context, provider, _) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                provider.handleRegisterResult(
+                                  context,
+                                  () => _showSuccessDialog(context),
+                                );
+                              });
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  createInputField(InputFieldType.username,
+                                      controller: provider.usernameController),
+                                  createInputField(InputFieldType.email,
+                                      controller: provider.emailController),
+                                  createInputField(InputFieldType.phoneNumber,
+                                      controller:
+                                          provider.phoneNumberController),
+                                  createInputField(InputFieldType.address,
+                                      controller: provider.addressController),
+                                  createInputField(
+                                    InputFieldType.password,
+                                    controller: provider.passwordController,
+                                    obscureText: provider.obscurePassword,
+                                    onTogglePasswordVisibility:
+                                        provider.togglePasswordVisibility,
+                                  ),
+                                  createInputField(
+                                    InputFieldType.confirmPassword,
+                                    controller:
+                                        provider.confirmPasswordController,
+                                    obscureText:
+                                        provider.obscureConfirmPassword,
+                                    onTogglePasswordVisibility: provider
+                                        .toggleConfirmPasswordVisibility,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  provider.isLoading
+                                      ? const SizedBox(
+                                          height: 48,
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        )
+                                      : Button(
+                                          text: 'สมัครสมาชิก',
+                                          onTap: () => provider.register(),
+                                          color: Constants.primaryColor,
+                                          btnSize: double.infinity,
+                                          btnHigh: 52,
+                                        ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

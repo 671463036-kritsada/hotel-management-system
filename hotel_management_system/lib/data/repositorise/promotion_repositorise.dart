@@ -3,10 +3,10 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/prom
 import 'package:hotel_management_system/data/model/promotion_model.dart';
 
 abstract class PromotionRepositorise {
-  Future<List<PromotionModel>> getActivePromotions(); 
-  Future<PromotionModel> getPromotionById(String id); 
+  Future<List<PromotionModel>> getActivePromotions();
+  Future<PromotionModel> getPromotionById(String id);
   Future<int> claimPromotion(String promotionId);
-  Future<List<UserCouponModel>> getMyCoupons({String status}); 
+  Future<List<UserCouponModel>> getMyCoupons({String status});
 }
 
 class PromotionRepositoriseImpl implements PromotionRepositorise {
@@ -47,7 +47,8 @@ class PromotionRepositoriseImpl implements PromotionRepositorise {
   }
 
   @override
-  Future<List<UserCouponModel>> getMyCoupons({String status = "available"}) async {
+  Future<List<UserCouponModel>> getMyCoupons(
+      {String status = "available"}) async {
     try {
       return await remoteDataSource.getMyCoupons(status: status);
     } on SocketException {

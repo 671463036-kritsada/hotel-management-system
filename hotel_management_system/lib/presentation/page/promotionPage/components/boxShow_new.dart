@@ -39,6 +39,7 @@ class _BoxshowNewState extends State<BoxshowNew> {
         CarouselSlider(
           carouselController: _controller,
           options: CarouselOptions(
+            height: MediaQuery.of(context).size.width < 700 ? 170 : 270,
             autoPlay: true,
             enlargeCenterPage: true,
             viewportFraction: 1.0,
@@ -51,7 +52,6 @@ class _BoxshowNewState extends State<BoxshowNew> {
           items: widget.images.map((image) {
             return GestureDetector(
               onTap: () {
-                print("TAP DETECTED image id: ${image.id}");
                 widget.onTap?.call(image.id);
               },
               child: ClipRRect(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_management_system/data/data_source/remote_data_source/announcement_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/furniture_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/home_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/houseKeeper_remote.dart';
@@ -6,12 +7,14 @@ import 'package:hotel_management_system/data/data_source/remote_data_source/list
 import 'package:hotel_management_system/data/data_source/remote_data_source/promotion_remote.dart';
 import 'package:hotel_management_system/data/data_source/remote_data_source/register_remote.dart';
 import 'package:hotel_management_system/data/repositorise/furniture_repositorise.dart';
+import 'package:hotel_management_system/data/repositorise/announcement_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/home_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/houseKeeper_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/list_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/promotion_repositorise.dart';
 import 'package:hotel_management_system/data/repositorise/register_repositorise.dart';
 import 'package:hotel_management_system/domain/use_case/furniture_usecase.dart';
+import 'package:hotel_management_system/domain/use_case/announcement_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/extra_bed_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/history_usecase.dart';
 import 'package:hotel_management_system/domain/use_case/home_usecase.dart';
@@ -28,7 +31,9 @@ import 'package:hotel_management_system/presentation/page/listPage/screen/list_s
 import 'package:hotel_management_system/presentation/page/page_route.dart';
 import 'package:hotel_management_system/presentation/page/promotionDetailPage/provider/promotionDetail_provider.dart';
 import 'package:hotel_management_system/presentation/page/promotionDetailPage/screen/promotion_detail_screen.dart';
+import 'package:hotel_management_system/presentation/page/announcementDetailPage/screen/announcement_detail_screen.dart';
 import 'package:hotel_management_system/presentation/page/promotionPage/provider/promotion_provider.dart';
+import 'package:hotel_management_system/presentation/page/promotionPage/provider/announcement_provider.dart';
 import 'package:hotel_management_system/presentation/page/promotionPage/screen/promotion_screen.dart';
 import 'package:hotel_management_system/presentation/page/registerPage/provider/register_screen_provider.dart';
 import 'package:hotel_management_system/presentation/page/registerPage/screen/register_screen.dart';
@@ -189,11 +194,28 @@ RouteFactory onGenerateRoute = (settings) {
           settings: settings);
     case "/promotion_page":
       return MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider(
-                create: (_) => PromotionProvider(PromotionUsecase(
-                    PromotionRepositoriseImpl(
-                        PromotionRemoteDataSourceImpl(DioClient.dio)))),
-                child: PromotionScreen(),
+          builder: (context) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(
+                    create: (_) => PromotionProvider(
+                      PromotionUsecase(
+                        PromotionRepositoriseImpl(
+                          PromotionRemoteDataSourceImpl(DioClient.dio),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ChangeNotifierProvider(
+                    create: (_) => AnnouncementProvider(
+                      AnnouncementUseCase(
+                        AnnouncementRepositoriseImpl(
+                          AnnouncementRemoteDataSourceImpl(DioClient.dio),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                child: const PromotionScreen(),
               ),
           settings: settings);
     case "/promotion_detail_page":
@@ -205,6 +227,11 @@ RouteFactory onGenerateRoute = (settings) {
                 child: PromotionDetailScreen(),
               ),
           settings: settings);
+    case "/announcement_detail_page":
+      return MaterialPageRoute(
+        builder: (context) => const AnnouncementDetailScreen(),
+        settings: settings,
+      );
     case "/profile":
       return MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider(
