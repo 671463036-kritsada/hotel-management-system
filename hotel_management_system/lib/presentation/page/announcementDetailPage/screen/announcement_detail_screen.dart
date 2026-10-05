@@ -33,17 +33,24 @@ class AnnouncementDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (announcement.imageUrl.isNotEmpty)
-                  Image.network(
-                    announcement.imageUrl,
-                    width: double.infinity,
-                    fit: BoxFit.fitWidth,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const SizedBox(
-                      height: 180,
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          color: Colors.grey,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(Constants.borderRadius),
+                      child: Image.network(
+                        announcement.imageUrl,
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const SizedBox(
+                          height: 180,
+                          child: Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -53,18 +60,36 @@ class AnnouncementDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Container(
+                        width: 48,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 14),
+                        decoration: BoxDecoration(
+                          color: Constants.primaryColor,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                       Text(
                         announcement.title,
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          height: 1.4,
+                          height: 1.45,
                         ),
                       ),
                       if (announcement.content.trim().isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        _AnnouncementContent(announcement.content),
+                        const SizedBox(height: 18),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF7F7F8),
+                            borderRadius:
+                                BorderRadius.circular(Constants.borderRadius),
+                          ),
+                          child: _AnnouncementContent(announcement.content),
+                        ),
                       ],
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
