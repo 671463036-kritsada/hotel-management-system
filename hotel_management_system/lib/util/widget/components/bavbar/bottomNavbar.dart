@@ -18,6 +18,9 @@ class Bottomnavbar extends StatelessWidget {
   void navigateToList(BuildContext context) =>
       Navigator.pushNamed(context, "/list_page");
 
+  void navigateToNews(BuildContext context) =>
+      Navigator.pushNamed(context, "/promotion_page");
+
   void navigateToHistory(BuildContext context) =>
       Navigator.pushNamed(context, "/history");
 
@@ -63,6 +66,12 @@ class Bottomnavbar extends StatelessWidget {
                 onTap: () => navigateToList(context),
                 text: "รายการ",
                 icon: Icons.list_alt_outlined),
+          ),
+          Expanded(
+            child: Buttonicon(
+                onTap: () => navigateToNews(context),
+                text: "ข่าวสาร",
+                icon: Icons.campaign_outlined),
           ),
           Expanded(
             child: Buttonicon(

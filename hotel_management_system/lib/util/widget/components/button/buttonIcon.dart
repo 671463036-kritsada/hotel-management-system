@@ -12,7 +12,12 @@ class Buttonicon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      style: OutlinedButton.styleFrom(side: BorderSide.none),
+      style: OutlinedButton.styleFrom(
+        side: BorderSide.none,
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       onPressed: onTap,
       child: Column(
         children: [
