@@ -84,7 +84,7 @@ Future<void> _openLink(String url) async {
   final fixed = url.startsWith('http') ? url : 'https://$url';
   final uri = Uri.tryParse(fixed);
   if (uri == null) return;
-  await launchUrl(uri, mode: LaunchMode.externalApplication);
+  await launchUrl(uri, mode: LaunchMode.inAppWebView);
 }
 
 class _LinkText extends StatefulWidget {
