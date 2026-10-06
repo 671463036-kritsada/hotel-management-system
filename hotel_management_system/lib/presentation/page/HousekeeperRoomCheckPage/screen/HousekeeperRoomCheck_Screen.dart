@@ -38,8 +38,8 @@ const _legendViews = [
   _RoomView(_RoomKind.cleaning, "กำลังทำความสะอาด", Colors.teal,
       Icons.cleaning_services),
   _RoomView(_RoomKind.occupied, "มีแขกพักอยู่", Colors.orange, Icons.person),
-  _RoomView(_RoomKind.doNotDisturb, "ห้ามรบกวน", Colors.deepPurple,
-      Icons.do_not_disturb_on),
+  _RoomView(
+      _RoomKind.doNotDisturb, "ห้ามรบกวน", Colors.red, Icons.do_not_disturb_on),
   _RoomView(
       _RoomKind.review, "รอตรวจสอบ", Colors.blue, Icons.fact_check_outlined),
   _RoomView(

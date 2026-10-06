@@ -35,13 +35,14 @@ class HistoryScreenProvider extends ChangeNotifier {
   }) async {
     try {
       final result = await _useCase.submitReview(
-        bookingId: booking.bookingId ?? '',
+        bookingId: booking.bookingId,
         rating: rating,
         comment: comment,
       );
       if (result) {
         booking.selectedRating = rating;
-        booking.reviewComment = comment.isEmpty ? "ไม่ได้แสดงความคิดเห็น" : comment;
+        booking.reviewComment =
+            comment.isEmpty ? "ไม่ได้แสดงความคิดเห็น" : comment;
         booking.reviewStatus = "ให้คะแนนแล้ว ($rating/5)";
         booking.isReviewed = true;
         notifyListeners();

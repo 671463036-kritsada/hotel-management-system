@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/presentation/page/RoomConditionCheckPage/screen/room_condition_check_screen.dart';
 import 'package:hotel_management_system/util/widget/core/constants.dart';
 
 class Boxshowdatahistory extends StatelessWidget {
   final String roomNumber;
   final String date, payamout, keyBooking, status, textStatus;
   final Color? statusColor;
-  final bool? statusChekin;
   final Widget? ratingWidget;
   final Function()? onTap;
 
@@ -20,12 +18,9 @@ class Boxshowdatahistory extends StatelessWidget {
     required this.textStatus,
     required this.onTap,
     this.statusColor,
-    this.statusChekin,
     this.ratingWidget,
   });
 
-  // ✅ แก้บั๊ก: เดิมมี @override ซ้ำกัน 2 บรรทัดติดกัน เป็น syntax error
-  // ทำให้ไฟล์นี้คอมไพล์ไม่ผ่านทั้งไฟล์ เหลือไว้อันเดียวพอ
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -115,29 +110,6 @@ class Boxshowdatahistory extends StatelessWidget {
                 ],
               ),
             ),
-
-            // --- Footer: ปุ่ม ---
-            if (statusChekin == true)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RoomConditionCheckScreen()),
-                  ),
-                  icon: const Icon(Icons.checklist_outlined, size: 18),
-                  label: const Text("เช็คสภาพห้อง"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 42),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    elevation: 0,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -150,8 +122,7 @@ class Boxshowdatahistory extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey[400]),
         const SizedBox(width: 8),
-        Text("$label  ",
-            style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+        Text("$label  ", style: TextStyle(fontSize: 13, color: Colors.black)),
         Expanded(
           child: Text(value,
               style: TextStyle(

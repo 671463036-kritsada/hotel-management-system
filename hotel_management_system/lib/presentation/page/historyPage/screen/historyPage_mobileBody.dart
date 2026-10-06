@@ -158,19 +158,17 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                           ),
                           ...provider.bookingList
                               .map((booking) => Boxshowdatahistory(
-                                    roomNumber: booking.roomNumber ?? '0',
+                                    roomNumber: booking.roomNumber,
                                     date: booking.formattedCheckIn,
                                     payamout: booking.formattedAmount,
-                                    keyBooking: booking.bookingId ?? '',
-                                    status: booking.reviewStatus ??
-                                        'ยังไม่ได้ให้คะแนน',
-                                    textStatus: booking.reviewComment ??
-                                        'ไม่ได้แสดงความคิดเห็น',
-                                    onTap: (booking.isReviewed ?? false)
+                                    keyBooking: booking.bookingId,
+                                    status: booking.reviewStatus,
+                                    textStatus: booking.reviewComment,
+                                    onTap: booking.isReviewed
                                         ? null
                                         : () => _showRatingBottomSheet(
                                             context, booking),
-                                    ratingWidget: (booking.isReviewed ?? false)
+                                    ratingWidget: booking.isReviewed
                                         ? Row(
                                             children: List.generate(
                                               5,
@@ -178,8 +176,7 @@ class _HistoryScreenMobileBodyState extends State<HistoryScreenMobileBody> {
                                                 Icons.star,
                                                 size: 15,
                                                 color: index <
-                                                        (booking.selectedRating ??
-                                                            0)
+                                                        booking.selectedRating
                                                     ? Colors.amber
                                                     : Colors.grey[300],
                                               ),
