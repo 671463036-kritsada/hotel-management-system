@@ -51,7 +51,5 @@
     <string>แอปต้องการขอเข้าถึงกล้องเพื่อถ่ายรูปบัตรประชาชนสำหรับยืนยันการจอง</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>แอปต้องการเข้าถึงคลังภาพเพื่อเลือกรูปหลักฐานการโอนเงิน</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>แอปต้องการเข้าถึงไมโครโฟน (กรณีมีการบันทึกวิดีโอ)</string>
 </dict>
 </plist>
